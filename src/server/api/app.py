@@ -61,6 +61,16 @@ from .schemas import (
 )
 from .single_user import service
 
+from fastapi.middleware.cors import CORSMiddleware
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:8080"],
+    allow_methods=["GET", "POST", "OPTIONS"],
+    allow_headers=["*"],
+)
+
+
 log = structlog.get_logger(module="api.app")
 
 #: Path params that identify "who"/"what" a request was about, for the api.request log line.
