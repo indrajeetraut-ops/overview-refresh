@@ -1,0 +1,118 @@
+# Dashboard API config (dashboard-api-implementation plan). storage config lives in its own
+# module YAML (config/storage.yaml); the API references it below, never re-declares a DSN --
+# same convention as ingest.
+api:
+  storage_config: config/storage.yaml
+
+  http:
+    host: "0.0.0.0"
+    port: 8090
+    workers: 2   # api-latency plan D1: matches the container's 2 vCPUs
+
+  insights:
+    min_sessions: 5          # PRACT §4.3: below this, correlation-backed cards fall back to
+                              # the citation-only form
+
+  story:
+    min_sessions_for_band: 5 # storytelling §7 cold-start gate; the band itself is parked
+
+  # X2 quality-matrix cutoffs (EFF §4.1, X2-config). Query-time, no refold on change. Making cost
+  # is high when the PR costs at/above `making_cost_high_percentile` of its repo's priced merged
+  # PRs over the `making_cost_trailing_days` up to its own merge (unlabeled below
+  # `making_cost_min_prs`). The acceptance-cost axis trips if ANY of review_rounds/reopens/
+  # rework_ratio is at/above its cutoff; an uncaptured signal (None) never contributes.
+  quality:
+    making_cost_high_percentile: 0.75
+    making_cost_trailing_days: 90
+    making_cost_min_prs: 5
+    review_rounds_high: 1
+    reopens_high: 1
+    rework_ratio_high: 0.5
+
+  # Seat utilization (cost-based, docs/plan/2026-09-26-cost-based-seat-utilization.md).
+  # Query-time, never stored -- no refold. A seat's allowance is its team's period budget /
+  # members. A whole period or a period-to-date window gets the full period figure; any other
+  # window is scaled by days over the actual period length. Seats that started inside the
+  # period are prorated from their start.
+  utilization:
+    over: 0.95                # usage >= this share of the window's allowance -> "over"
+    under: 0.40               # usage <  this share -> "under" / low use
+    new_seat_grace_days: 14   # no low-use flag within this many days of a seat's first activity
+    room_to_save:
+      min_share: 0.10         # recoverable / spend
+      min_usd_per_30d: 10     # recoverable floor, scaled to the window
+
+  # A5-peer-task-mix: cheapest_peer's $/KLOC gates, over LINKED work only (merged PRs with linked
+  # sessions, and those sessions' cost). max_pr_lines (a PR above it isn't sized at all) is
+  # disabled -- it dropped real spend and was gameable; generated/vendored lines still count
+  # until file-level handling lands (TODO(peer-generated-lines), config.py). Subject and every
+  # candidate need >= min_linked_prs linked PRs, a linked share
+  # of their sizable merged PRs >= min_linked_share, and >= min_lines_for_compare linked lines;
+  # band_low/band_high are an optional wide ratio band on linked lines (candidate / subject).
+  peer:
+    max_pr_lines: null
+    min_linked_prs: 3
+    min_linked_share: 0.5
+    min_lines_for_compare: 200
+    band_low: 0.2
+    band_high: 5.0
+
+  # Budget forecast (docs/plan/2026-10-05-forecast-dashboard-integration.md §3.8), query-time:
+  # a budget edit or a change here takes effect on the next request, no batch rerun. A budget
+  # runway is `lasts` below `runway_lasts_below` chance of running out, `runs_out` above
+  # `runway_runs_out_above`, else `at_risk`; below `runway_min_probability` no run-out date is
+  # given. The planner's gap is taken at `planning_confidence`. Required order:
+  # runway_min_probability <= runway_lasts_below <= runway_runs_out_above.
+  forecast:
+    runway_lasts_below: 0.2
+    runway_runs_out_above: 0.8
+    runway_min_probability: 0.05
+    planning_confidence: 0.8
+
+  dashboard:
+    flags:
+      costly_usd_floor: 5.0
+      long_running_duration_s: 3600
+      compaction_heavy_count: 2
+      fan_out_subagent_count: 3
+      error_retry_count: 1
+      cold_cache_hit_ratio: 0.5
+    precedence:
+      tokens: [otel_measures, otel_ledger, jsonl_models]
+      cost: [otel_vendor, estimated]
+
+  # X4 model-fit (model-fit-reasoning-demand-rework plan): judge a segment's model-fit by
+  # how much reasoning the work actually demanded, not by whether it produced code. Query-
+  # time, no refold on change. Numbers below are NOT final -- they reproduce today's stated
+  # intent (PLAN/COMPREHEND are demanding; a rework loop is demanding; MISC is mechanical)
+  # and need a product pass on the exact weights/cutoffs.
+  model_fit:
+    # model name substring -> tier (was hardcoded _MODEL_TIER_HIGH/LOW_SUBSTR); anything
+    # matching neither list is "mid".
+    tier_by_name:
+      high: [opus]
+      low: [haiku]
+    # representative model per tier, for the counterfactual savings ratio (§3.4) only --
+    # priced at each flagged segment's own date, never a booked spend.
+    tier_reference_model:
+      high: claude-opus-4-8
+      mid: claude-sonnet-5
+      low: claude-haiku-4-5-20251001
+    # reasoning-demand scorer (§3.1): a small weighted tally over a segment's own label/
+    # beats/files, mapped to low/medium/high by the two cutoffs below.
+    demand:
+      label_weights:
+        PLAN: 3
+        COMPREHEND: 3
+        DESIGN: 2
+        REVIEW: 0
+        MISC: -1
+      beat_weights:
+        revision_loop: 3
+        stall: 2
+        delegation: 2
+        context_squeeze: 1
+      cross_file_at: 4        # files touched at/above this adds a cross-file reasoning signal
+      cross_file_weight: 1
+      demand_high_at: 3       # total tally >= this -> "high"
+      demand_low_below: 1     # total tally < this  -> "low" (else "medium")

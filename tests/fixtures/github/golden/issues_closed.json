@@ -1,0 +1,57 @@
+{
+  "artifacts": [
+    {
+      "after_sha": null,
+      "artifact_id": "github:41213765:issue:318",
+      "author_email": null,
+      "author_login": "akhuteta",
+      "base_branch": null,
+      "before_sha": null,
+      "branch": null,
+      "closed_at": "2026-09-04T16:30:00Z",
+      "commit_shas": null,
+      "created_at": "2026-09-01T10:00:00Z",
+      "files": null,
+      "info": {
+        "github.assignees": [
+          "akhuteta"
+        ]
+      },
+      "integration_method": null,
+      "is_bot": false,
+      "kind": "issue",
+      "labels": [
+        "auth",
+        "perf"
+      ],
+      "linked_issue": null,
+      "merge_commit_sha": null,
+      "merged_at": null,
+      "milestone": "Sprint 21",
+      "number": 318,
+      "org_id": "org_test",
+      "parent_artifact_id": null,
+      "repo_id": "github:41213765",
+      "reverts_sha": null,
+      "sha": null,
+      "state": "closed",
+      "stats": {
+        "comment_count": 4
+      },
+      "title": "Async auth middleware",
+      "updated_at": "2026-09-04T16:30:00Z",
+      "user_id": null
+    }
+  ],
+  "bump_counters": [],
+  "installation": null,
+  "issue_links": null,
+  "mapped": true,
+  "merge_commit_sha": null,
+  "pr_state_event": null,
+  "push_after": null,
+  "push_before": null,
+  "push_commit_shas": null,
+  "push_integration_method": null,
+  "repos": []
+}

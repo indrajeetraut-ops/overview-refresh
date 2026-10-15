@@ -1,0 +1,1892 @@
+{
+  "elapsed_seconds": 14.334209833759815,
+  "schema_version": 1,
+  "stages": [
+    {
+      "commands": [
+        {
+          "argv": [
+            "utils/forecast.sh",
+            "--config",
+            "forecast/forecast.yaml",
+            "--output",
+            "forecast/run",
+            "--force",
+            "--unit",
+            "month",
+            "--offset",
+            "1",
+            "--periods",
+            "1"
+          ],
+          "elapsed_seconds": 6.148665000218898,
+          "exit_code": 0,
+          "status": "complete",
+          "stderr_tail": null,
+          "summary": {
+            "completed_scopes": 9,
+            "diagnostics": {
+              "known_events": [
+                {
+                  "end_date": "2026-09-18",
+                  "factor_max": 1.549193703248565,
+                  "factor_mean": 1.3997237237523439,
+                  "factor_min": 1.2505809269701607,
+                  "level": "org",
+                  "multiplier": 1.4,
+                  "name": "org",
+                  "spread": 0.15,
+                  "start_date": "2026-09-14"
+                }
+              ],
+              "not_applicable_models": [],
+              "runtime": {
+                "cpu_measurement": "parent delta plus observed child CPU; short-lived children may be missed",
+                "cpu_system_seconds": 0.007052747,
+                "cpu_user_seconds": 0.060232456999999996,
+                "measurement_limitations": [
+                  "resource timing excludes final diagnostics/report serialization and atomic manifest publication; output_bytes includes every manifest-listed artifact and excludes the manifest"
+                ],
+                "memory_measurement": "sampled sum of parent and live child RSS",
+                "memory_sample_count": 48,
+                "memory_sample_interval_seconds": 0.05,
+                "numerical_threads": 1,
+                "os_process_lifetime_peak_rss_bytes": 211873792,
+                "output_bytes": 9223611,
+                "peak_rss_bytes": 211865600,
+                "platform": "macOS-26.5.2-x86_64-i386-64bit-Mach-O",
+                "stage_measurement": "preparation and simulation are summed worker wall time; other stages are coordinator wall time",
+                "stage_seconds": {
+                  "artifact_staging": 0.026466083247214556,
+                  "config": 0.0044279578141868114,
+                  "input": 0.6366820833645761,
+                  "model_and_paths": 2.1965450001880527,
+                  "preparation": 1.8701962074264884,
+                  "simulation": 0.09973800182342529,
+                  "summaries": 0.03851150022819638
+                },
+                "versions": {
+                  "matplotlib": "3.11.2",
+                  "numpy": "2.4.6",
+                  "pandas": "3.0.5",
+                  "plotly": "7.0.0",
+                  "psutil": "7.2.2",
+                  "scipy": "1.17.1",
+                  "statsmodels": "0.15.0",
+                  "threadpoolctl": "3.6.0"
+                },
+                "wall_seconds": 2.995212957728654,
+                "workers": 1,
+                "workload": {
+                  "internal_days": 32,
+                  "paths": 1000,
+                  "requested_days": 30,
+                  "series": 36
+                }
+              },
+              "schema_version": 1,
+              "series": [
+                {
+                  "active_day_average_tokens": 13173018.25,
+                  "assumptions": [
+                    "uncalibrated_model_estimate",
+                    "fixed_allocation_shares",
+                    "common_residual_window",
+                    "known_event_applied"
+                  ],
+                  "correction": {
+                    "corrected_tokens": 394576748334.89636,
+                    "negative_count": 0,
+                    "negative_fraction": 0.0,
+                    "passed": true,
+                    "ratio": 0.0,
+                    "removed_tokens": 0.0,
+                    "tolerance": 0.05
+                  },
+                  "covered_days": 60,
+                  "fit_attempts": [
+                    {
+                      "converged": true,
+                      "damped_trend": true,
+                      "iterations": 40,
+                      "reason": null,
+                      "seasonal": "add",
+                      "trend": "add",
+                      "warnings": []
+                    }
+                  ],
+                  "history_end": "2026-08-29",
+                  "history_start": "2026-07-01",
+                  "last_active_date": "2026-08-29",
+                  "reasons": [],
+                  "recent_total": 366331371.0,
+                  "sampling_days": 60,
+                  "sampling_end": "2026-08-29",
+                  "sampling_start": "2026-07-01",
+                  "series_id": "ef015d311a4f9a331cad21ffbd42e710944b53b5cf29ff0fd6b4373e03563d53",
+                  "startup_source": "observed",
+                  "startup_start": "2026-07-01"
+                },
+                {
+                  "active_day_average_tokens": 39546877.4,
+                  "assumptions": [
+                    "uncalibrated_model_estimate",
+                    "fixed_allocation_shares",
+                    "common_residual_window",
+                    "known_event_applied"
+                  ],
+                  "correction": {
+                    "corrected_tokens": 1185209091817.5447,
+                    "negative_count": 0,
+                    "negative_fraction": 0.0,
+                    "passed": true,
+                    "ratio": 0.0,
+                    "removed_tokens": 0.0,
+                    "tolerance": 0.05
+                  },
+                  "covered_days": 60,
+                  "fit_attempts": [
+                    {
+                      "converged": true,
+                      "damped_trend": true,
+                      "iterations": 42,
+                      "reason": null,
+                      "seasonal": "add",
+                      "trend": "add",
+                      "warnings": []
+                    }
+                  ],
+                  "history_end": "2026-08-29",
+                  "history_start": "2026-07-01",
+                  "last_active_date": "2026-08-29",
+                  "reasons": [],
+                  "recent_total": 1099953883.0,
+                  "sampling_days": 60,
+                  "sampling_end": "2026-08-29",
+                  "sampling_start": "2026-07-01",
+                  "series_id": "110f5be02ea836d293e6634e1e2542075f272da5952be58f37e578150a68ace2",
+                  "startup_source": "observed",
+                  "startup_start": "2026-07-01"
+                },
+                {
+                  "active_day_average_tokens": 8821773.5,
+                  "assumptions": [
+                    "uncalibrated_model_estimate",
+                    "fixed_allocation_shares",
+                    "common_residual_window",
+                    "known_event_applied"
+                  ],
+                  "correction": {
+                    "corrected_tokens": 263904570607.10324,
+                    "negative_count": 0,
+                    "negative_fraction": 0.0,
+                    "passed": true,
+                    "ratio": 0.0,
+                    "removed_tokens": 0.0,
+                    "tolerance": 0.05
+                  },
+                  "covered_days": 60,
+                  "fit_attempts": [
+                    {
+                      "converged": true,
+                      "damped_trend": true,
+                      "iterations": 41,
+                      "reason": null,
+                      "seasonal": "add",
+                      "trend": "add",
+                      "warnings": []
+                    }
+                  ],
+                  "history_end": "2026-08-29",
+                  "history_start": "2026-07-01",
+                  "last_active_date": "2026-08-29",
+                  "reasons": [],
+                  "recent_total": 244649243.0,
+                  "sampling_days": 60,
+                  "sampling_end": "2026-08-29",
+                  "sampling_start": "2026-07-01",
+                  "series_id": "684d2cc7c4799f0304981941220d66ecddc0e6ff5ea7ec76c8503e4ab947451a",
+                  "startup_source": "observed",
+                  "startup_start": "2026-07-01"
+                },
+                {
+                  "active_day_average_tokens": 26411245.05,
+                  "assumptions": [
+                    "uncalibrated_model_estimate",
+                    "fixed_allocation_shares",
+                    "common_residual_window",
+                    "known_event_applied"
+                  ],
+                  "correction": {
+                    "corrected_tokens": 790765595049.3251,
+                    "negative_count": 0,
+                    "negative_fraction": 0.0,
+                    "passed": true,
+                    "ratio": 0.0,
+                    "removed_tokens": 0.0,
+                    "tolerance": 0.05
+                  },
+                  "covered_days": 60,
+                  "fit_attempts": [
+                    {
+                      "converged": true,
+                      "damped_trend": true,
+                      "iterations": 36,
+                      "reason": null,
+                      "seasonal": "add",
+                      "trend": "add",
+                      "warnings": []
+                    }
+                  ],
+                  "history_end": "2026-08-29",
+                  "history_start": "2026-07-01",
+                  "last_active_date": "2026-08-29",
+                  "reasons": [],
+                  "recent_total": 733944315.0,
+                  "sampling_days": 60,
+                  "sampling_end": "2026-08-29",
+                  "sampling_start": "2026-07-01",
+                  "series_id": "ef91802c368aa166b8597825b6cf7c475dcdadb23176e242ce4e1bd42066f8e3",
+                  "startup_source": "observed",
+                  "startup_start": "2026-07-01"
+                },
+                {
+                  "active_day_average_tokens": 1558349.4166666667,
+                  "assumptions": [
+                    "uncalibrated_model_estimate",
+                    "fixed_allocation_shares",
+                    "common_residual_window",
+                    "known_event_applied"
+                  ],
+                  "correction": {
+                    "corrected_tokens": 45711755579.07211,
+                    "negative_count": 0,
+                    "negative_fraction": 0.0,
+                    "passed": true,
+                    "ratio": 0.0,
+                    "removed_tokens": 0.0,
+                    "tolerance": 0.05
+                  },
+                  "covered_days": 60,
+                  "fit_attempts": [
+                    {
+                      "converged": true,
+                      "damped_trend": true,
+                      "iterations": 49,
+                      "reason": null,
+                      "seasonal": "add",
+                      "trend": "add",
+                      "warnings": []
+                    }
+                  ],
+                  "history_end": "2026-08-29",
+                  "history_start": "2026-07-01",
+                  "last_active_date": "2026-08-29",
+                  "reasons": [],
+                  "recent_total": 42015524.0,
+                  "sampling_days": 60,
+                  "sampling_end": "2026-08-29",
+                  "sampling_start": "2026-07-01",
+                  "series_id": "88d1851cfa900cf6f72b543410d0fb9a3c674f95b8b51d3db6700fd0aa9b098e",
+                  "startup_source": "observed",
+                  "startup_start": "2026-07-01"
+                },
+                {
+                  "active_day_average_tokens": 4729565.966666667,
+                  "assumptions": [
+                    "uncalibrated_model_estimate",
+                    "fixed_allocation_shares",
+                    "common_residual_window",
+                    "known_event_applied"
+                  ],
+                  "correction": {
+                    "corrected_tokens": 139503191335.30902,
+                    "negative_count": 0,
+                    "negative_fraction": 0.0,
+                    "passed": true,
+                    "ratio": 0.0,
+                    "removed_tokens": 0.0,
+                    "tolerance": 0.05
+                  },
+                  "covered_days": 60,
+                  "fit_attempts": [
+                    {
+                      "converged": true,
+                      "damped_trend": true,
+                      "iterations": 107,
+                      "reason": null,
+                      "seasonal": "add",
+                      "trend": "add",
+                      "warnings": []
+                    }
+                  ],
+                  "history_end": "2026-08-29",
+                  "history_start": "2026-07-01",
+                  "last_active_date": "2026-08-29",
+                  "reasons": [],
+                  "recent_total": 128883064.0,
+                  "sampling_days": 60,
+                  "sampling_end": "2026-08-29",
+                  "sampling_start": "2026-07-01",
+                  "series_id": "dc8512d964f1ed70713f47f37cc8a821a98f13af1d2ad95553f603661b4858db",
+                  "startup_source": "observed",
+                  "startup_start": "2026-07-01"
+                },
+                {
+                  "active_day_average_tokens": 1056151.7666666666,
+                  "assumptions": [
+                    "uncalibrated_model_estimate",
+                    "fixed_allocation_shares",
+                    "common_residual_window",
+                    "known_event_applied"
+                  ],
+                  "correction": {
+                    "corrected_tokens": 31123092202.072117,
+                    "negative_count": 0,
+                    "negative_fraction": 0.0,
+                    "passed": true,
+                    "ratio": 0.0,
+                    "removed_tokens": 0.0,
+                    "tolerance": 0.05
+                  },
+                  "covered_days": 60,
+                  "fit_attempts": [
+                    {
+                      "converged": true,
+                      "damped_trend": true,
+                      "iterations": 43,
+                      "reason": null,
+                      "seasonal": "add",
+                      "trend": "add",
+                      "warnings": []
+                    }
+                  ],
+                  "history_end": "2026-08-29",
+                  "history_start": "2026-07-01",
+                  "last_active_date": "2026-08-29",
+                  "reasons": [],
+                  "recent_total": 28662634.0,
+                  "sampling_days": 60,
+                  "sampling_end": "2026-08-29",
+                  "sampling_start": "2026-07-01",
+                  "series_id": "c45898a0a86d5d3e789f41f60632ea6354bd32551a909dba789ad2e1326320b3",
+                  "startup_source": "observed",
+                  "startup_start": "2026-07-01"
+                },
+                {
+                  "active_day_average_tokens": 3142372.25,
+                  "assumptions": [
+                    "uncalibrated_model_estimate",
+                    "fixed_allocation_shares",
+                    "common_residual_window",
+                    "known_event_applied"
+                  ],
+                  "correction": {
+                    "corrected_tokens": 92693564465.38539,
+                    "negative_count": 0,
+                    "negative_fraction": 0.0,
+                    "passed": true,
+                    "ratio": 0.0,
+                    "removed_tokens": 0.0,
+                    "tolerance": 0.05
+                  },
+                  "covered_days": 60,
+                  "fit_attempts": [
+                    {
+                      "converged": true,
+                      "damped_trend": true,
+                      "iterations": 63,
+                      "reason": null,
+                      "seasonal": "add",
+                      "trend": "add",
+                      "warnings": []
+                    }
+                  ],
+                  "history_end": "2026-08-29",
+                  "history_start": "2026-07-01",
+                  "last_active_date": "2026-08-29",
+                  "reasons": [],
+                  "recent_total": 85782503.0,
+                  "sampling_days": 60,
+                  "sampling_end": "2026-08-29",
+                  "sampling_start": "2026-07-01",
+                  "series_id": "d984353864c9031a51b22010e68f8bc6fb9ef4ef79beb375fa6a88cb3d83da84",
+                  "startup_source": "observed",
+                  "startup_start": "2026-07-01"
+                },
+                {
+                  "active_day_average_tokens": 3055532.95,
+                  "assumptions": [
+                    "uncalibrated_model_estimate",
+                    "fixed_allocation_shares",
+                    "common_residual_window",
+                    "known_event_applied"
+                  ],
+                  "correction": {
+                    "corrected_tokens": 91424658995.36127,
+                    "negative_count": 0,
+                    "negative_fraction": 0.0,
+                    "passed": true,
+                    "ratio": 0.0,
+                    "removed_tokens": 0.0,
+                    "tolerance": 0.05
+                  },
+                  "covered_days": 60,
+                  "fit_attempts": [
+                    {
+                      "converged": true,
+                      "damped_trend": true,
+                      "iterations": 60,
+                      "reason": null,
+                      "seasonal": "add",
+                      "trend": "add",
+                      "warnings": []
+                    }
+                  ],
+                  "history_end": "2026-08-29",
+                  "history_start": "2026-07-01",
+                  "last_active_date": "2026-08-29",
+                  "reasons": [],
+                  "recent_total": 84613271.0,
+                  "sampling_days": 60,
+                  "sampling_end": "2026-08-29",
+                  "sampling_start": "2026-07-01",
+                  "series_id": "7902df79018690c053555bd5409a11e5f2e6f439787e208712a784e174acad37",
+                  "startup_source": "observed",
+                  "startup_start": "2026-07-01"
+                },
+                {
+                  "active_day_average_tokens": 9166340.683333334,
+                  "assumptions": [
+                    "uncalibrated_model_estimate",
+                    "fixed_allocation_shares",
+                    "common_residual_window",
+                    "known_event_applied"
+                  ],
+                  "correction": {
+                    "corrected_tokens": 273750498255.79626,
+                    "negative_count": 0,
+                    "negative_fraction": 0.0,
+                    "passed": true,
+                    "ratio": 0.0,
+                    "removed_tokens": 0.0,
+                    "tolerance": 0.05
+                  },
+                  "covered_days": 60,
+                  "fit_attempts": [
+                    {
+                      "converged": true,
+                      "damped_trend": true,
+                      "iterations": 113,
+                      "reason": null,
+                      "seasonal": "add",
+                      "trend": "add",
+                      "warnings": []
+                    }
+                  ],
+                  "history_end": "2026-08-29",
+                  "history_start": "2026-07-01",
+                  "last_active_date": "2026-08-29",
+                  "reasons": [],
+                  "recent_total": 255012397.0,
+                  "sampling_days": 60,
+                  "sampling_end": "2026-08-29",
+                  "sampling_start": "2026-07-01",
+                  "series_id": "705e922e74cf71db97c83f820da79fbc097b775d32e0be532c83077efd48115b",
+                  "startup_source": "observed",
+                  "startup_start": "2026-07-01"
+                },
+                {
+                  "active_day_average_tokens": 2037699.4333333333,
+                  "assumptions": [
+                    "uncalibrated_model_estimate",
+                    "fixed_allocation_shares",
+                    "common_residual_window",
+                    "known_event_applied"
+                  ],
+                  "correction": {
+                    "corrected_tokens": 61852028226.55279,
+                    "negative_count": 0,
+                    "negative_fraction": 0.0,
+                    "passed": true,
+                    "ratio": 0.0,
+                    "removed_tokens": 0.0,
+                    "tolerance": 0.05
+                  },
+                  "covered_days": 60,
+                  "fit_attempts": [
+                    {
+                      "converged": true,
+                      "damped_trend": true,
+                      "iterations": 50,
+                      "reason": null,
+                      "seasonal": "add",
+                      "trend": "add",
+                      "warnings": []
+                    }
+                  ],
+                  "history_end": "2026-08-29",
+                  "history_start": "2026-07-01",
+                  "last_active_date": "2026-08-29",
+                  "reasons": [],
+                  "recent_total": 57119283.0,
+                  "sampling_days": 60,
+                  "sampling_end": "2026-08-29",
+                  "sampling_start": "2026-07-01",
+                  "series_id": "b545e8a804c2881bff6a2543d850bcf7a23481e12aa670660055b47664838558",
+                  "startup_source": "observed",
+                  "startup_start": "2026-07-01"
+                },
+                {
+                  "active_day_average_tokens": 6098580.566666666,
+                  "assumptions": [
+                    "uncalibrated_model_estimate",
+                    "fixed_allocation_shares",
+                    "common_residual_window",
+                    "known_event_applied"
+                  ],
+                  "correction": {
+                    "corrected_tokens": 182111170969.41275,
+                    "negative_count": 0,
+                    "negative_fraction": 0.0,
+                    "passed": true,
+                    "ratio": 0.0,
+                    "removed_tokens": 0.0,
+                    "tolerance": 0.05
+                  },
+                  "covered_days": 60,
+                  "fit_attempts": [
+                    {
+                      "converged": true,
+                      "damped_trend": true,
+                      "iterations": 61,
+                      "reason": null,
+                      "seasonal": "add",
+                      "trend": "add",
+                      "warnings": []
+                    }
+                  ],
+                  "history_end": "2026-08-29",
+                  "history_start": "2026-07-01",
+                  "last_active_date": "2026-08-29",
+                  "reasons": [],
+                  "recent_total": 169881027.0,
+                  "sampling_days": 60,
+                  "sampling_end": "2026-08-29",
+                  "sampling_start": "2026-07-01",
+                  "series_id": "75e383ac30eecb1b9277cf14fc2dbb17df9cc91242c7c1b067258873a9c073e3",
+                  "startup_source": "observed",
+                  "startup_start": "2026-07-01"
+                },
+                {
+                  "active_day_average_tokens": 8559135.883333333,
+                  "assumptions": [
+                    "uncalibrated_model_estimate",
+                    "fixed_allocation_shares",
+                    "common_residual_window",
+                    "known_event_applied"
+                  ],
+                  "correction": {
+                    "corrected_tokens": 258106670796.02487,
+                    "negative_count": 0,
+                    "negative_fraction": 0.0,
+                    "passed": true,
+                    "ratio": 0.0,
+                    "removed_tokens": 0.0,
+                    "tolerance": 0.05
+                  },
+                  "covered_days": 60,
+                  "fit_attempts": [
+                    {
+                      "converged": true,
+                      "damped_trend": true,
+                      "iterations": 75,
+                      "reason": null,
+                      "seasonal": "add",
+                      "trend": "add",
+                      "warnings": []
+                    }
+                  ],
+                  "history_end": "2026-08-29",
+                  "history_start": "2026-07-01",
+                  "last_active_date": "2026-08-29",
+                  "reasons": [],
+                  "recent_total": 239702576.0,
+                  "sampling_days": 60,
+                  "sampling_end": "2026-08-29",
+                  "sampling_start": "2026-07-01",
+                  "series_id": "d63df2dd6ee9bab228c75b09ab691eadbbd2c69afa02843297db7d1735572818",
+                  "startup_source": "observed",
+                  "startup_start": "2026-07-01"
+                },
+                {
+                  "active_day_average_tokens": 25650970.75,
+                  "assumptions": [
+                    "uncalibrated_model_estimate",
+                    "fixed_allocation_shares",
+                    "common_residual_window",
+                    "known_event_applied"
+                  ],
+                  "correction": {
+                    "corrected_tokens": 771027644136.0935,
+                    "negative_count": 0,
+                    "negative_fraction": 0.0,
+                    "passed": true,
+                    "ratio": 0.0,
+                    "removed_tokens": 0.0,
+                    "tolerance": 0.05
+                  },
+                  "covered_days": 60,
+                  "fit_attempts": [
+                    {
+                      "converged": true,
+                      "damped_trend": true,
+                      "iterations": 45,
+                      "reason": null,
+                      "seasonal": "add",
+                      "trend": "add",
+                      "warnings": []
+                    }
+                  ],
+                  "history_end": "2026-08-29",
+                  "history_start": "2026-07-01",
+                  "last_active_date": "2026-08-29",
+                  "reasons": [],
+                  "recent_total": 716058422.0,
+                  "sampling_days": 60,
+                  "sampling_end": "2026-08-29",
+                  "sampling_start": "2026-07-01",
+                  "series_id": "2a36201dc7e95fb947d7453cff90811b3b2369a6719a29a08ef7687d70ca461f",
+                  "startup_source": "observed",
+                  "startup_start": "2026-07-01"
+                },
+                {
+                  "active_day_average_tokens": 5727922.3,
+                  "assumptions": [
+                    "uncalibrated_model_estimate",
+                    "fixed_allocation_shares",
+                    "common_residual_window",
+                    "known_event_applied"
+                  ],
+                  "correction": {
+                    "corrected_tokens": 171568420086.26144,
+                    "negative_count": 0,
+                    "negative_fraction": 0.0,
+                    "passed": true,
+                    "ratio": 0.0,
+                    "removed_tokens": 0.0,
+                    "tolerance": 0.05
+                  },
+                  "covered_days": 60,
+                  "fit_attempts": [
+                    {
+                      "converged": true,
+                      "damped_trend": true,
+                      "iterations": 34,
+                      "reason": null,
+                      "seasonal": "add",
+                      "trend": "add",
+                      "warnings": []
+                    }
+                  ],
+                  "history_end": "2026-08-29",
+                  "history_start": "2026-07-01",
+                  "last_active_date": "2026-08-29",
+                  "reasons": [],
+                  "recent_total": 158867326.0,
+                  "sampling_days": 60,
+                  "sampling_end": "2026-08-29",
+                  "sampling_start": "2026-07-01",
+                  "series_id": "fad5731fc142be5854dbac3dce1646251249a6420fed0311e638e4a38facebd9",
+                  "startup_source": "observed",
+                  "startup_start": "2026-07-01"
+                },
+                {
+                  "active_day_average_tokens": 17170292.233333334,
+                  "assumptions": [
+                    "uncalibrated_model_estimate",
+                    "fixed_allocation_shares",
+                    "common_residual_window",
+                    "known_event_applied"
+                  ],
+                  "correction": {
+                    "corrected_tokens": 515925860264.73926,
+                    "negative_count": 0,
+                    "negative_fraction": 0.0,
+                    "passed": true,
+                    "ratio": 0.0,
+                    "removed_tokens": 0.0,
+                    "tolerance": 0.05
+                  },
+                  "covered_days": 60,
+                  "fit_attempts": [
+                    {
+                      "converged": true,
+                      "damped_trend": true,
+                      "iterations": 48,
+                      "reason": null,
+                      "seasonal": "add",
+                      "trend": "add",
+                      "warnings": []
+                    }
+                  ],
+                  "history_end": "2026-08-29",
+                  "history_start": "2026-07-01",
+                  "last_active_date": "2026-08-29",
+                  "reasons": [],
+                  "recent_total": 478280785.0,
+                  "sampling_days": 60,
+                  "sampling_end": "2026-08-29",
+                  "sampling_start": "2026-07-01",
+                  "series_id": "17a8c89e3d3e8a74b63fdfe6da38fe67d8d1615fbfe145148245b1d42f50b762",
+                  "startup_source": "observed",
+                  "startup_start": "2026-07-01"
+                },
+                {
+                  "active_day_average_tokens": 1084758.4,
+                  "assumptions": [
+                    "uncalibrated_model_estimate",
+                    "fixed_allocation_shares",
+                    "common_residual_window",
+                    "known_event_applied"
+                  ],
+                  "correction": {
+                    "corrected_tokens": 30924165760.2406,
+                    "negative_count": 328,
+                    "negative_fraction": 0.010933333333333333,
+                    "passed": true,
+                    "ratio": 0.0005855276698864667,
+                    "removed_tokens": 18106954.720776536,
+                    "tolerance": 0.05
+                  },
+                  "covered_days": 60,
+                  "fit_attempts": [
+                    {
+                      "converged": true,
+                      "damped_trend": true,
+                      "iterations": 42,
+                      "reason": null,
+                      "seasonal": "add",
+                      "trend": "add",
+                      "warnings": []
+                    }
+                  ],
+                  "history_end": "2026-08-29",
+                  "history_start": "2026-07-01",
+                  "last_active_date": "2026-08-29",
+                  "reasons": [],
+                  "recent_total": 27871856.0,
+                  "sampling_days": 60,
+                  "sampling_end": "2026-08-29",
+                  "sampling_start": "2026-07-01",
+                  "series_id": "0dd93559d894e87b64dfd5e88efa2aef3e34dc634d346f7ef3c4d42ff2620565",
+                  "startup_source": "observed",
+                  "startup_start": "2026-07-01"
+                },
+                {
+                  "active_day_average_tokens": 3302610.316666667,
+                  "assumptions": [
+                    "uncalibrated_model_estimate",
+                    "fixed_allocation_shares",
+                    "common_residual_window",
+                    "known_event_applied"
+                  ],
+                  "correction": {
+                    "corrected_tokens": 94796474185.14131,
+                    "negative_count": 402,
+                    "negative_fraction": 0.0134,
+                    "passed": true,
+                    "ratio": 0.0004433443086867142,
+                    "removed_tokens": 42027477.31354942,
+                    "tolerance": 0.05
+                  },
+                  "covered_days": 60,
+                  "fit_attempts": [
+                    {
+                      "converged": true,
+                      "damped_trend": true,
+                      "iterations": 47,
+                      "reason": null,
+                      "seasonal": "add",
+                      "trend": "add",
+                      "warnings": []
+                    }
+                  ],
+                  "history_end": "2026-08-29",
+                  "history_start": "2026-07-01",
+                  "last_active_date": "2026-08-29",
+                  "reasons": [],
+                  "recent_total": 84944313.0,
+                  "sampling_days": 60,
+                  "sampling_end": "2026-08-29",
+                  "sampling_start": "2026-07-01",
+                  "series_id": "a9d47a8a36ba76317ce97296eb738a0fce21259a1833a537e213037d9c7b6d01",
+                  "startup_source": "observed",
+                  "startup_start": "2026-07-01"
+                },
+                {
+                  "active_day_average_tokens": 743088.9833333333,
+                  "assumptions": [
+                    "uncalibrated_model_estimate",
+                    "fixed_allocation_shares",
+                    "common_residual_window",
+                    "known_event_applied"
+                  ],
+                  "correction": {
+                    "corrected_tokens": 21347564360.857567,
+                    "negative_count": 466,
+                    "negative_fraction": 0.015533333333333333,
+                    "passed": true,
+                    "ratio": 0.000756543481381788,
+                    "removed_tokens": 16150360.660584968,
+                    "tolerance": 0.05
+                  },
+                  "covered_days": 60,
+                  "fit_attempts": [
+                    {
+                      "converged": true,
+                      "damped_trend": true,
+                      "iterations": 46,
+                      "reason": null,
+                      "seasonal": "add",
+                      "trend": "add",
+                      "warnings": []
+                    }
+                  ],
+                  "history_end": "2026-08-29",
+                  "history_start": "2026-07-01",
+                  "last_active_date": "2026-08-29",
+                  "reasons": [],
+                  "recent_total": 19112588.0,
+                  "sampling_days": 60,
+                  "sampling_end": "2026-08-29",
+                  "sampling_start": "2026-07-01",
+                  "series_id": "75b24efd36585ce5e98723e0c078ea6c7a933836aa3f05117bd3411923962770",
+                  "startup_source": "observed",
+                  "startup_start": "2026-07-01"
+                },
+                {
+                  "active_day_average_tokens": 2205058.6666666665,
+                  "assumptions": [
+                    "uncalibrated_model_estimate",
+                    "fixed_allocation_shares",
+                    "common_residual_window",
+                    "known_event_applied"
+                  ],
+                  "correction": {
+                    "corrected_tokens": 63321067977.676544,
+                    "negative_count": 466,
+                    "negative_fraction": 0.015533333333333333,
+                    "passed": true,
+                    "ratio": 0.0007528017654481786,
+                    "removed_tokens": 47668211.76365903,
+                    "tolerance": 0.05
+                  },
+                  "covered_days": 60,
+                  "fit_attempts": [
+                    {
+                      "converged": true,
+                      "damped_trend": true,
+                      "iterations": 53,
+                      "reason": null,
+                      "seasonal": "add",
+                      "trend": "add",
+                      "warnings": []
+                    }
+                  ],
+                  "history_end": "2026-08-29",
+                  "history_start": "2026-07-01",
+                  "last_active_date": "2026-08-29",
+                  "reasons": [],
+                  "recent_total": 57008076.0,
+                  "sampling_days": 60,
+                  "sampling_end": "2026-08-29",
+                  "sampling_start": "2026-07-01",
+                  "series_id": "d4b6501d295111d162768680fe7fa7b86ae849c8707c7347cf2b9e9316d34d4a",
+                  "startup_source": "observed",
+                  "startup_start": "2026-07-01"
+                },
+                {
+                  "active_day_average_tokens": 498516.8596491228,
+                  "assumptions": [
+                    "uncalibrated_model_estimate",
+                    "fixed_allocation_shares",
+                    "common_residual_window",
+                    "known_event_applied",
+                    "excess_negative_correction"
+                  ],
+                  "correction": {
+                    "corrected_tokens": 15831671560.005383,
+                    "negative_count": 4363,
+                    "negative_fraction": 0.14543333333333333,
+                    "passed": false,
+                    "ratio": 0.05761382108514548,
+                    "removed_tokens": 912123092.7369361,
+                    "tolerance": 0.05
+                  },
+                  "covered_days": 60,
+                  "fit_attempts": [
+                    {
+                      "converged": true,
+                      "damped_trend": true,
+                      "iterations": 39,
+                      "reason": null,
+                      "seasonal": "add",
+                      "trend": "add",
+                      "warnings": []
+                    }
+                  ],
+                  "history_end": "2026-08-29",
+                  "history_start": "2026-07-01",
+                  "last_active_date": "2026-08-29",
+                  "reasons": [],
+                  "recent_total": 14143668.0,
+                  "sampling_days": 60,
+                  "sampling_end": "2026-08-29",
+                  "sampling_start": "2026-07-01",
+                  "series_id": "5adcc4a17a2b118322e8ba2cb22ad964790f5633e20a49c9ecd9ec5988591fc1",
+                  "startup_source": "observed",
+                  "startup_start": "2026-07-01"
+                },
+                {
+                  "active_day_average_tokens": 1502058.5789473683,
+                  "assumptions": [
+                    "uncalibrated_model_estimate",
+                    "fixed_allocation_shares",
+                    "common_residual_window",
+                    "known_event_applied",
+                    "excess_negative_correction"
+                  ],
+                  "correction": {
+                    "corrected_tokens": 48354652834.303474,
+                    "negative_count": 3976,
+                    "negative_fraction": 0.13253333333333334,
+                    "passed": false,
+                    "ratio": 0.05209095972930281,
+                    "removed_tokens": 2518840273.5161204,
+                    "tolerance": 0.05
+                  },
+                  "covered_days": 60,
+                  "fit_attempts": [
+                    {
+                      "converged": true,
+                      "damped_trend": true,
+                      "iterations": 60,
+                      "reason": null,
+                      "seasonal": "add",
+                      "trend": "add",
+                      "warnings": []
+                    }
+                  ],
+                  "history_end": "2026-08-29",
+                  "history_start": "2026-07-01",
+                  "last_active_date": "2026-08-29",
+                  "reasons": [],
+                  "recent_total": 43938751.0,
+                  "sampling_days": 60,
+                  "sampling_end": "2026-08-29",
+                  "sampling_start": "2026-07-01",
+                  "series_id": "dedccb33ccd251e40475e190a1ca19cf7cdd838915ff5c0933ab2f13d7c94049",
+                  "startup_source": "observed",
+                  "startup_start": "2026-07-01"
+                },
+                {
+                  "active_day_average_tokens": 329539.77192982455,
+                  "assumptions": [
+                    "uncalibrated_model_estimate",
+                    "fixed_allocation_shares",
+                    "common_residual_window",
+                    "known_event_applied",
+                    "excess_negative_correction"
+                  ],
+                  "correction": {
+                    "corrected_tokens": 10504294822.074121,
+                    "negative_count": 4091,
+                    "negative_fraction": 0.13636666666666666,
+                    "passed": false,
+                    "ratio": 0.05358052443290506,
+                    "removed_tokens": 562825625.3645806,
+                    "tolerance": 0.05
+                  },
+                  "covered_days": 60,
+                  "fit_attempts": [
+                    {
+                      "converged": true,
+                      "damped_trend": true,
+                      "iterations": 68,
+                      "reason": null,
+                      "seasonal": "add",
+                      "trend": "add",
+                      "warnings": []
+                    }
+                  ],
+                  "history_end": "2026-08-29",
+                  "history_start": "2026-07-01",
+                  "last_active_date": "2026-08-29",
+                  "reasons": [],
+                  "recent_total": 9550046.0,
+                  "sampling_days": 60,
+                  "sampling_end": "2026-08-29",
+                  "sampling_start": "2026-07-01",
+                  "series_id": "3dadc26f4e0a0582918a83b883fa8cc366fd2d2e45b1576bf014ce65cd3b345e",
+                  "startup_source": "observed",
+                  "startup_start": "2026-07-01"
+                },
+                {
+                  "active_day_average_tokens": 986645.8771929825,
+                  "assumptions": [
+                    "uncalibrated_model_estimate",
+                    "fixed_allocation_shares",
+                    "common_residual_window",
+                    "known_event_applied",
+                    "excess_negative_correction"
+                  ],
+                  "correction": {
+                    "corrected_tokens": 31468338393.92068,
+                    "negative_count": 4179,
+                    "negative_fraction": 0.1393,
+                    "passed": false,
+                    "ratio": 0.05612182985142863,
+                    "removed_tokens": 1766060733.0507953,
+                    "tolerance": 0.05
+                  },
+                  "covered_days": 60,
+                  "fit_attempts": [
+                    {
+                      "converged": true,
+                      "damped_trend": true,
+                      "iterations": 45,
+                      "reason": null,
+                      "seasonal": "add",
+                      "trend": "add",
+                      "warnings": []
+                    }
+                  ],
+                  "history_end": "2026-08-29",
+                  "history_start": "2026-07-01",
+                  "last_active_date": "2026-08-29",
+                  "reasons": [],
+                  "recent_total": 28774427.0,
+                  "sampling_days": 60,
+                  "sampling_end": "2026-08-29",
+                  "sampling_start": "2026-07-01",
+                  "series_id": "01846b498ee1ae70551f31d07db795a6eafc321a9185a36663cef81a5c0ac6b4",
+                  "startup_source": "observed",
+                  "startup_start": "2026-07-01"
+                },
+                {
+                  "active_day_average_tokens": 1805050.5,
+                  "assumptions": [
+                    "uncalibrated_model_estimate",
+                    "fixed_allocation_shares",
+                    "common_residual_window",
+                    "known_event_applied"
+                  ],
+                  "correction": {
+                    "corrected_tokens": 58092672108.42821,
+                    "negative_count": 4,
+                    "negative_fraction": 0.00013333333333333334,
+                    "passed": true,
+                    "ratio": 3.0301335756011473e-06,
+                    "removed_tokens": 176028.5562521366,
+                    "tolerance": 0.05
+                  },
+                  "covered_days": 60,
+                  "fit_attempts": [
+                    {
+                      "converged": true,
+                      "damped_trend": true,
+                      "iterations": 15,
+                      "reason": null,
+                      "seasonal": "add",
+                      "trend": "add",
+                      "warnings": []
+                    }
+                  ],
+                  "history_end": "2026-08-29",
+                  "history_start": "2026-07-01",
+                  "last_active_date": "2026-08-29",
+                  "reasons": [],
+                  "recent_total": 54095510.0,
+                  "sampling_days": 60,
+                  "sampling_end": "2026-08-29",
+                  "sampling_start": "2026-07-01",
+                  "series_id": "45bb07ae3eb1eda1a371216e43c69adb77e0f01e78f9e38cb3495d80150166f2",
+                  "startup_source": "observed",
+                  "startup_start": "2026-07-01"
+                },
+                {
+                  "active_day_average_tokens": 5411463.616666666,
+                  "assumptions": [
+                    "uncalibrated_model_estimate",
+                    "fixed_allocation_shares",
+                    "common_residual_window",
+                    "known_event_applied"
+                  ],
+                  "correction": {
+                    "corrected_tokens": 161776681692.18695,
+                    "negative_count": 0,
+                    "negative_fraction": 0.0,
+                    "passed": true,
+                    "ratio": 0.0,
+                    "removed_tokens": 0.0,
+                    "tolerance": 0.05
+                  },
+                  "covered_days": 60,
+                  "fit_attempts": [
+                    {
+                      "converged": true,
+                      "damped_trend": true,
+                      "iterations": 38,
+                      "reason": null,
+                      "seasonal": "add",
+                      "trend": "add",
+                      "warnings": []
+                    }
+                  ],
+                  "history_end": "2026-08-29",
+                  "history_start": "2026-07-01",
+                  "last_active_date": "2026-08-29",
+                  "reasons": [],
+                  "recent_total": 162431325.0,
+                  "sampling_days": 60,
+                  "sampling_end": "2026-08-29",
+                  "sampling_start": "2026-07-01",
+                  "series_id": "98649af21dc1b1dcdf807170452fbc4f0d486101fb4f0f486c7a6d2266e9caf9",
+                  "startup_source": "observed",
+                  "startup_start": "2026-07-01"
+                },
+                {
+                  "active_day_average_tokens": 1205342.8166666667,
+                  "assumptions": [
+                    "uncalibrated_model_estimate",
+                    "fixed_allocation_shares",
+                    "common_residual_window",
+                    "known_event_applied"
+                  ],
+                  "correction": {
+                    "corrected_tokens": 36253062031.76373,
+                    "negative_count": 0,
+                    "negative_fraction": 0.0,
+                    "passed": true,
+                    "ratio": 0.0,
+                    "removed_tokens": 0.0,
+                    "tolerance": 0.05
+                  },
+                  "covered_days": 60,
+                  "fit_attempts": [
+                    {
+                      "converged": true,
+                      "damped_trend": true,
+                      "iterations": 35,
+                      "reason": null,
+                      "seasonal": "add",
+                      "trend": "add",
+                      "warnings": []
+                    }
+                  ],
+                  "history_end": "2026-08-29",
+                  "history_start": "2026-07-01",
+                  "last_active_date": "2026-08-29",
+                  "reasons": [],
+                  "recent_total": 37072333.0,
+                  "sampling_days": 60,
+                  "sampling_end": "2026-08-29",
+                  "sampling_start": "2026-07-01",
+                  "series_id": "ed54850dc3e2ce0e58d8e39e0f189dd92d860dfbae311a478a5b86caf3a3d9ea",
+                  "startup_source": "observed",
+                  "startup_start": "2026-07-01"
+                },
+                {
+                  "active_day_average_tokens": 3602671.0,
+                  "assumptions": [
+                    "uncalibrated_model_estimate",
+                    "fixed_allocation_shares",
+                    "common_residual_window",
+                    "known_event_applied"
+                  ],
+                  "correction": {
+                    "corrected_tokens": 108077016478.11343,
+                    "negative_count": 0,
+                    "negative_fraction": 0.0,
+                    "passed": true,
+                    "ratio": 0.0,
+                    "removed_tokens": 0.0,
+                    "tolerance": 0.05
+                  },
+                  "covered_days": 60,
+                  "fit_attempts": [
+                    {
+                      "converged": true,
+                      "damped_trend": true,
+                      "iterations": 79,
+                      "reason": null,
+                      "seasonal": "add",
+                      "trend": "add",
+                      "warnings": []
+                    }
+                  ],
+                  "history_end": "2026-08-29",
+                  "history_start": "2026-07-01",
+                  "last_active_date": "2026-08-29",
+                  "reasons": [],
+                  "recent_total": 109383610.0,
+                  "sampling_days": 60,
+                  "sampling_end": "2026-08-29",
+                  "sampling_start": "2026-07-01",
+                  "series_id": "c2df276e8bf9555a2d696c3540ce7077aba4abcfca01668384d42aa4852bd587",
+                  "startup_source": "observed",
+                  "startup_start": "2026-07-01"
+                },
+                {
+                  "active_day_average_tokens": 1250482.45,
+                  "assumptions": [
+                    "uncalibrated_model_estimate",
+                    "fixed_allocation_shares",
+                    "common_residual_window",
+                    "known_event_applied"
+                  ],
+                  "correction": {
+                    "corrected_tokens": 37328398863.21774,
+                    "negative_count": 273,
+                    "negative_fraction": 0.0091,
+                    "passed": true,
+                    "ratio": 0.0006082430216767457,
+                    "removed_tokens": 22704738.11891836,
+                    "tolerance": 0.05
+                  },
+                  "covered_days": 60,
+                  "fit_attempts": [
+                    {
+                      "converged": true,
+                      "damped_trend": true,
+                      "iterations": 29,
+                      "reason": null,
+                      "seasonal": "add",
+                      "trend": "add",
+                      "warnings": []
+                    }
+                  ],
+                  "history_end": "2026-08-29",
+                  "history_start": "2026-07-01",
+                  "last_active_date": "2026-08-29",
+                  "reasons": [],
+                  "recent_total": 30517761.0,
+                  "sampling_days": 60,
+                  "sampling_end": "2026-08-29",
+                  "sampling_start": "2026-07-01",
+                  "series_id": "40f4b9aa686a931849624c66947ef1799673f3a111208a461445b53061da1640",
+                  "startup_source": "observed",
+                  "startup_start": "2026-07-01"
+                },
+                {
+                  "active_day_average_tokens": 3754877.066666667,
+                  "assumptions": [
+                    "uncalibrated_model_estimate",
+                    "fixed_allocation_shares",
+                    "common_residual_window",
+                    "known_event_applied"
+                  ],
+                  "correction": {
+                    "corrected_tokens": 111940156623.0762,
+                    "negative_count": 273,
+                    "negative_fraction": 0.0091,
+                    "passed": true,
+                    "ratio": 0.0005340045737031602,
+                    "removed_tokens": 59776555.61777079,
+                    "tolerance": 0.05
+                  },
+                  "covered_days": 60,
+                  "fit_attempts": [
+                    {
+                      "converged": true,
+                      "damped_trend": true,
+                      "iterations": 33,
+                      "reason": null,
+                      "seasonal": "add",
+                      "trend": "add",
+                      "warnings": []
+                    }
+                  ],
+                  "history_end": "2026-08-29",
+                  "history_start": "2026-07-01",
+                  "last_active_date": "2026-08-29",
+                  "reasons": [],
+                  "recent_total": 92581072.0,
+                  "sampling_days": 60,
+                  "sampling_end": "2026-08-29",
+                  "sampling_start": "2026-07-01",
+                  "series_id": "abd651fa9fbfd8106c07362ed35bb1a1bd1506eb0ed5e9b49190622106949bee",
+                  "startup_source": "observed",
+                  "startup_start": "2026-07-01"
+                },
+                {
+                  "active_day_average_tokens": 832356.6166666667,
+                  "assumptions": [
+                    "uncalibrated_model_estimate",
+                    "fixed_allocation_shares",
+                    "common_residual_window",
+                    "known_event_applied"
+                  ],
+                  "correction": {
+                    "corrected_tokens": 24826289780.56438,
+                    "negative_count": 348,
+                    "negative_fraction": 0.0116,
+                    "passed": true,
+                    "ratio": 0.0013360931373528019,
+                    "removed_tokens": 33170235.401744068,
+                    "tolerance": 0.05
+                  },
+                  "covered_days": 60,
+                  "fit_attempts": [
+                    {
+                      "converged": true,
+                      "damped_trend": true,
+                      "iterations": 36,
+                      "reason": null,
+                      "seasonal": "add",
+                      "trend": "add",
+                      "warnings": []
+                    }
+                  ],
+                  "history_end": "2026-08-29",
+                  "history_start": "2026-07-01",
+                  "last_active_date": "2026-08-29",
+                  "reasons": [],
+                  "recent_total": 20046950.0,
+                  "sampling_days": 60,
+                  "sampling_end": "2026-08-29",
+                  "sampling_start": "2026-07-01",
+                  "series_id": "3959452f918ce93368073b58cd2920e3ede78a41841cf38827395b829f180dc7",
+                  "startup_source": "observed",
+                  "startup_start": "2026-07-01"
+                },
+                {
+                  "active_day_average_tokens": 2495909.566666667,
+                  "assumptions": [
+                    "uncalibrated_model_estimate",
+                    "fixed_allocation_shares",
+                    "common_residual_window",
+                    "known_event_applied"
+                  ],
+                  "correction": {
+                    "corrected_tokens": 74138913874.84724,
+                    "negative_count": 157,
+                    "negative_fraction": 0.005233333333333334,
+                    "passed": true,
+                    "ratio": 0.0005132227516720711,
+                    "removed_tokens": 38049777.38482779,
+                    "tolerance": 0.05
+                  },
+                  "covered_days": 60,
+                  "fit_attempts": [
+                    {
+                      "converged": true,
+                      "damped_trend": true,
+                      "iterations": 30,
+                      "reason": null,
+                      "seasonal": "add",
+                      "trend": "add",
+                      "warnings": []
+                    }
+                  ],
+                  "history_end": "2026-08-29",
+                  "history_start": "2026-07-01",
+                  "last_active_date": "2026-08-29",
+                  "reasons": [],
+                  "recent_total": 60497417.0,
+                  "sampling_days": 60,
+                  "sampling_end": "2026-08-29",
+                  "sampling_start": "2026-07-01",
+                  "series_id": "54a0d4c4caeb3b39fb0903530555badb111194c77049ee5d5a2c12120bef2f3c",
+                  "startup_source": "observed",
+                  "startup_start": "2026-07-01"
+                },
+                {
+                  "active_day_average_tokens": 8559135.883333333,
+                  "assumptions": [
+                    "uncalibrated_model_estimate",
+                    "fixed_allocation_shares",
+                    "common_residual_window",
+                    "known_event_applied"
+                  ],
+                  "correction": {
+                    "corrected_tokens": 258534456580.2247,
+                    "negative_count": 0,
+                    "negative_fraction": 0.0,
+                    "passed": true,
+                    "ratio": 0.0,
+                    "removed_tokens": 0.0,
+                    "tolerance": 0.05
+                  },
+                  "covered_days": 60,
+                  "fit_attempts": [
+                    {
+                      "converged": true,
+                      "damped_trend": true,
+                      "iterations": 75,
+                      "reason": null,
+                      "seasonal": "add",
+                      "trend": "add",
+                      "warnings": []
+                    }
+                  ],
+                  "history_end": "2026-08-29",
+                  "history_start": "2026-07-01",
+                  "last_active_date": "2026-08-29",
+                  "reasons": [],
+                  "recent_total": 239702576.0,
+                  "sampling_days": 60,
+                  "sampling_end": "2026-08-29",
+                  "sampling_start": "2026-07-01",
+                  "series_id": "e13157a98bb9f7513f3f537519e5659fd6eb0537e341324d55870f18b9c2912b",
+                  "startup_source": "observed",
+                  "startup_start": "2026-07-01"
+                },
+                {
+                  "active_day_average_tokens": 25650970.75,
+                  "assumptions": [
+                    "uncalibrated_model_estimate",
+                    "fixed_allocation_shares",
+                    "common_residual_window",
+                    "known_event_applied"
+                  ],
+                  "correction": {
+                    "corrected_tokens": 772215530013.8843,
+                    "negative_count": 0,
+                    "negative_fraction": 0.0,
+                    "passed": true,
+                    "ratio": 0.0,
+                    "removed_tokens": 0.0,
+                    "tolerance": 0.05
+                  },
+                  "covered_days": 60,
+                  "fit_attempts": [
+                    {
+                      "converged": true,
+                      "damped_trend": true,
+                      "iterations": 45,
+                      "reason": null,
+                      "seasonal": "add",
+                      "trend": "add",
+                      "warnings": []
+                    }
+                  ],
+                  "history_end": "2026-08-29",
+                  "history_start": "2026-07-01",
+                  "last_active_date": "2026-08-29",
+                  "reasons": [],
+                  "recent_total": 716058422.0,
+                  "sampling_days": 60,
+                  "sampling_end": "2026-08-29",
+                  "sampling_start": "2026-07-01",
+                  "series_id": "824183ddd9342971206aa4fa29877993c6cd739d4de7445cf796ba6fe18ad9b0",
+                  "startup_source": "observed",
+                  "startup_start": "2026-07-01"
+                },
+                {
+                  "active_day_average_tokens": 5727922.3,
+                  "assumptions": [
+                    "uncalibrated_model_estimate",
+                    "fixed_allocation_shares",
+                    "common_residual_window",
+                    "known_event_applied"
+                  ],
+                  "correction": {
+                    "corrected_tokens": 171807566265.79932,
+                    "negative_count": 0,
+                    "negative_fraction": 0.0,
+                    "passed": true,
+                    "ratio": 0.0,
+                    "removed_tokens": 0.0,
+                    "tolerance": 0.05
+                  },
+                  "covered_days": 60,
+                  "fit_attempts": [
+                    {
+                      "converged": true,
+                      "damped_trend": true,
+                      "iterations": 34,
+                      "reason": null,
+                      "seasonal": "add",
+                      "trend": "add",
+                      "warnings": []
+                    }
+                  ],
+                  "history_end": "2026-08-29",
+                  "history_start": "2026-07-01",
+                  "last_active_date": "2026-08-29",
+                  "reasons": [],
+                  "recent_total": 158867326.0,
+                  "sampling_days": 60,
+                  "sampling_end": "2026-08-29",
+                  "sampling_start": "2026-07-01",
+                  "series_id": "6aeef8822bc7b34c03a926bb530872775d10e281eeeeb5a365607bdcfc8497c6",
+                  "startup_source": "observed",
+                  "startup_start": "2026-07-01"
+                },
+                {
+                  "active_day_average_tokens": 17170292.233333334,
+                  "assumptions": [
+                    "uncalibrated_model_estimate",
+                    "fixed_allocation_shares",
+                    "common_residual_window",
+                    "known_event_applied"
+                  ],
+                  "correction": {
+                    "corrected_tokens": 516660552218.73694,
+                    "negative_count": 0,
+                    "negative_fraction": 0.0,
+                    "passed": true,
+                    "ratio": 0.0,
+                    "removed_tokens": 0.0,
+                    "tolerance": 0.05
+                  },
+                  "covered_days": 60,
+                  "fit_attempts": [
+                    {
+                      "converged": true,
+                      "damped_trend": true,
+                      "iterations": 48,
+                      "reason": null,
+                      "seasonal": "add",
+                      "trend": "add",
+                      "warnings": []
+                    }
+                  ],
+                  "history_end": "2026-08-29",
+                  "history_start": "2026-07-01",
+                  "last_active_date": "2026-08-29",
+                  "reasons": [],
+                  "recent_total": 478280785.0,
+                  "sampling_days": 60,
+                  "sampling_end": "2026-08-29",
+                  "sampling_start": "2026-07-01",
+                  "series_id": "c1724057d7c501b630d15bcd59da8430ce9d054c78df0f84ccb301cd1c446650",
+                  "startup_source": "observed",
+                  "startup_start": "2026-07-01"
+                }
+              ]
+            },
+            "exit_code": 0,
+            "origin": "2026-08-29",
+            "output_dir": "/Users/anil/workspace/Talium/code-econ-67-calib/econ-forecast/examples/known-event-spike/forecast/run",
+            "rejected_scopes": 0,
+            "report_path": "/Users/anil/workspace/Talium/code-econ-67-calib/econ-forecast/examples/known-event-spike/forecast/run/report.md",
+            "requested_scopes": 9,
+            "status": "complete"
+          }
+        }
+      ],
+      "stage": "forecast",
+      "status": "complete"
+    },
+    {
+      "commands": [
+        {
+          "argv": [
+            "utils/plot_forecast.sh",
+            "--artifact",
+            "forecast/run",
+            "--config",
+            "plot.yaml",
+            "--force"
+          ],
+          "elapsed_seconds": 8.178939125034958,
+          "exit_code": 0,
+          "status": "complete",
+          "stderr_tail": null,
+          "summary": {
+            "artifact": "..",
+            "counts": {
+              "failed": 0,
+              "requested": 9,
+              "succeeded": 9
+            },
+            "created_at": "2026-10-06T16:51:56.923140+00:00",
+            "elapsed_seconds": 7.09350545797497,
+            "forecast_data": {
+              "dataset": "../../../../dataset/synth-baseline",
+              "source": "auto"
+            },
+            "operation": "plot",
+            "plots": [
+              {
+                "actuals_overlaid": true,
+                "band": [
+                  10,
+                  90
+                ],
+                "error": null,
+                "format": "both",
+                "measure": "tokens",
+                "model": null,
+                "models": null,
+                "outputs": {
+                  "html": "organization-talium-ai__models__tokens.html",
+                  "png": "organization-talium-ai__models__tokens.png"
+                },
+                "plotted_models": [
+                  "claude-opus-5",
+                  "claude-sonnet-5",
+                  "gpt-5.6-sol",
+                  "gpt-5.6-terra"
+                ],
+                "samples": 8,
+                "scope_name": null,
+                "scope_type": "organization",
+                "status": "complete",
+                "stem": "organization-talium-ai__models__tokens",
+                "unavailable_models": [],
+                "view": "models"
+              },
+              {
+                "actuals_overlaid": true,
+                "band": [
+                  10,
+                  90
+                ],
+                "error": null,
+                "format": "both",
+                "measure": "tokens",
+                "model": null,
+                "models": null,
+                "outputs": {
+                  "html": "team-team1__models__tokens.html",
+                  "png": "team-team1__models__tokens.png"
+                },
+                "plotted_models": [
+                  "claude-opus-5",
+                  "claude-sonnet-5",
+                  "gpt-5.6-sol",
+                  "gpt-5.6-terra"
+                ],
+                "samples": 8,
+                "scope_name": "team1",
+                "scope_type": "team",
+                "status": "complete",
+                "stem": "team-team1__models__tokens",
+                "unavailable_models": [],
+                "view": "models"
+              },
+              {
+                "actuals_overlaid": true,
+                "band": [
+                  10,
+                  90
+                ],
+                "error": null,
+                "format": "both",
+                "measure": "tokens",
+                "model": null,
+                "models": null,
+                "outputs": {
+                  "html": "team-team2__models__tokens.html",
+                  "png": "team-team2__models__tokens.png"
+                },
+                "plotted_models": [
+                  "claude-opus-5",
+                  "claude-sonnet-5",
+                  "gpt-5.6-sol",
+                  "gpt-5.6-terra"
+                ],
+                "samples": 8,
+                "scope_name": "team2",
+                "scope_type": "team",
+                "status": "complete",
+                "stem": "team-team2__models__tokens",
+                "unavailable_models": [],
+                "view": "models"
+              },
+              {
+                "actuals_overlaid": true,
+                "band": [
+                  10,
+                  90
+                ],
+                "error": null,
+                "format": "both",
+                "measure": "tokens",
+                "model": null,
+                "models": null,
+                "outputs": {
+                  "html": "team-team3__models__tokens.html",
+                  "png": "team-team3__models__tokens.png"
+                },
+                "plotted_models": [
+                  "claude-opus-5",
+                  "claude-sonnet-5",
+                  "gpt-5.6-sol",
+                  "gpt-5.6-terra"
+                ],
+                "samples": 8,
+                "scope_name": "team3",
+                "scope_type": "team",
+                "status": "complete",
+                "stem": "team-team3__models__tokens",
+                "unavailable_models": [],
+                "view": "models"
+              },
+              {
+                "actuals_overlaid": true,
+                "band": [
+                  10,
+                  90
+                ],
+                "error": null,
+                "format": "both",
+                "measure": "tokens",
+                "model": null,
+                "models": null,
+                "outputs": {
+                  "html": "project-auth-service-rewrite__models__tokens.html",
+                  "png": "project-auth-service-rewrite__models__tokens.png"
+                },
+                "plotted_models": [
+                  "claude-opus-5",
+                  "claude-sonnet-5",
+                  "gpt-5.6-sol",
+                  "gpt-5.6-terra"
+                ],
+                "samples": 8,
+                "scope_name": "auth_service_rewrite",
+                "scope_type": "project",
+                "status": "complete",
+                "stem": "project-auth-service-rewrite__models__tokens",
+                "unavailable_models": [],
+                "view": "models"
+              },
+              {
+                "actuals_overlaid": true,
+                "band": [
+                  10,
+                  90
+                ],
+                "error": null,
+                "format": "both",
+                "measure": "tokens",
+                "model": null,
+                "models": null,
+                "outputs": {
+                  "html": "project-data-pipeline-upgrade__models__tokens.html",
+                  "png": "project-data-pipeline-upgrade__models__tokens.png"
+                },
+                "plotted_models": [
+                  "claude-opus-5",
+                  "claude-sonnet-5",
+                  "gpt-5.6-sol",
+                  "gpt-5.6-terra"
+                ],
+                "samples": 8,
+                "scope_name": "data_pipeline_upgrade",
+                "scope_type": "project",
+                "status": "complete",
+                "stem": "project-data-pipeline-upgrade__models__tokens",
+                "unavailable_models": [],
+                "view": "models"
+              },
+              {
+                "actuals_overlaid": true,
+                "band": [
+                  10,
+                  90
+                ],
+                "error": null,
+                "format": "both",
+                "measure": "tokens",
+                "model": null,
+                "models": null,
+                "outputs": {
+                  "html": "project-developer-tooling__models__tokens.html",
+                  "png": "project-developer-tooling__models__tokens.png"
+                },
+                "plotted_models": [
+                  "claude-opus-5",
+                  "claude-sonnet-5",
+                  "gpt-5.6-sol",
+                  "gpt-5.6-terra"
+                ],
+                "samples": 8,
+                "scope_name": "developer_tooling",
+                "scope_type": "project",
+                "status": "complete",
+                "stem": "project-developer-tooling__models__tokens",
+                "unavailable_models": [],
+                "view": "models"
+              },
+              {
+                "actuals_overlaid": true,
+                "band": [
+                  10,
+                  90
+                ],
+                "error": null,
+                "format": "both",
+                "measure": "tokens",
+                "model": null,
+                "models": null,
+                "outputs": {
+                  "html": "project-payment-service-improvement__models__tokens.html",
+                  "png": "project-payment-service-improvement__models__tokens.png"
+                },
+                "plotted_models": [
+                  "claude-opus-5",
+                  "claude-sonnet-5",
+                  "gpt-5.6-sol",
+                  "gpt-5.6-terra"
+                ],
+                "samples": 8,
+                "scope_name": "payment_service_improvement",
+                "scope_type": "project",
+                "status": "complete",
+                "stem": "project-payment-service-improvement__models__tokens",
+                "unavailable_models": [],
+                "view": "models"
+              },
+              {
+                "actuals_overlaid": true,
+                "band": [
+                  10,
+                  90
+                ],
+                "error": null,
+                "format": "both",
+                "measure": "tokens",
+                "model": null,
+                "models": null,
+                "outputs": {
+                  "html": "project-search-service-improvement__models__tokens.html",
+                  "png": "project-search-service-improvement__models__tokens.png"
+                },
+                "plotted_models": [
+                  "claude-opus-5",
+                  "claude-sonnet-5",
+                  "gpt-5.6-sol",
+                  "gpt-5.6-terra"
+                ],
+                "samples": 8,
+                "scope_name": "search_service_improvement",
+                "scope_type": "project",
+                "status": "complete",
+                "stem": "project-search-service-improvement__models__tokens",
+                "unavailable_models": [],
+                "view": "models"
+              }
+            ],
+            "schema_version": 1,
+            "status": "complete",
+            "versions": {
+              "matplotlib": "3.11.2",
+              "numpy": "2.4.6",
+              "plotly": "7.0.0"
+            }
+          }
+        }
+      ],
+      "stage": "plot",
+      "status": "complete"
+    }
+  ],
+  "started_at": "2026-10-06T16:51:42.818500+00:00",
+  "status": "complete"
+}

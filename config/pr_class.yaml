@@ -1,0 +1,57 @@
+# pr-work-classification analysis config (docs/modules/pr-work-classification.md §3.1, §5.3,
+# §5.4, §5.8, §6.2). Distinct from config/queries/pr_class.yaml (SQL) -- this is the tunable
+# behavior of the correlator/classifier/attribution passes.
+
+# Evaluation scope (§3.1): a CI-style branch filter. git-source still ACQUIRES every PR; this
+# gates only the expensive work -- correlation, classification (incl. any future diff fetch),
+# attribution, and rework. "<default-branch>" is a literal sentinel the correlator resolves
+# per-repo from git_repos.default_branch, not a real branch name.
+eval_scope:
+  base_branches:
+    - "<default-branch>"
+  exclude_head_branches:
+    - "release/*"
+    - "staging"
+    - "production"
+  per_repo: {"github:1293142652": {base_branches: ["integ", "main"]}}
+    # "github:41213765": {base_branches: ["develop"]}   # Git Flow: work lands on develop
+
+pr_class:
+  change_type:
+    tier0_self_reported: true      # conventional commits + labels + is_revert (§5.1)
+    tier1_metadata: true           # paths, churn, test presence (§5.1) -- no rework, no clone
+    tier2_diff: false              # compare-API fetch + discard; off by default (content transit, opt-in, §5.2)
+    combine: "tier0_authoritative" # "tier0_authoritative" | "highest_confidence" | "agree_or_unknown" (§5.3)
+    unknown_below: 0.5             # below this confidence, emit "unknown" rather than guess
+  artifact_class: true             # coding vs documentation (§5.4)
+  recall_revert: true              # structural recall + revert flags (§5.6)
+  recall_reason: false             # closing-comment reason enrichment -- content transit, opt-in (§5.6)
+  analyzer: "heuristic"            # "heuristic" (v1) | "llm" (future backend, §5.5)
+
+# artifact_class thresholds (§5.4): fraction of CHANGED LINES (additions+deletions) in doc-shaped
+# files vs code/test/config files. Neither threshold met -> "mixed".
+artifact_class:
+  documentation_min_fraction: 0.8
+  coding_min_fraction: 0.8
+  doc_path_globs:
+    - "*.md"
+    - "*.rst"
+    - "*.mdx"
+    - "docs/**"
+    - "README*"
+    - "CHANGELOG*"
+    - "LICENSE*"
+
+# Integration-PR detection (§5.8): an aggregate PR's diff is never fetched or classified once
+# already_owned_ratio meets this threshold -- commit ownership alone is the test.
+integration:
+  already_owned_ratio_threshold: 0.8
+
+# Module dimension (§6.2): a config-driven path->module map for monorepos. Globs matched
+# against each changed file's path; a PR's module is the dominant module by changed-line count
+# among its files. Empty by default -- a customer's monorepo layout is pilot-specific.
+modules: []
+  # - name: "collector"
+  #   path_globs: ["src/collector/**"]
+  # - name: "server"
+  #   path_globs: ["src/server/**"]

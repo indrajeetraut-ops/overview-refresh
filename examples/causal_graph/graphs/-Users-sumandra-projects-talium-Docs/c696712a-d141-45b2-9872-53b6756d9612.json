@@ -1,0 +1,515 @@
+{
+  "schema_version": "4.3.0",
+  "session_id": "c696712a-d141-45b2-9872-53b6756d9612",
+  "parent_session_id": null,
+  "vendor": "claude_code",
+  "source": "jsonl",
+  "built": "complete",
+  "meta": {
+    "title": "Test shift+enter keyboard functionality",
+    "objective": null,
+    "resources": [
+      "9a024185-b77c-4fcf-b167-7d3549e99fb7",
+      "32eedb86-d192-4642-a359-94d44e5943a9"
+    ],
+    "query_config_revision": "2026-08-27",
+    "warnings": []
+  },
+  "nodes": [
+    {
+      "id": "e2bea839-1bfd-4465-81a8-e400b9b088cb",
+      "type": "user_prompt",
+      "ts": "2026-07-18T05:04:02.118Z",
+      "attrs": {
+        "text": "llll",
+        "model": null,
+        "is_injected": false,
+        "resources": [
+          "846e1538-8b0a-481c-a417-3f42fff3652d",
+          "be83bb4d-3190-4216-960c-ac2462d8a82d",
+          "e933e598-4b21-4c67-a6e0-913e4a5eaa93"
+        ]
+      },
+      "meta": {},
+      "children": [],
+      "parent_id": "turn:1",
+      "refs": {}
+    },
+    {
+      "id": "turn:1",
+      "type": "turn",
+      "ts": "2026-07-18T05:04:02.118Z",
+      "attrs": {
+        "turn_num": 1,
+        "prompt_id": "3d45fb7f-59c1-48c7-a5ac-1b9ce40a747f",
+        "status": "empty",
+        "duration_ms": 0,
+        "permission_mode": "auto",
+        "plan_mode": false,
+        "tokens": {
+          "input_tokens": 0,
+          "output_tokens": 0,
+          "cache_read_tokens": 0,
+          "cache_write_tokens": 0,
+          "estimated_reasoning_tokens": 0
+        },
+        "attribution": {
+          "skill": [],
+          "plugin": [],
+          "agent": [],
+          "effort": []
+        }
+      },
+      "meta": {},
+      "children": [
+        "e2bea839-1bfd-4465-81a8-e400b9b088cb"
+      ],
+      "parent_id": null,
+      "refs": {}
+    },
+    {
+      "id": "msg_011Cd8wQjn8Lbf1yBRuXENwD",
+      "type": "assistant",
+      "ts": "2026-07-18T05:04:12.310Z",
+      "attrs": {
+        "message_id": "msg_011Cd8wQjn8Lbf1yBRuXENwD",
+        "model": "claude-fable-5",
+        "has_thinking": true,
+        "input_tokens": 2,
+        "output_tokens": 90,
+        "cache_read_tokens": 16540,
+        "cache_write_tokens": 3380,
+        "estimated_reasoning_tokens": 64,
+        "reasoning_source": "estimated",
+        "reasoning_ratio": 1.52,
+        "estimated_visible_tokens": 17,
+        "tool_call_count": 0,
+        "attribution_skill": null,
+        "attribution_plugin": null,
+        "attribution_agent": null,
+        "effort": "high"
+      },
+      "meta": {},
+      "children": [],
+      "parent_id": "turn:2",
+      "refs": {}
+    },
+    {
+      "id": "4d1ee3e0-6bf5-47b1-9b26-37ed64bf98fe",
+      "type": "user_prompt",
+      "ts": "2026-07-18T05:04:09.030Z",
+      "attrs": {
+        "text": "stop",
+        "model": null,
+        "is_injected": false,
+        "resources": [
+          "e14e7225-cf5c-4113-898a-8bdc86518a4c",
+          "4c271e33-ae67-4361-a374-025670097dce"
+        ]
+      },
+      "meta": {},
+      "children": [],
+      "parent_id": "turn:2",
+      "refs": {}
+    },
+    {
+      "id": "turn:2",
+      "type": "turn",
+      "ts": "2026-07-18T05:04:09.030Z",
+      "attrs": {
+        "turn_num": 2,
+        "prompt_id": "d9d803b7-d5ed-441c-b01a-1d57c31793f6",
+        "status": "completed",
+        "duration_ms": 3290,
+        "permission_mode": "auto",
+        "plan_mode": false,
+        "tokens": {
+          "input_tokens": 2,
+          "output_tokens": 90,
+          "cache_read_tokens": 16540,
+          "cache_write_tokens": 3380,
+          "estimated_reasoning_tokens": 64
+        },
+        "attribution": {
+          "skill": [],
+          "plugin": [],
+          "agent": [],
+          "effort": [
+            "high"
+          ]
+        }
+      },
+      "meta": {},
+      "children": [
+        "4d1ee3e0-6bf5-47b1-9b26-37ed64bf98fe",
+        "msg_011Cd8wQjn8Lbf1yBRuXENwD"
+      ],
+      "parent_id": null,
+      "refs": {}
+    },
+    {
+      "id": "msg_011Cd8wTtgjhck2KfP9Tkt65",
+      "type": "assistant",
+      "ts": "2026-07-18T05:04:53.860Z",
+      "attrs": {
+        "message_id": "msg_011Cd8wTtgjhck2KfP9Tkt65",
+        "model": "claude-fable-5",
+        "has_thinking": false,
+        "input_tokens": 2,
+        "output_tokens": 23,
+        "cache_read_tokens": 20010,
+        "cache_write_tokens": 30,
+        "estimated_reasoning_tokens": 5,
+        "reasoning_source": "estimated",
+        "reasoning_ratio": 1.52,
+        "estimated_visible_tokens": 12,
+        "tool_call_count": 0,
+        "attribution_skill": null,
+        "attribution_plugin": null,
+        "attribution_agent": null,
+        "effort": "high"
+      },
+      "meta": {},
+      "children": [],
+      "parent_id": "turn:3",
+      "refs": {}
+    },
+    {
+      "id": "9a22e522-3b5f-414c-935f-51ca48da1bfb",
+      "type": "user_prompt",
+      "ts": "2026-07-18T05:04:52.007Z",
+      "attrs": {
+        "text": "I am testing shft+enter. Don't need to think. Just ignore my prompt for now",
+        "model": null,
+        "is_injected": false,
+        "resources": []
+      },
+      "meta": {},
+      "children": [],
+      "parent_id": "turn:3",
+      "refs": {}
+    },
+    {
+      "id": "turn:3",
+      "type": "turn",
+      "ts": "2026-07-18T05:04:52.007Z",
+      "attrs": {
+        "turn_num": 3,
+        "prompt_id": "2a73fc1a-478c-4322-95eb-a341564ab01f",
+        "status": "completed",
+        "duration_ms": 1863,
+        "permission_mode": "auto",
+        "plan_mode": false,
+        "tokens": {
+          "input_tokens": 2,
+          "output_tokens": 23,
+          "cache_read_tokens": 20010,
+          "cache_write_tokens": 30,
+          "estimated_reasoning_tokens": 5
+        },
+        "attribution": {
+          "skill": [],
+          "plugin": [],
+          "agent": [],
+          "effort": [
+            "high"
+          ]
+        }
+      },
+      "meta": {},
+      "children": [
+        "9a22e522-3b5f-414c-935f-51ca48da1bfb",
+        "msg_011Cd8wTtgjhck2KfP9Tkt65"
+      ],
+      "parent_id": null,
+      "refs": {}
+    },
+    {
+      "id": "msg_011Cd8wW9zJB2yco7L2RGmM8",
+      "type": "assistant",
+      "ts": "2026-07-18T05:05:26.752Z",
+      "attrs": {
+        "message_id": "msg_011Cd8wW9zJB2yco7L2RGmM8",
+        "model": "claude-fable-5",
+        "has_thinking": true,
+        "input_tokens": 2,
+        "output_tokens": 324,
+        "cache_read_tokens": 20063,
+        "cache_write_tokens": 17,
+        "estimated_reasoning_tokens": 148,
+        "reasoning_source": "estimated",
+        "reasoning_ratio": 1.52,
+        "estimated_visible_tokens": 116,
+        "tool_call_count": 0,
+        "attribution_skill": null,
+        "attribution_plugin": null,
+        "attribution_agent": null,
+        "effort": "high"
+      },
+      "meta": {},
+      "children": [],
+      "parent_id": "turn:4",
+      "refs": {}
+    },
+    {
+      "id": "c533c9be-bb3f-4b70-ac9b-90124cb93b49",
+      "type": "user_prompt",
+      "ts": "2026-07-18T05:05:13.257Z",
+      "attrs": {
+        "text": "no it actually did ENTER I needed newline only",
+        "model": null,
+        "is_injected": false,
+        "resources": []
+      },
+      "meta": {},
+      "children": [],
+      "parent_id": "turn:4",
+      "refs": {}
+    },
+    {
+      "id": "turn:4",
+      "type": "turn",
+      "ts": "2026-07-18T05:05:13.257Z",
+      "attrs": {
+        "turn_num": 4,
+        "prompt_id": "19d7b1d4-c548-4013-a276-93c98f379b72",
+        "status": "completed",
+        "duration_ms": 15449,
+        "permission_mode": "auto",
+        "plan_mode": false,
+        "tokens": {
+          "input_tokens": 2,
+          "output_tokens": 324,
+          "cache_read_tokens": 20063,
+          "cache_write_tokens": 17,
+          "estimated_reasoning_tokens": 148
+        },
+        "attribution": {
+          "skill": [],
+          "plugin": [],
+          "agent": [],
+          "effort": [
+            "high"
+          ]
+        }
+      },
+      "meta": {},
+      "children": [
+        "c533c9be-bb3f-4b70-ac9b-90124cb93b49",
+        "msg_011Cd8wW9zJB2yco7L2RGmM8"
+      ],
+      "parent_id": null,
+      "refs": {}
+    },
+    {
+      "id": "8a563521-2657-48e8-b76a-3464b2669ac6",
+      "type": "user_prompt",
+      "ts": "2026-07-18T05:06:08.862Z",
+      "attrs": {
+        "text": "<command-name>/terminal-setup</command-name>\n            <command-message>terminal-setup</command-message>\n            <command-args></command-args>",
+        "model": null,
+        "is_injected": false,
+        "resources": []
+      },
+      "meta": {},
+      "children": [],
+      "parent_id": "turn:5",
+      "refs": {}
+    },
+    {
+      "id": "turn:5",
+      "type": "turn",
+      "ts": "2026-07-18T05:06:08.863Z",
+      "attrs": {
+        "turn_num": 5,
+        "prompt_id": "a0290c90-157c-4837-bcec-21af4fb2734d",
+        "status": "empty",
+        "duration_ms": 0,
+        "permission_mode": null,
+        "plan_mode": null,
+        "tokens": {
+          "input_tokens": 0,
+          "output_tokens": 0,
+          "cache_read_tokens": 0,
+          "cache_write_tokens": 0,
+          "estimated_reasoning_tokens": 0
+        },
+        "attribution": {
+          "skill": [],
+          "plugin": [],
+          "agent": [],
+          "effort": []
+        }
+      },
+      "meta": {},
+      "children": [
+        "8a563521-2657-48e8-b76a-3464b2669ac6"
+      ],
+      "parent_id": null,
+      "refs": {}
+    },
+    {
+      "id": "msg_011Cd8wbgUVgoS6r353oVb25",
+      "type": "assistant",
+      "ts": "2026-07-18T05:06:40.189Z",
+      "attrs": {
+        "message_id": "msg_011Cd8wbgUVgoS6r353oVb25",
+        "model": "claude-fable-5",
+        "has_thinking": true,
+        "input_tokens": 2,
+        "output_tokens": 115,
+        "cache_read_tokens": 20080,
+        "cache_write_tokens": 589,
+        "estimated_reasoning_tokens": 60,
+        "reasoning_source": "estimated",
+        "reasoning_ratio": 1.52,
+        "estimated_visible_tokens": 36,
+        "tool_call_count": 0,
+        "attribution_skill": null,
+        "attribution_plugin": null,
+        "attribution_agent": null,
+        "effort": "high"
+      },
+      "meta": {},
+      "children": [],
+      "parent_id": "turn:6",
+      "refs": {}
+    },
+    {
+      "id": "000a8550-5a8a-4a37-a4b5-50807863813b",
+      "type": "user_prompt",
+      "ts": "2026-07-18T05:06:37.750Z",
+      "attrs": {
+        "text": "lets test",
+        "model": null,
+        "is_injected": false,
+        "resources": []
+      },
+      "meta": {},
+      "children": [],
+      "parent_id": "turn:6",
+      "refs": {}
+    },
+    {
+      "id": "turn:6",
+      "type": "turn",
+      "ts": "2026-07-18T05:06:37.750Z",
+      "attrs": {
+        "turn_num": 6,
+        "prompt_id": "a5ae05f7-270f-4577-af0a-75800145dff2",
+        "status": "completed",
+        "duration_ms": 2950,
+        "permission_mode": "auto",
+        "plan_mode": false,
+        "tokens": {
+          "input_tokens": 2,
+          "output_tokens": 115,
+          "cache_read_tokens": 20080,
+          "cache_write_tokens": 589,
+          "estimated_reasoning_tokens": 60
+        },
+        "attribution": {
+          "skill": [],
+          "plugin": [],
+          "agent": [],
+          "effort": [
+            "high"
+          ]
+        }
+      },
+      "meta": {},
+      "children": [
+        "000a8550-5a8a-4a37-a4b5-50807863813b",
+        "msg_011Cd8wbgUVgoS6r353oVb25"
+      ],
+      "parent_id": null,
+      "refs": {}
+    },
+    {
+      "id": "msg_011Cd8wcUM2E2pt97iqPJzJH",
+      "type": "assistant",
+      "ts": "2026-07-18T05:06:53.865Z",
+      "attrs": {
+        "message_id": "msg_011Cd8wcUM2E2pt97iqPJzJH",
+        "model": "claude-fable-5",
+        "has_thinking": true,
+        "input_tokens": 2,
+        "output_tokens": 258,
+        "cache_read_tokens": 20784,
+        "cache_write_tokens": 6,
+        "estimated_reasoning_tokens": 89,
+        "reasoning_source": "estimated",
+        "reasoning_ratio": 1.52,
+        "estimated_visible_tokens": 111,
+        "tool_call_count": 0,
+        "attribution_skill": null,
+        "attribution_plugin": null,
+        "attribution_agent": null,
+        "effort": "high"
+      },
+      "meta": {},
+      "children": [],
+      "parent_id": "turn:7",
+      "refs": {}
+    },
+    {
+      "id": "67b23259-0882-4ab3-a5ac-8013404d4b93",
+      "type": "user_prompt",
+      "ts": "2026-07-18T05:06:48.450Z",
+      "attrs": {
+        "text": "nope not working",
+        "model": null,
+        "is_injected": false,
+        "resources": []
+      },
+      "meta": {},
+      "children": [],
+      "parent_id": "turn:7",
+      "refs": {}
+    },
+    {
+      "id": "turn:7",
+      "type": "turn",
+      "ts": "2026-07-18T05:06:48.450Z",
+      "attrs": {
+        "turn_num": 7,
+        "prompt_id": "ebbdd3b9-b0a6-4811-b436-a31a71ef311b",
+        "status": "completed",
+        "duration_ms": 9274,
+        "permission_mode": "auto",
+        "plan_mode": false,
+        "tokens": {
+          "input_tokens": 2,
+          "output_tokens": 258,
+          "cache_read_tokens": 20784,
+          "cache_write_tokens": 6,
+          "estimated_reasoning_tokens": 89
+        },
+        "attribution": {
+          "skill": [],
+          "plugin": [],
+          "agent": [],
+          "effort": [
+            "high"
+          ]
+        }
+      },
+      "meta": {},
+      "children": [
+        "67b23259-0882-4ab3-a5ac-8013404d4b93",
+        "msg_011Cd8wcUM2E2pt97iqPJzJH"
+      ],
+      "parent_id": null,
+      "refs": {}
+    }
+  ],
+  "roots": [
+    "turn:1",
+    "turn:2",
+    "turn:3",
+    "turn:4",
+    "turn:5",
+    "turn:6",
+    "turn:7"
+  ]
+}

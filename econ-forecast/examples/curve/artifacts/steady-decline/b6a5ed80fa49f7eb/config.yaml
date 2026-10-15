@@ -1,0 +1,19 @@
+anchors:
+- - 1
+  - '5.0'
+- - 4
+  - '-1.0'
+- - 7
+  - '-1.5'
+- - 10
+  - '-1.0'
+axis:
+  end: 10
+  start: 1
+description: consumption tapering off across the window
+interp: pchip
+name: steady-decline
+preview:
+  baseline_tokens: 2000000.0
+  days: 60
+schema_version: 1

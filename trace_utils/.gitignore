@@ -1,0 +1,8 @@
+trace_util.venv/
+venv/
+__pycache__/
+*.pyc
+*.egg-info/
+.pytest_cache/
+# active, possibly machine-specific config (keep datasets.example.yaml committed)
+config/datasets.yaml

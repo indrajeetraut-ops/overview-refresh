@@ -1,0 +1,240 @@
+# Named queries for the org-directory module (docs/design/identity-ingestion.md §3, plan G2/G3).
+# Compiled by QueryCatalog at load. No FKs on these tables (storage.md §3.1) -- every write
+# here is self-contained; identity stays single because `reconcile()` resolves it before any
+# insert, not because a constraint forbids a duplicate.
+#
+# `server.directory.sync` is the ONLY caller of the write queries below.
+
+# ------------------------------------------------------------------ reconcile spine (§3.1)
+
+# First-match-wins lookup of an incoming external key against the link spine.
+resolve_identity_link: |
+  SELECT user_id FROM identity_links
+  WHERE provider = :provider AND external_id = :external_id;
+
+# Enrich-not-duplicate (§3, plan G2): a telemetry-derived stub predates the link spine -- it
+# only ever set `users.github_user` / `users.account_uuid` (ingest.yaml `upsert_user_*`), never
+# an `identity_links` row. So when the spine misses, fall back to the legacy identity columns
+# before creating anything. A hit here is then back-filled into `identity_links` by the caller
+# so the next sync resolves on the spine directly. Params are passed NULL when not applicable.
+resolve_user_by_legacy_identity: |
+  SELECT user_id FROM users
+  WHERE (CAST(:github_user AS text) IS NOT NULL AND github_user = CAST(:github_user AS text))
+     OR (CAST(:account_uuid AS text) IS NOT NULL AND account_uuid = CAST(:account_uuid AS text))
+  LIMIT 1;
+
+# Append-only (§3.2): a link is added, never rewritten. A re-sync of the same person is a
+# no-op here -- `rowcount` tells the caller whether a genuinely new identity was attached.
+insert_identity_link: |
+  INSERT INTO identity_links (provider, external_id, user_id)
+  VALUES (:provider, :external_id, :user_id)
+  ON CONFLICT (provider, external_id) DO NOTHING;
+
+# --------------------------------------------------------------------------- users (§3.1)
+
+# New person. `status` and `source_provider` are set here; `name` (the pre-directory telemetry
+# column) is deliberately left NULL -- the directory owns `display_name`. Idempotent: a racing
+# create loses the conflict and the caller re-reads.
+insert_user: |
+  INSERT INTO users (user_id, email, display_name, status, primary_team_id, source_provider,
+                     info, created_at)
+  VALUES (:user_id, :email, :display_name, :status, :primary_team_id, :source_provider,
+          '{}'::jsonb, now())
+  ON CONFLICT (user_id) DO NOTHING;
+
+# The row as the precedence check needs it.
+get_user: |
+  SELECT user_id, email, display_name, status, primary_team_id, source_provider
+  FROM users WHERE user_id = :user_id;
+
+# Precedence-gated field write (§3, G3): the caller runs this ONLY when
+# `Precedence.wins(incoming, stored source_provider)` is true. COALESCE keeps a field the
+# incoming record left blank; `status` and `source_provider` always move to the incoming
+# values once precedence is won. The `IS DISTINCT FROM` guard makes a no-change re-import a
+# genuine no-op -- `rowcount` is 0, so `sync()` reports `updated=0` and the dry-run diff
+# stays honest.
+update_user_fields: |
+  UPDATE users SET
+    email = COALESCE(:email, email),
+    display_name = COALESCE(:display_name, display_name),
+    status = :status,
+    primary_team_id = COALESCE(:primary_team_id, primary_team_id),
+    source_provider = :source_provider
+  WHERE user_id = :user_id
+    AND (
+      email IS DISTINCT FROM COALESCE(:email, email)
+      OR display_name IS DISTINCT FROM COALESCE(:display_name, display_name)
+      OR status IS DISTINCT FROM :status
+      OR primary_team_id IS DISTINCT FROM COALESCE(:primary_team_id, primary_team_id)
+      OR source_provider IS DISTINCT FROM :source_provider
+    )
+  RETURNING user_id;
+
+# --------------------------------------------------------------------------- teams (§3.1)
+
+# Teams are declared in their own records; upsert last-writer-wins on the whole row. Hierarchy
+# (`parent_team_id`) is just another column -- no ordering requirement, since there are no FKs.
+upsert_team: |
+  INSERT INTO teams (team_id, org_id, name, parent_team_id, source_provider)
+  VALUES (:team_id, :org_id, :name, :parent_team_id, :source_provider)
+  ON CONFLICT (team_id) DO UPDATE SET
+    org_id = EXCLUDED.org_id,
+    name = EXCLUDED.name,
+    parent_team_id = EXCLUDED.parent_team_id,
+    source_provider = EXCLUDED.source_provider;
+
+# ------------------------------------------------- membership + roles: replace-for-synced-set
+
+# `sync()` replaces membership and grants for exactly the users it touched this run (plan G2):
+# delete their rows, then re-insert from the records. A person absent from this import keeps
+# their rows untouched. Idempotent by construction -- a re-run deletes and rewrites identical
+# rows.
+delete_team_members_for_users: |
+  DELETE FROM team_members WHERE user_id = ANY(:user_ids);
+
+insert_team_member: |
+  INSERT INTO team_members (team_id, user_id, role_in_team)
+  VALUES (:team_id, :user_id, :role_in_team)
+  ON CONFLICT (team_id, user_id) DO UPDATE SET role_in_team = EXCLUDED.role_in_team;
+
+delete_role_assignments_for_users: |
+  DELETE FROM role_assignments WHERE user_id = ANY(:user_ids);
+
+insert_role_assignment: |
+  INSERT INTO role_assignments (user_id, role, scope_type, scope_id)
+  VALUES (:user_id, :role, :scope_type, :scope_id)
+  ON CONFLICT (user_id, role, scope_type, scope_id) DO NOTHING;
+
+# ------------------------------------- user <-> repo contribution rollup (IDENT §3.4, G5)
+
+# The repos a user contributes to are derived from ACTIVITY, not the directory -- no provider
+# supplies them. Two sources, deliberately kept separate so each entry can record which
+# side(s) evidence it:
+#
+#   1. telemetry -- session_info.repo_id (+ repo_id_provenance), joined to sessions for the
+#      owner. Root sessions only (`parent_session_id IS NULL`): a subagent shares its parent's
+#      user_id and repo, so counting it would double-count (REPO §6.5).
+#   2. live GitHub -- git_artifacts where the author resolved to this user_id.
+#
+# NOTE (REPO §1.4): session_info.repo_id is the git_ident scheme (`github:<owner>/<name>` /
+# `local:<key>`) while git_artifacts.repo_id is `github:<repo_num>`. The two only auto-merge
+# once repo-identity unification lands (repositories.py). Until then most entries carry a
+# single source, which is correct -- the sets genuinely differ.
+
+user_repos_from_sessions: |
+  SELECT si.repo_id,
+         si.repo_id_provenance                AS provenance,
+         count(*)                             AS session_count,
+         min(s.started_at)                    AS first_seen,
+         max(s.last_event_at)                 AS last_seen
+  FROM session_info si
+  JOIN sessions s ON s.session_id = si.session_id
+  WHERE s.user_id = :user_id
+    AND si.repo_id IS NOT NULL
+    AND s.parent_session_id IS NULL
+  GROUP BY si.repo_id, si.repo_id_provenance;
+
+user_repos_from_git: |
+  SELECT repo_id,
+         count(*) FILTER (WHERE kind = 'pr') AS pr_count,
+         min(created_at)                     AS first_seen,
+         max(updated_at)                     AS last_seen
+  FROM git_artifacts
+  WHERE user_id = :user_id
+    AND repo_id IS NOT NULL
+  GROUP BY repo_id;
+
+# Materialize the rollup onto the user row. MVP is compute-on-read (repo_rollup.py docstring);
+# this is here for the deferred post-fold / post-git-apply refresh hook.
+update_user_repos: |
+  UPDATE users
+  SET info = jsonb_set(COALESCE(info, '{}'::jsonb), '{repos}', CAST(:repos AS jsonb), true)
+  WHERE user_id = :user_id;
+
+# The REVERSE direction ("who contributes to repo X") is NOT served from the forward list and
+# needs no `user_repos` table (IDENT §3.4 trip-wire): it stays a GROUP BY over the same base
+# tables. A `path`-tier session repo is a local label -- excluded here so it is never merged
+# across users.
+repo_contributors: |
+  SELECT user_id,
+         sum(session_count)::bigint AS session_count,
+         sum(pr_count)::bigint      AS pr_count
+  FROM (
+    SELECT s.user_id, count(*) AS session_count, 0 AS pr_count
+    FROM session_info si
+    JOIN sessions s ON s.session_id = si.session_id
+    WHERE si.repo_id = :repo_id
+      AND s.user_id IS NOT NULL
+      AND s.parent_session_id IS NULL
+      AND si.repo_id_provenance IS DISTINCT FROM 'path'
+    GROUP BY s.user_id
+    UNION ALL
+    SELECT user_id, 0 AS session_count, count(*) FILTER (WHERE kind = 'pr') AS pr_count
+    FROM git_artifacts
+    WHERE repo_id = :repo_id AND user_id IS NOT NULL
+    GROUP BY user_id
+  ) q
+  GROUP BY user_id;
+
+# -------------------------------------------------- read service for F2 / Track A (G6)
+
+# The trusted-header viewer id (IDENT §3 ground rule 4) is resolved to a user_id: it is
+# either already a user_id, or an external identity on the link spine. F2's auth seam owns
+# turning a request into this value; SSO slots in there later.
+viewer_is_user_id: |
+  SELECT 1 FROM users WHERE user_id = :viewer_id;
+
+resolve_link_any_provider: |
+  SELECT user_id FROM identity_links WHERE external_id = :external_id LIMIT 1;
+
+roles_of_user: |
+  SELECT role, scope_type, scope_id FROM role_assignments WHERE user_id = :user_id;
+
+team_ids_of_user: |
+  SELECT team_id FROM team_members WHERE user_id = :user_id;
+
+primary_team_of_user: |
+  SELECT primary_team_id FROM users WHERE user_id = :user_id;
+
+# Hierarchy walk (IDENT §3, §4): the subtree rooted at :team_id, INCLUDING the root, via a
+# recursive CTE over `parent_team_id`. A lead scoped to a team sees it and everything under it.
+team_descendants: |
+  WITH RECURSIVE sub AS (
+    SELECT team_id, parent_team_id, org_id FROM teams WHERE team_id = :team_id
+    UNION ALL
+    SELECT t.team_id, t.parent_team_id, t.org_id
+    FROM teams t JOIN sub ON t.parent_team_id = sub.team_id
+  )
+  SELECT team_id FROM sub;
+
+team_ids_for_org: |
+  SELECT team_id FROM teams WHERE org_id = :org_id;
+
+org_of_teams: |
+  SELECT org_id FROM teams WHERE team_id = ANY(:team_ids) LIMIT 1;
+
+members_of_teams: |
+  SELECT DISTINCT user_id FROM team_members WHERE team_id = ANY(:team_ids);
+
+# Org scope in single-tenant MVP == every user still on the roster (IDENT §5: disabled users
+# are retained for attribution but never appear in active rosters).
+active_user_ids: |
+  SELECT user_id FROM users WHERE status IS DISTINCT FROM 'disabled';
+
+# The repos a set of users touch, off the same base tables as the G5 rollup. `:include_local`
+# false drops `path`-tier session repos -- a local label must never widen one person's view
+# of another's work (REPO §1.4).
+repo_ids_for_users: |
+  SELECT DISTINCT repo_id FROM (
+    SELECT si.repo_id
+    FROM session_info si
+    JOIN sessions s ON s.session_id = si.session_id
+    WHERE s.user_id = ANY(:user_ids)
+      AND si.repo_id IS NOT NULL
+      AND s.parent_session_id IS NULL
+      AND (:include_local OR si.repo_id_provenance IS DISTINCT FROM 'path')
+    UNION
+    SELECT repo_id
+    FROM git_artifacts
+    WHERE user_id = ANY(:user_ids) AND repo_id IS NOT NULL
+  ) q;

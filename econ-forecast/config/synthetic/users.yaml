@@ -1,0 +1,12 @@
+# Synthetic generator configuration. See src/forecast/synthetic/README.md.
+# The CLI requires a new --output directory and writes a stage report.
+schema_version: 1
+# One reusable Organization user pool. No Team membership is assigned here.
+users:
+  # Positive user count; names/emails are fake and no accounts are created.
+  count: 100
+  # Also used as org_id; every generated email uses this domain.
+  org_domain: talium.ai
+  locale: en_US
+  # Fixed identity seed; Faker is version-pinned for repeatability.
+  seed: 42

@@ -1,0 +1,31 @@
+# talium-uploadd config for the local sync stack (docker/docker-compose.sync.yml). Mirrors
+# ../upload/deploy/uploadd.yaml (production) with MinIO in place of S3.
+#
+# talium-uploadd interpolates ${VAR} against its environment on the raw text BEFORE parsing,
+# so the enrollment map's KEY can be interpolated too. That is what keeps the org consistent:
+# the server attests org_id from whichever secret matched (never the client's --org), and it
+# must equal the org the stack's init container issued the OTel org token for.
+
+object_store:
+  backend: s3
+  s3:
+    bucket: talium-staging
+    region: us-east-1
+    endpoint_url: "http://minio:9000"   # also switches the S3 client to path-style addressing
+    prefix: "${TALIUM_S3_PREFIX}"       # cc/logs by default, the same base the AWS demo uses
+
+auth:
+  enrollment_secrets:
+    "${TALIUM_ORG_ID}": "${TALIUM_SYNC_ENROLLMENT_SECRET}"
+  signing_key: "${TALIUM_SESSION_SIGNING_KEY}"
+  session_ttl_s: 900
+
+staging:
+  layout: "<vendor>/raw/<rel>"
+  tus_tmp: "tus-tmp"
+
+http:
+  addr: ":8080"
+
+limits:
+  max_upload_bytes: 0

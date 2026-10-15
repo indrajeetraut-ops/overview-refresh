@@ -1,0 +1,59 @@
+# Named queries for the synthetic-org loader (docs/plan/2026-09-18-synthetic-org-implementation.md
+# §5 P10). Compiled by QueryCatalog at load. `server.storage.synthetic_load.load_dataset` is the
+# only caller.
+
+# `RESTART IDENTITY` so a re-`--replace` load starts every serial PK (git_artifact_events.event_id)
+# back at 1 -- otherwise a repeatedly-reloaded demo dataset accumulates gaps forever. Order does
+# not matter: none of these tables carry a real FK (storage.md §3.1).
+truncate_all: |
+  TRUNCATE session_git_links, pr_classification, pr_issue_links, git_artifact_events,
+    git_artifacts, git_repos, git_installations, session_info, sessions, repositories, budgets,
+    role_assignments, team_members, teams, identity_links, users, feedback, queue_jobs,
+    forecast_runs, forecast_scope_series
+  RESTART IDENTITY;
+
+# `users.timezone`/`github_user`/`primary_team_id` sit outside directory.sync's own field set
+# (IDENT §7's own carve-out for fields sync must not touch) -- this loader writes them directly
+# per `user_prefs.jsonl`, one row per rostered user (+ the admin).
+set_user_prefs: |
+  UPDATE users SET github_user = :github_user, timezone = :timezone,
+    primary_team_id = :primary_team_id
+  WHERE user_id = :user_id;
+
+# pr_classify() always writes rework_ratio = NULL (owned by the sibling rework module, per
+# pr_class.py's own module docstring); this loader is that module's synthetic stand-in, applied
+# AFTER classification so it never gets clobbered by a later classify pass in this same load.
+set_rework_ratio: |
+  UPDATE pr_classification SET rework_ratio = :rework_ratio WHERE artifact_id = :artifact_id;
+
+# The loader's own I1 oracle (plan §5 P8's in-memory check, re-run here against the DATABASE
+# after insert): re-aggregate synthetic sessions the same way `expected_rollup.jsonl` was built,
+# and diff the two as a multiset of tuples.
+daily_rollup: |
+  SELECT (s.started_at AT TIME ZONE :tz)::date AS date, s.user_id, i.repo_id, s.agent,
+         m.key AS model,
+         SUM((m.value->>'input')::bigint) AS input,
+         SUM((m.value->>'cache_write')::bigint) AS cache_write,
+         SUM((m.value->>'cache_read')::bigint) AS cache_read,
+         SUM((m.value->>'output')::bigint) AS output
+  FROM sessions s JOIN session_info i USING (session_id), jsonb_each(i.models) m
+  WHERE s.info_blob->>'synthetic' = 'true'
+  GROUP BY 1, 2, 3, 4, 5;
+
+# One row per loaded table, for the loader's own summary/log -- a UNION so it is one round trip.
+row_counts: |
+  SELECT 'git_installations' AS table_name, count(*) AS row_count FROM git_installations
+  UNION ALL SELECT 'git_repos', count(*) FROM git_repos
+  UNION ALL SELECT 'repositories', count(*) FROM repositories
+  UNION ALL SELECT 'git_artifacts', count(*) FROM git_artifacts
+  UNION ALL SELECT 'git_artifact_events', count(*) FROM git_artifact_events
+  UNION ALL SELECT 'pr_issue_links', count(*) FROM pr_issue_links
+  UNION ALL SELECT 'sessions', count(*) FROM sessions
+  UNION ALL SELECT 'session_info', count(*) FROM session_info
+  UNION ALL SELECT 'session_git_links', count(*) FROM session_git_links
+  UNION ALL SELECT 'pr_classification', count(*) FROM pr_classification
+  UNION ALL SELECT 'budgets', count(*) FROM budgets
+  UNION ALL SELECT 'teams', count(*) FROM teams
+  UNION ALL SELECT 'users', count(*) FROM users
+  UNION ALL SELECT 'forecast_runs', count(*) FROM forecast_runs
+  UNION ALL SELECT 'forecast_scope_series', count(*) FROM forecast_scope_series;

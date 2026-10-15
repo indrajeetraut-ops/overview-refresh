@@ -1,0 +1,523 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<testsuites name="vitest tests" tests="248" failures="0" errors="0" time="0.171943874">
+    <testsuite name="src/components/Block.test.ts" timestamp="2026-10-14T22:38:57.207Z" hostname="MacBook-Pro-3.local" tests="7" failures="0" errors="0" skipped="0" time="0.002558208">
+        <testcase classname="src/components/Block.test.ts" name="resolveBlockState — the five states are distinct &gt; loading" time="0.000852791">
+        </testcase>
+        <testcase classname="src/components/Block.test.ts" name="resolveBlockState — the five states are distinct &gt; error" time="0.000108083">
+        </testcase>
+        <testcase classname="src/components/Block.test.ts" name="resolveBlockState — the five states are distinct &gt; unavailable — envelope carries {unavailable}" time="0.000360458">
+        </testcase>
+        <testcase classname="src/components/Block.test.ts" name="resolveBlockState — the five states are distinct &gt; cold-start — data null, no unavailable (NOT the same as unavailable)" time="0.00009375">
+        </testcase>
+        <testcase classname="src/components/Block.test.ts" name="resolveBlockState — the five states are distinct &gt; empty — data present but isEmpty()" time="0.000089584">
+        </testcase>
+        <testcase classname="src/components/Block.test.ts" name="resolveBlockState — the five states are distinct &gt; ready — hands back the non-null payload" time="0.00011725">
+        </testcase>
+        <testcase classname="src/components/Block.test.ts" name="resolveBlockState — the five states are distinct &gt; a present payload with a still-computing section reads as cold-start, not empty" time="0.000093708">
+        </testcase>
+    </testsuite>
+    <testsuite name="src/data/mock-cycles.test.ts" timestamp="2026-10-14T22:38:57.208Z" hostname="MacBook-Pro-3.local" tests="11" failures="0" errors="0" skipped="0" time="0.0058795">
+        <testcase classname="src/data/mock-cycles.test.ts" name="mock budget periods &gt; month: six started months, the current one last, and the next one" time="0.002802125">
+        </testcase>
+        <testcase classname="src/data/mock-cycles.test.ts" name="mock budget periods &gt; honours `history`" time="0.000157875">
+        </testcase>
+        <testcase classname="src/data/mock-cycles.test.ts" name="mock budget periods &gt; quarter, half and year roll over the calendar year" time="0.000242875">
+        </testcase>
+        <testcase classname="src/data/mock-cycles.test.ts" name="mock budget periods &gt; sprint: numbered from the anchor, never below sprint 1" time="0.000263875">
+        </testcase>
+        <testcase classname="src/data/mock-cycles.test.ts" name="mock budget periods &gt; sprint: before the anchor there is no period, only the next one" time="0.000102541">
+        </testcase>
+        <testcase classname="src/data/mock-cycles.test.ts" name="mock budget periods &gt; custom: labelled by its dates, one-time gives a single period" time="0.000675625">
+        </testcase>
+        <testcase classname="src/data/mock-cycles.test.ts" name="mock budget periods &gt; custom recurring repeats with its own length" time="0.000152541">
+        </testcase>
+        <testcase classname="src/data/mock-cycles.test.ts" name="mock budget periods &gt; every kind has a stored label" time="0.000101">
+        </testcase>
+        <testcase classname="src/data/mock-cycles.test.ts" name="mock cycle validation &gt; mirrors the server&apos;s reasons" time="0.000239416">
+        </testcase>
+        <testcase classname="src/data/mock-cycles.test.ts" name="mock cycle validation &gt; rejects an unknown kind or recurrence in the server&apos;s words" time="0.000118542">
+        </testcase>
+        <testcase classname="src/data/mock-cycles.test.ts" name="mock cycle validation &gt; normalises like the server: unused fields null, sprint defaults filled" time="0.000124625">
+        </testcase>
+    </testsuite>
+    <testsuite name="src/data/source.test.ts" timestamp="2026-10-14T22:38:57.210Z" hostname="MacBook-Pro-3.local" tests="5" failures="0" errors="0" skipped="0" time="0.002276625">
+        <testcase classname="src/data/source.test.ts" name="errorMessage &gt; prefers the API&apos;s 400 reason" time="0.000852792">
+        </testcase>
+        <testcase classname="src/data/source.test.ts" name="errorMessage &gt; joins a 422 detail list, naming the field" time="0.000133416">
+        </testcase>
+        <testcase classname="src/data/source.test.ts" name="errorMessage &gt; accepts a plain string detail" time="0.000085417">
+        </testcase>
+        <testcase classname="src/data/source.test.ts" name="errorMessage &gt; falls back to the status line for anything else" time="0.000126208">
+        </testcase>
+        <testcase classname="src/data/source.test.ts" name="periodParams &gt; sends the resolved window" time="0.000328417">
+        </testcase>
+    </testsuite>
+    <testsuite name="src/present/crumbs.test.ts" timestamp="2026-10-14T22:38:57.210Z" hostname="MacBook-Pro-3.local" tests="16" failures="0" errors="0" skipped="0" time="0.004197083">
+        <testcase classname="src/present/crumbs.test.ts" name="buildCrumbs: roots &gt; overview is the single crumb Organization" time="0.001141125">
+        </testcase>
+        <testcase classname="src/present/crumbs.test.ts" name="buildCrumbs: roots &gt; other manager sections sit under an Organization crumb that resets to Overview" time="0.000460291">
+        </testcase>
+        <testcase classname="src/present/crumbs.test.ts" name="buildCrumbs: roots &gt; my-usage (a dev viewer) has no Organization crumb" time="0.000107958">
+        </testcase>
+        <testcase classname="src/present/crumbs.test.ts" name="buildCrumbs: trail &gt; is the stack as walked, with no synthesised Teams crumb" time="0.000105333">
+        </testcase>
+        <testcase classname="src/present/crumbs.test.ts" name="buildCrumbs: trail &gt; walks Teams &gt; team &gt; person with registry names" time="0.000144125">
+        </testcase>
+        <testcase classname="src/present/crumbs.test.ts" name="buildCrumbs: trail &gt; falls back to a generic noun while a name is unknown, and for blank names" time="0.000117792">
+        </testcase>
+        <testcase classname="src/present/crumbs.test.ts" name="buildCrumbs: trail &gt; names a later section entry plainly" time="0.000065875">
+        </testcase>
+        <testcase classname="src/present/crumbs.test.ts" name="buildCrumbs: trail &gt; an empty stack has no crumbs" time="0.000065958">
+        </testcase>
+        <testcase classname="src/present/crumbs.test.ts" name="collapseCrumbs &gt; leaves a trail of four or fewer alone" time="0.000469208">
+        </testcase>
+        <testcase classname="src/present/crumbs.test.ts" name="collapseCrumbs &gt; keeps the first crumb, an ellipsis and the last two" time="0.0001845">
+        </testcase>
+        <testcase classname="src/present/crumbs.test.ts" name="collapseCrumbs &gt; shows everything when expanded" time="0.000068791">
+        </testcase>
+        <testcase classname="src/present/crumbs.test.ts" name="scopeLabels &gt; keys team and project names like the registry does" time="0.000101708">
+        </testcase>
+        <testcase classname="src/present/crumbs.test.ts" name="scopeLabels &gt; is empty without scopes" time="0.000043458">
+        </testcase>
+        <testcase classname="src/present/crumbs.test.ts" name="mergeLabels &gt; lets a published name win over the scopes() fallback" time="0.000076417">
+        </testcase>
+        <testcase classname="src/present/crumbs.test.ts" name="mergeLabels &gt; does not let a blank published name hide the fallback" time="0.000048083">
+        </testcase>
+        <testcase classname="src/present/crumbs.test.ts" name="mergeLabels &gt; works without a fallback, and feeds buildCrumbs" time="0.000059791">
+        </testcase>
+    </testsuite>
+    <testsuite name="src/present/cycle.test.ts" timestamp="2026-10-14T22:38:57.211Z" hostname="MacBook-Pro-3.local" tests="25" failures="0" errors="0" skipped="0" time="0.005250166">
+        <testcase classname="src/present/cycle.test.ts" name="wording for any cycle &gt; names what a budget is per, from the stored label" time="0.001106209">
+        </testcase>
+        <testcase classname="src/present/cycle.test.ts" name="wording for any cycle &gt; is not fooled by names every object has" time="0.000210792">
+        </testcase>
+        <testcase classname="src/present/cycle.test.ts" name="wording for any cycle &gt; labels the amount field after the cycle" time="0.000097417">
+        </testcase>
+        <testcase classname="src/present/cycle.test.ts" name="wording for any cycle &gt; words the selected window" time="0.0001895">
+        </testcase>
+        <testcase classname="src/present/cycle.test.ts" name="wording for any cycle &gt; words a sprint, a custom date range and a period not started yet" time="0.000304958">
+        </testcase>
+        <testcase classname="src/present/cycle.test.ts" name="forecast copy &gt; says the forecast is by calendar month for any known cycle that is not monthly" time="0.000120542">
+        </testcase>
+        <testcase classname="src/present/cycle.test.ts" name="forecast copy &gt; says nothing for a monthly, unknown or missing cycle" time="0.000097959">
+        </testcase>
+        <testcase classname="src/present/cycle.test.ts" name="forecast copy &gt; passes the tone lexicon" time="0.000096666">
+        </testcase>
+        <testcase classname="src/present/cycle.test.ts" name="the draft &gt; opens on the saved cycle, with defaults for what a kind does not store" time="0.000429459">
+        </testcase>
+        <testcase classname="src/present/cycle.test.ts" name="the draft &gt; offers one-time for sprint and custom only" time="0.000145667">
+        </testcase>
+        <testcase classname="src/present/cycle.test.ts" name="the draft &gt; builds only the fields the kind uses, calendar kinds always recurring" time="0.000128334">
+        </testcase>
+        <testcase classname="src/present/cycle.test.ts" name="validation mirrors the server&apos;s rules &gt; accepts a valid draft of every kind" time="0.000212333">
+        </testcase>
+        <testcase classname="src/present/cycle.test.ts" name="validation mirrors the server&apos;s rules &gt; does not check fields the kind does not use" time="0.00006225">
+        </testcase>
+        <testcase classname="src/present/cycle.test.ts" name="validation mirrors the server&apos;s rules &gt; sprint length is whole weeks, 1 to 52" time="0.000129417">
+        </testcase>
+        <testcase classname="src/present/cycle.test.ts" name="validation mirrors the server&apos;s rules &gt; sprint number is a whole number from 1 to 100000" time="0.000075083">
+        </testcase>
+        <testcase classname="src/present/cycle.test.ts" name="validation mirrors the server&apos;s rules &gt; needs a real start date inside 2000..2100" time="0.000081292">
+        </testcase>
+        <testcase classname="src/present/cycle.test.ts" name="validation mirrors the server&apos;s rules &gt; custom needs both days, the last not before the first" time="0.000094834">
+        </testcase>
+        <testcase classname="src/present/cycle.test.ts" name="which field a problem belongs to &gt; names the field, so the form can mark it invalid" time="0.000118542">
+        </testcase>
+        <testcase classname="src/present/cycle.test.ts" name="which field a problem belongs to &gt; agrees with validateCycleDraft" time="0.000067667">
+        </testcase>
+        <testcase classname="src/present/cycle.test.ts" name="what a save would change &gt; nothing when the draft equals the saved cycle (including fields a kind ignores)" time="0.000158">
+        </testcase>
+        <testcase classname="src/present/cycle.test.ts" name="what a save would change &gt; a different kind is a kind change" time="0.000042666">
+        </testcase>
+        <testcase classname="src/present/cycle.test.ts" name="what a save would change &gt; the same kind with other values is an edit" time="0.000071542">
+        </testcase>
+        <testcase classname="src/present/cycle.test.ts" name="messages before a save &gt; the kind-change warning says nothing is converted and what to do" time="0.000126208">
+        </testcase>
+        <testcase classname="src/present/cycle.test.ts" name="messages before a save &gt; the same-kind notice says amounts now apply per period of the changed cycle" time="0.0000355">
+        </testcase>
+        <testcase classname="src/present/cycle.test.ts" name="messages before a save &gt; pass the tone lexicon" time="0.000046584">
+        </testcase>
+    </testsuite>
+    <testsuite name="src/present/fonts.test.ts" timestamp="2026-10-14T22:38:57.213Z" hostname="MacBook-Pro-3.local" tests="4" failures="0" errors="0" skipped="0" time="0.002373917">
+        <testcase classname="src/present/fonts.test.ts" name="MONO_FONT &gt; is exactly the stack .font-mono uses in index.css" time="0.000993708">
+        </testcase>
+        <testcase classname="src/present/fonts.test.ts" name="MONO_FONT &gt; is also the stack of .chip, and the Google Fonts import loads its first family" time="0.0002145">
+        </testcase>
+        <testcase classname="src/present/fonts.test.ts" name="MONO_FONT &gt; sets Inter once on body (not on *, which would override .font-mono&apos;s children)" time="0.000240958">
+        </testcase>
+        <testcase classname="src/present/fonts.test.ts" name="MONO_FONT &gt; leaves no retired font behind" time="0.000104208">
+        </testcase>
+    </testsuite>
+    <testsuite name="src/present/forecast.test.ts" timestamp="2026-10-14T22:38:57.214Z" hostname="MacBook-Pro-3.local" tests="75" failures="0" errors="0" skipped="0" time="0.100054458">
+        <testcase classname="src/present/forecast.test.ts" name="fmtCompactUsd &gt; compacts micro-dollars" time="0.001629083">
+        </testcase>
+        <testcase classname="src/present/forecast.test.ts" name="fmtCompactUsd &gt; never prints a four-digit dollar figure or a 1000.0k" time="0.000200042">
+        </testcase>
+        <testcase classname="src/present/forecast.test.ts" name="fmtCompactUsd &gt; has billion and trillion tiers instead of printing 1000.0M" time="0.000144">
+        </testcase>
+        <testcase classname="src/present/forecast.test.ts" name="fmtCompactUsd &gt; keeps the sign and tolerates a missing value" time="0.000095625">
+        </testcase>
+        <testcase classname="src/present/forecast.test.ts" name="probabilityLabel &gt; rounds, but never shows certainty that is not there" time="0.000214416">
+        </testcase>
+        <testcase classname="src/present/forecast.test.ts" name="probabilityLabel &gt; is a dash for something that is not a number" time="0.000399583">
+        </testcase>
+        <testcase classname="src/present/forecast.test.ts" name="bandLabel names the percentile pair" time="0.000349042">
+        </testcase>
+        <testcase classname="src/present/forecast.test.ts" name="dates &gt; formats an ISO day without a time zone" time="0.000242708">
+        </testcase>
+        <testcase classname="src/present/forecast.test.ts" name="dates &gt; the shared day helpers are the same functions" time="0.000099083">
+        </testcase>
+        <testcase classname="src/present/forecast.test.ts" name="dates &gt; does not shift the day west of UTC" time="0.002125041">
+        </testcase>
+        <testcase classname="src/present/forecast.test.ts" name="dates &gt; month names and day arithmetic" time="0.000140416">
+        </testcase>
+        <testcase classname="src/present/forecast.test.ts" name="presets and periods &gt; groups presets: ungrouped (baseline) first, groups in order of first appearance" time="0.000209792">
+        </testcase>
+        <testcase classname="src/present/forecast.test.ts" name="presets and periods &gt; falls back to the baseline for an id the run does not have" time="0.000093792">
+        </testcase>
+        <testcase classname="src/present/forecast.test.ts" name="presets and periods &gt; labels the periods" time="0.000585584">
+        </testcase>
+        <testcase classname="src/present/forecast.test.ts" name="presets and periods &gt; detects a series without numbers" time="0.00039225">
+        </testcase>
+        <testcase classname="src/present/forecast.test.ts" name="burnUpRows &gt; current period: cumulative actual, a join row with no step, then the projection" time="0.000359167">
+        </testcase>
+        <testcase classname="src/present/forecast.test.ts" name="burnUpRows &gt; the cumulative actual meets actual_to_date exactly" time="0.000173084">
+        </testcase>
+        <testcase classname="src/present/forecast.test.ts" name="burnUpRows &gt; adds the baseline&apos;s expected only for another preset, joined the same way" time="0.000623167">
+        </testcase>
+        <testcase classname="src/present/forecast.test.ts" name="burnUpRows &gt; a future period has no actual rows and no join row" time="0.000325333">
+        </testcase>
+        <testcase classname="src/present/forecast.test.ts" name="burnUpRows &gt; month-end case: no period is current, so no actual rows and no join row" time="0.000644833">
+        </testcase>
+        <testcase classname="src/present/forecast.test.ts" name="burnUpRows &gt; merges the join row with the last actual day when only one day is actual" time="0.000293125">
+        </testcase>
+        <testcase classname="src/present/forecast.test.ts" name="burnUpRows &gt; an incomplete series or a missing period gives no rows" time="0.000204666">
+        </testcase>
+        <testcase classname="src/present/forecast.test.ts" name="burnUpMarkers &gt; budget line and the runway marker with its range" time="0.000154583">
+        </testcase>
+        <testcase classname="src/present/forecast.test.ts" name="burnUpMarkers &gt; nothing when the runway has no dates, none for a future period, none without a budget" time="0.00031175">
+        </testcase>
+        <testcase classname="src/present/forecast.test.ts" name="burnUpMarkers &gt; a single-day range (exhausted) draws the marker only" time="0.000122916">
+        </testcase>
+        <testcase classname="src/present/forecast.test.ts" name="legends list only the series that are drawn &gt; burn-up: a current period has every entry" time="0.0002665">
+        </testcase>
+        <testcase classname="src/present/forecast.test.ts" name="legends list only the series that are drawn &gt; burn-up: no &apos;spent so far&apos; in a future month or the month-end case" time="0.000263125">
+        </testcase>
+        <testcase classname="src/present/forecast.test.ts" name="legends list only the series that are drawn &gt; burn-up: no baseline entry unless a baseline line is drawn, no budget entry without a budget" time="0.000174666">
+        </testcase>
+        <testcase classname="src/present/forecast.test.ts" name="legends list only the series that are drawn &gt; daily: actual, expected and band" time="0.000406459">
+        </testcase>
+        <testcase classname="src/present/forecast.test.ts" name="dailyRows &gt; the last 28 actual days, then the forecast after data_through" time="0.000435541">
+        </testcase>
+        <testcase classname="src/present/forecast.test.ts" name="dailyRows &gt; keeps all rows when there are fewer than 28, and sorts them" time="0.000147208">
+        </testcase>
+        <testcase classname="src/present/forecast.test.ts" name="dailyRows &gt; month-end case: 28 actual days and a forecast that all lies after data_through" time="0.000234">
+        </testcase>
+        <testcase classname="src/present/forecast.test.ts" name="dailyRows &gt; an incomplete series has actuals only" time="0.000142875">
+        </testcase>
+        <testcase classname="src/present/forecast.test.ts" name="headlineSentences &gt; baseline with a budget" time="0.00246175">
+        </testcase>
+        <testcase classname="src/present/forecast.test.ts" name="headlineSentences &gt; uses compact thousands for larger landings" time="0.000178167">
+        </testcase>
+        <testcase classname="src/present/forecast.test.ts" name="headlineSentences &gt; without a budget there is no probability sentence" time="0.000138958">
+        </testcase>
+        <testcase classname="src/present/forecast.test.ts" name="headlineSentences &gt; no probability sentence without a budget, even if the period carries a probability" time="0.000215458">
+        </testcase>
+        <testcase classname="src/present/forecast.test.ts" name="headlineSentences &gt; a future period names its month" time="0.000143625">
+        </testcase>
+        <testcase classname="src/present/forecast.test.ts" name="headlineSentences &gt; month-end case names the months and has no runway" time="0.000333333">
+        </testcase>
+        <testcase classname="src/present/forecast.test.ts" name="headlineSentences &gt; another preset: more, less, and the same as the baseline" time="0.000401958">
+        </testcase>
+        <testcase classname="src/present/forecast.test.ts" name="headlineSentences &gt; larger deltas are compact" time="0.000234625">
+        </testcase>
+        <testcase classname="src/present/forecast.test.ts" name="headlineSentences &gt; omits the comparison when the baseline has no numbers" time="0.000150666">
+        </testcase>
+        <testcase classname="src/present/forecast.test.ts" name="headlineSentences &gt; probability edges" time="0.000468958">
+        </testcase>
+        <testcase classname="src/present/forecast.test.ts" name="headlineSentences &gt; drops the probability sentence once the budget is used up" time="0.00013425">
+        </testcase>
+        <testcase classname="src/present/forecast.test.ts" name="headlineSentences &gt; an incomplete series has no sentences" time="0.00011425">
+        </testcase>
+        <testcase classname="src/present/forecast.test.ts" name="runwaySentence &gt; lasts: the budget minus the median landing is what is likely left" time="0.000272917">
+        </testcase>
+        <testcase classname="src/present/forecast.test.ts" name="runwaySentence &gt; lasts floors what is left at zero" time="0.000145375">
+        </testcase>
+        <testcase classname="src/present/forecast.test.ts" name="runwaySentence &gt; at risk: with dates, days early, the last day, and without dates" time="0.000723209">
+        </testcase>
+        <testcase classname="src/present/forecast.test.ts" name="runwaySentence &gt; runs out: with dates, singular day, and without dates" time="0.000426708">
+        </testcase>
+        <testcase classname="src/present/forecast.test.ts" name="runwaySentence &gt; exhausted names the day, or says it is used up" time="0.000227125">
+        </testcase>
+        <testcase classname="src/present/forecast.test.ts" name="runwaySentence &gt; another preset names itself instead of saying &quot;at this pace&quot;" time="0.000379667">
+        </testcase>
+        <testcase classname="src/present/forecast.test.ts" name="runwaySentence &gt; no sentence for a period that is not under way, even if it carries a runway object" time="0.000243084">
+        </testcase>
+        <testcase classname="src/present/forecast.test.ts" name="runwaySentence &gt; no sentence for a future period, without a runway or without a budget" time="0.000355083">
+        </testcase>
+        <testcase classname="src/present/forecast.test.ts" name="forecastFootnote says when the forecast starts and what actuals it sits on" time="0.0001365">
+        </testcase>
+        <testcase classname="src/present/forecast.test.ts" name="planner helpers &gt; opens on the first period that is not under way" time="0.000078166">
+        </testcase>
+        <testcase classname="src/present/forecast.test.ts" name="planner helpers &gt; builds a row per team and project, in response order, for a preset and period" time="0.000301333">
+        </testcase>
+        <testcase classname="src/present/forecast.test.ts" name="planner helpers &gt; a preset with no figures keeps the name and budget, with empty figures; an unknown preset falls back" time="0.000118458">
+        </testcase>
+        <testcase classname="src/present/forecast.test.ts" name="planner helpers &gt; sort: descending, ascending, nulls always last, stable, inside each group" time="0.000257667">
+        </testcase>
+        <testcase classname="src/present/forecast.test.ts" name="planner helpers &gt; the sort header cycles none -&gt; descending -&gt; ascending -&gt; none" time="0.000086208">
+        </testcase>
+        <testcase classname="src/present/forecast.test.ts" name="planner helpers &gt; uses plan_for_usd_micros, not the 80th percentile, and the response&apos;s confidence" time="0.000209459">
+        </testcase>
+        <testcase classname="src/present/forecast.test.ts" name="planner helpers &gt; the gap sort button names its state" time="0.000064959">
+        </testcase>
+        <testcase classname="src/present/forecast.test.ts" name="planner helpers &gt; forecast token counts get a billions tier" time="0.000145875">
+        </testcase>
+        <testcase classname="src/present/forecast.test.ts" name="planner helpers &gt; groups consecutive rows under Teams and Projects" time="0.000116667">
+        </testcase>
+        <testcase classname="src/present/forecast.test.ts" name="planner helpers &gt; the gap cell" time="0.000181792">
+        </testcase>
+        <testcase classname="src/present/forecast.test.ts" name="planner helpers &gt; header and token footnote" time="0.000081958">
+        </testcase>
+        <testcase classname="src/present/forecast.test.ts" name="ApiSource forecast calls &gt; forecast sends scope_type and scope_id, encoding a repo id" time="0.000787583">
+        </testcase>
+        <testcase classname="src/present/forecast.test.ts" name="ApiSource forecast calls &gt; forecastPlan takes no parameters" time="0.000163083">
+        </testcase>
+        <testcase classname="src/present/forecast.test.ts" name="ApiSource forecast calls &gt; the org uses the real org id for the forecast, not the economics placeholder" time="0.000115958">
+        </testcase>
+        <testcase classname="src/present/forecast.test.ts" name="mock forecast fixture &gt; has a run for the org, the teams and two projects, and none for growth-web" time="0.00008875">
+        </testcase>
+        <testcase classname="src/present/forecast.test.ts" name="mock forecast fixture &gt; serves envelopes through the mock source" time="0.011096333">
+        </testcase>
+        <testcase classname="src/present/forecast.test.ts" name="mock forecast fixture &gt; is internally consistent" time="0.0419295">
+        </testcase>
+        <testcase classname="src/present/forecast.test.ts" name="mock forecast fixture &gt; the burn-up&apos;s actual line meets the projection exactly, for every scope" time="0.000545292">
+        </testcase>
+        <testcase classname="src/present/forecast.test.ts" name="mock forecast fixture &gt; covers every runway state, a scope without a budget and an incomplete series" time="0.00030625">
+        </testcase>
+        <testcase classname="src/present/forecast.test.ts" name="mock forecast fixture &gt; every generated sentence passes the lexicon gate" time="0.007976583">
+        </testcase>
+        <testcase classname="src/present/forecast.test.ts" name="mock forecast fixture &gt; the plan fixture agrees with the run: gap is plan-for minus budget, tokens cover the forecast" time="0.013602458">
+        </testcase>
+    </testsuite>
+    <testsuite name="src/present/overview.test.ts" timestamp="2026-10-14T22:38:57.219Z" hostname="MacBook-Pro-3.local" tests="51" failures="0" errors="0" skipped="0" time="0.025566833">
+        <testcase classname="src/present/overview.test.ts" name="budget and gauge &gt; tones use the old thresholds" time="0.000901333">
+        </testcase>
+        <testcase classname="src/present/overview.test.ts" name="budget and gauge &gt; recovers the budget from spend and share, guarded" time="0.0001715">
+        </testcase>
+        <testcase classname="src/present/overview.test.ts" name="budget and gauge &gt; under budget: capped arc, left pill, caption" time="0.003684625">
+        </testcase>
+        <testcase classname="src/present/overview.test.ts" name="budget and gauge &gt; comfortably under budget is green" time="0.000137583">
+        </testcase>
+        <testcase classname="src/present/overview.test.ts" name="budget and gauge &gt; over budget: red, arc capped at 100%, over pill" time="0.000167">
+        </testcase>
+        <testcase classname="src/present/overview.test.ts" name="budget and gauge &gt; exactly on budget has $0 left and is red" time="0.000126167">
+        </testcase>
+        <testcase classname="src/present/overview.test.ts" name="budget and gauge &gt; no spend figure: no gauge (the card shows a plain Spent metric)" time="0.0000745">
+        </testcase>
+        <testcase classname="src/present/overview.test.ts" name="budget and gauge &gt; no budget: no gauge; zero share: arc empty, no amount" time="0.000103709">
+        </testcase>
+        <testcase classname="src/present/overview.test.ts" name="KPI texts &gt; teams banner" time="0.000198625">
+        </testcase>
+        <testcase classname="src/present/overview.test.ts" name="KPI texts &gt; repos" time="0.000126834">
+        </testcase>
+        <testcase classname="src/present/overview.test.ts" name="KPI texts &gt; merged per day over elapsed days, never dividing by zero" time="0.000152958">
+        </testcase>
+        <testcase classname="src/present/overview.test.ts" name="KPI texts &gt; reasoning tokens and share" time="0.000106625">
+        </testcase>
+        <testcase classname="src/present/overview.test.ts" name="model mix slices &gt; small mixes list every model, biggest first, in tier colours" time="0.000323208">
+        </testcase>
+        <testcase classname="src/present/overview.test.ts" name="model mix slices &gt; rolls everything past the fourth into +N other with the full list in its title" time="0.000243042">
+        </testcase>
+        <testcase classname="src/present/overview.test.ts" name="model mix slices &gt; keys are unique even when a model id repeats" time="0.000069542">
+        </testcase>
+        <testcase classname="src/present/overview.test.ts" name="model mix slices &gt; nothing in, nothing out" time="0.000053791">
+        </testcase>
+        <testcase classname="src/present/overview.test.ts" name="forecast card helpers &gt; runway statuses to pills" time="0.00009775">
+        </testcase>
+        <testcase classname="src/present/overview.test.ts" name="forecast card helpers &gt; budget status fallback" time="0.000087666">
+        </testcase>
+        <testcase classname="src/present/overview.test.ts" name="forecast card helpers &gt; recoverable line" time="0.000524875">
+        </testcase>
+        <testcase classname="src/present/overview.test.ts" name="forecast card helpers &gt; the mock org forecast: the current period, with a runway sentence" time="0.005389458">
+        </testcase>
+        <testcase classname="src/present/overview.test.ts" name="forecast card helpers &gt; each runway status gives its pill and a sentence about the budget" time="0.001762083">
+        </testcase>
+        <testcase classname="src/present/overview.test.ts" name="forecast card helpers &gt; the card title names the calendar month being drawn" time="0.001123375">
+        </testcase>
+        <testcase classname="src/present/overview.test.ts" name="forecast card helpers &gt; no budget, or no period under way, means no runway footer" time="0.001027208">
+        </testcase>
+        <testcase classname="src/present/overview.test.ts" name="team bars and table &gt; bars carry whole-dollar spend, recovered budget and the delta" time="0.0004775">
+        </testcase>
+        <testcase classname="src/present/overview.test.ts" name="team bars and table &gt; tooltip facts: spent, budget, and what is over or left" time="0.000299667">
+        </testcase>
+        <testcase classname="src/present/overview.test.ts" name="team bars and table &gt; table rows: figures, budget-used bar and status" time="0.000351625">
+        </testcase>
+        <testcase classname="src/present/overview.test.ts" name="team bars and table &gt; over budget is the server&apos;s flag or a share above 100%, in status, tone and bar alike" time="0.000537792">
+        </testcase>
+        <testcase classname="src/present/overview.test.ts" name="team bars and table &gt; big counts get thousands separators; rows keep the API order" time="0.000176291">
+        </testcase>
+        <testcase classname="src/present/overview.test.ts" name="team bars and table &gt; an over-budget flag without a recoverable budget still says so" time="0.000073166">
+        </testcase>
+        <testcase classname="src/present/overview.test.ts" name="team bars and table &gt; initials" time="0.0004235">
+        </testcase>
+        <testcase classname="src/present/overview.test.ts" name="team bar labels &gt; truncates without a dangling space and counts characters, not code units" time="0.001153625">
+        </testcase>
+        <testcase classname="src/present/overview.test.ts" name="team bar labels &gt; plans labels from the room each bar has" time="0.000237">
+        </testcase>
+        <testcase classname="src/present/overview.test.ts" name="daily chart &gt; micros become dollars in the rows, once" time="0.000123209">
+        </testcase>
+        <testcase classname="src/present/overview.test.ts" name="daily chart &gt; describes range, total and peak for assistive technology" time="0.000148083">
+        </testcase>
+        <testcase classname="src/present/overview.test.ts" name="daily chart &gt; edge cases: tied peak, all-zero days, huge values, sub-dollar days" time="0.000210666">
+        </testcase>
+        <testcase classname="src/present/overview.test.ts" name="daily chart &gt; small amounts keep their cents, big ones do not" time="0.000157">
+        </testcase>
+        <testcase classname="src/present/overview.test.ts" name="daily aside &gt; counts days" time="0.000061417">
+        </testcase>
+        <testcase classname="src/present/overview.test.ts" name="task usage &gt; tabs: All, then agents by sessions, under display names" time="0.000205125">
+        </testcase>
+        <testcase classname="src/present/overview.test.ts" name="task usage &gt; ids and display names are one agent" time="0.00022475">
+        </testcase>
+        <testcase classname="src/present/overview.test.ts" name="task usage &gt; agents with no sessions get no tab; a missing agent id is Unknown" time="0.000396417">
+        </testcase>
+        <testcase classname="src/present/overview.test.ts" name="task usage &gt; All: bars by session count, split by agent" time="0.000202583">
+        </testcase>
+        <testcase classname="src/present/overview.test.ts" name="task usage &gt; an agent&apos;s tab: its own types in the session-type colours" time="0.000639667">
+        </testcase>
+        <testcase classname="src/present/overview.test.ts" name="task usage &gt; unknown tab and empty mix give no bars" time="0.0000815">
+        </testcase>
+        <testcase classname="src/present/overview.test.ts" name="task usage &gt; on the mock, All per type equals Usage&apos;s session types" time="0.000279042">
+        </testcase>
+        <testcase classname="src/present/overview.test.ts" name="spend by agent &gt; slices use display names, merge an id with its display name and sum to the total" time="0.000212916">
+        </testcase>
+        <testcase classname="src/present/overview.test.ts" name="spend by agent &gt; a credit counts as zero spend, so the total never goes backwards" time="0.000103958">
+        </testcase>
+        <testcase classname="src/present/overview.test.ts" name="spend by agent &gt; a missing agent id is Unknown in the donut, the tabs and the bars alike" time="0.000098125">
+        </testcase>
+        <testcase classname="src/present/overview.test.ts" name="spend by agent &gt; one colour map covers agents that are only in the spend list or only in the task mix" time="0.00014975">
+        </testcase>
+        <testcase classname="src/present/overview.test.ts" name="spend by agent &gt; donut, list, tabs and bars agree on every agent&apos;s colour, from ids and from display names" time="0.000362333">
+        </testcase>
+        <testcase classname="src/present/overview.test.ts" name="PR cost envelope &gt; rows: now, then the cone&apos;s later steps, in dollars" time="0.0001705">
+        </testcase>
+        <testcase classname="src/present/overview.test.ts" name="PR cost envelope &gt; describes it for assistive technology" time="0.000087417">
+        </testcase>
+    </testsuite>
+    <testsuite name="src/present/palette.test.ts" timestamp="2026-10-14T22:38:57.224Z" hostname="MacBook-Pro-3.local" tests="9" failures="0" errors="0" skipped="0" time="0.00621125">
+        <testcase classname="src/present/palette.test.ts" name="agent colours in the stylesheet &gt; every ramp colour is defined in both themes" time="0.000940458">
+        </testcase>
+        <testcase classname="src/present/palette.test.ts" name="agent colours in the stylesheet &gt; the ramp has no repeats, no pinned agent colour, no --blue (it is --primary) and no status red" time="0.000841167">
+        </testcase>
+        <testcase classname="src/present/palette.test.ts" name="agent colours in the stylesheet &gt; in light and dark, a ramp colour looks different from every pinned agent colour, red and the others" time="0.000987583">
+        </testcase>
+        <testcase classname="src/present/palette.test.ts" name="assignAgentHues &gt; pinned agents keep their colours, from ids or display names" time="0.000380958">
+        </testcase>
+        <testcase classname="src/present/palette.test.ts" name="assignAgentHues &gt; two unknown agents whose names hash alike still get different colours" time="0.00023325">
+        </testcase>
+        <testcase classname="src/present/palette.test.ts" name="assignAgentHues &gt; depends on the set of names, not their order or spelling" time="0.000118416">
+        </testcase>
+        <testcase classname="src/present/palette.test.ts" name="assignAgentHues &gt; as many unknown agents as the ramp has colours all differ, and none uses a pinned colour" time="0.000247291">
+        </testcase>
+        <testcase classname="src/present/palette.test.ts" name="assignAgentHues &gt; more unknown agents than colours reuse some, deterministically" time="0.000442042">
+        </testcase>
+        <testcase classname="src/present/palette.test.ts" name="assignAgentHues &gt; a missing id is the one agent called Unknown" time="0.0002015">
+        </testcase>
+    </testsuite>
+    <testsuite name="src/present/present.test.ts" timestamp="2026-10-14T22:38:57.224Z" hostname="MacBook-Pro-3.local" tests="27" failures="0" errors="0" skipped="0" time="0.010907375">
+        <testcase classname="src/present/present.test.ts" name="format &gt; durations" time="0.000904833">
+        </testcase>
+        <testcase classname="src/present/present.test.ts" name="format &gt; days" time="0.000126042">
+        </testcase>
+        <testcase classname="src/present/present.test.ts" name="format &gt; span in days picks a readable unit" time="0.000177833">
+        </testcase>
+        <testcase classname="src/present/present.test.ts" name="format &gt; relative time" time="0.000235833">
+        </testcase>
+        <testcase classname="src/present/present.test.ts" name="format &gt; money + tokens + pct" time="0.002322917">
+        </testcase>
+        <testcase classname="src/present/present.test.ts" name="palette &gt; pins the quality vocabulary" time="0.000130333">
+        </testcase>
+        <testcase classname="src/present/present.test.ts" name="palette &gt; maps raw session-type labels to display names and pinned hues" time="0.000114916">
+        </testcase>
+        <testcase classname="src/present/present.test.ts" name="palette &gt; maps agent ids and display names to one display name" time="0.000291041">
+        </testcase>
+        <testcase classname="src/present/present.test.ts" name="palette &gt; colours an agent the same from its raw id or its display name" time="0.00014225">
+        </testcase>
+        <testcase classname="src/present/present.test.ts" name="palette &gt; falls back to a stable ramp for unknown labels" time="0.000112209">
+        </testcase>
+        <testcase classname="src/present/present.test.ts" name="percentile layout &gt; switches to log scale for a skewed spread, linear otherwise" time="0.000176041">
+        </testcase>
+        <testcase classname="src/present/present.test.ts" name="percentile layout &gt; stacks colliding labels into lanes and clamps them inside the track" time="0.000577542">
+        </testcase>
+        <testcase classname="src/present/present.test.ts" name="routing &gt; maps entity refs to routes" time="0.000127667">
+        </testcase>
+        <testcase classname="src/present/present.test.ts" name="routing &gt; throws when an id-bearing kind has no id" time="0.000427792">
+        </testcase>
+        <testcase classname="src/present/present.test.ts" name="routing &gt; routes a finding via its entity ref" time="0.000074708">
+        </testcase>
+        <testcase classname="src/present/present.test.ts" name="lexicon &gt; flags banned words" time="0.000197375">
+        </testcase>
+        <testcase classname="src/present/present.test.ts" name="lexicon &gt; locks the quality vocabulary" time="0.000055417">
+        </testcase>
+        <testcase classname="src/present/present.test.ts" name="lifecycle &gt; positions milestones proportionally by elapsed time" time="0.000464125">
+        </testcase>
+        <testcase classname="src/present/present.test.ts" name="lifecycle &gt; pins an unreached milestone (ts: null) at x=100" time="0.000085416">
+        </testcase>
+        <testcase classname="src/present/present.test.ts" name="lifecycle &gt; does not divide by zero with fewer than two reached timestamps" time="0.000085917">
+        </testcase>
+        <testcase classname="src/present/present.test.ts" name="seats &gt; leaves people with no seat allowance out of the chart instead of plotting 0%" time="0.000344">
+        </testcase>
+        <testcase classname="src/present/present.test.ts" name="seats &gt; colours bars by the seat band, not by room to save" time="0.000069667">
+        </testcase>
+        <testcase classname="src/present/present.test.ts" name="seats &gt; maps the headline status to a chip: room to save, high use, low use, new seat, on track" time="0.000099167">
+        </testcase>
+        <testcase classname="src/present/present.test.ts" name="daily spend (Overview B1) &gt; the mock daily series covers the elapsed days and sums to the headline exactly" time="0.001013875">
+        </testcase>
+        <testcase classname="src/present/present.test.ts" name="daily spend (Overview B1) &gt; the mock overview carries daily_spend summing to its headline" time="0.001051375">
+        </testcase>
+        <testcase classname="src/present/present.test.ts" name="agent task mix (Overview B2) &gt; the mock mix sums per type to the Usage session-type counts, one row per agent and type" time="0.000176167">
+        </testcase>
+        <testcase classname="src/present/present.test.ts" name="agent task mix (Overview B2) &gt; the mock overview carries it" time="0.000267833">
+        </testcase>
+    </testsuite>
+    <testsuite name="src/present/timeframe.test.ts" timestamp="2026-10-14T22:38:57.227Z" hostname="MacBook-Pro-3.local" tests="17" failures="0" errors="0" skipped="0" time="0.005162584">
+        <testcase classname="src/present/timeframe.test.ts" name="selection to window &gt; a budget period carries the server&apos;s bounds, label and counters untouched" time="0.001167916">
+        </testcase>
+        <testcase classname="src/present/timeframe.test.ts" name="selection to window &gt; a rolling range ends now and starts N days earlier (UTC), never current" time="0.000495375">
+        </testcase>
+        <testcase classname="src/present/timeframe.test.ts" name="the default selection &gt; is the current budget period" time="0.000145709">
+        </testcase>
+        <testcase classname="src/present/timeframe.test.ts" name="the default selection &gt; is rolling Last 30 days when none is under way or there are none" time="0.000139542">
+        </testcase>
+        <testcase classname="src/present/timeframe.test.ts" name="keys &gt; resolves a period key from the list and a rolling key against now" time="0.000210459">
+        </testcase>
+        <testcase classname="src/present/timeframe.test.ts" name="keys &gt; is null for an unknown key or an unoffered rolling length" time="0.000106333">
+        </testcase>
+        <testcase classname="src/present/timeframe.test.ts" name="date text &gt; shows a budget period&apos;s whole range from its ISO text, whatever the local zone" time="0.000151791">
+        </testcase>
+        <testcase classname="src/present/timeframe.test.ts" name="date text &gt; adds the year when it is not this year or the range spans two" time="0.000167792">
+        </testcase>
+        <testcase classname="src/present/timeframe.test.ts" name="date text &gt; a rolling range reads from its start day to today" time="0.000090417">
+        </testcase>
+        <testcase classname="src/present/timeframe.test.ts" name="date text &gt; says how far into the current period we are, and only then" time="0.000212">
+        </testcase>
+        <testcase classname="src/present/timeframe.test.ts" name="picker grouping &gt; lists budget periods newest first with dates and the current one marked, then the rolling ranges" time="0.000254875">
+        </testcase>
+        <testcase classname="src/present/timeframe.test.ts" name="picker grouping &gt; never offers the upcoming period" time="0.000147791">
+        </testcase>
+        <testcase classname="src/present/timeframe.test.ts" name="picker grouping &gt; with no periods the first group carries a note instead of options" time="0.000206875">
+        </testcase>
+        <testcase classname="src/present/timeframe.test.ts" name="picker keyboard &gt; steps and clamps at both ends without wrapping" time="0.000104708">
+        </testcase>
+        <testcase classname="src/present/timeframe.test.ts" name="picker keyboard &gt; Home and End jump to the ends; other keys change nothing" time="0.000068417">
+        </testcase>
+        <testcase classname="src/present/timeframe.test.ts" name="picker keyboard &gt; copes with an empty list" time="0.00003875">
+        </testcase>
+        <testcase classname="src/present/timeframe.test.ts" name="custom period rows &gt; do not repeat their dates under a label that already is the dates" time="0.000106">
+        </testcase>
+    </testsuite>
+    <testsuite name="src/shell/shell.test.ts" timestamp="2026-10-14T22:38:57.228Z" hostname="MacBook-Pro-3.local" tests="1" failures="0" errors="0" skipped="0" time="0.001505875">
+        <testcase classname="src/shell/shell.test.ts" name="role gate (F2) &gt; hides the manager nav from a dev" time="0.000819291">
+        </testcase>
+    </testsuite>
+</testsuites>

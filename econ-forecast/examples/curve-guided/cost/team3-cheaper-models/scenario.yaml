@@ -1,0 +1,21 @@
+# team3 (the largest team) shifts half its usage to the cheaper model of each agent:
+#   claude: claude-opus-5 -> claude-sonnet-5   (half the input/output price)
+#   codex:  gpt-5.6-sol   -> gpt-5.6-terra     (half the input price, 60% of output)
+# No new models; token consumption assumed unchanged (token_factor 1.0).
+# Applies to team3's projects too, and to the Organization scaled by team3's share of its usage.
+schema: scenario/1.0
+name: team3-cheaper-models
+scope:
+  type: team
+  name: team3
+changes:
+  - model_transfer:
+      from: claude-opus-5
+      to: claude-sonnet-5
+      fraction: 0.5
+      token_factor: 1.0
+  - model_transfer:
+      from: gpt-5.6-sol
+      to: gpt-5.6-terra
+      fraction: 0.5
+      token_factor: 1.0

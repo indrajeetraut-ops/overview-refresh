@@ -1,0 +1,22 @@
+# agent_transfer example (cost module design §6.1-§6.2).
+#
+# team1 moves half of its codex-driven work to claude, from day one of the
+# forecast (effective_from omitted). For each of team1's models, the moved
+# amount is that model's own codex share of its tokens (design §5); the moved
+# total then lands on claude's own models, split by claude's org-level model mix
+# (design §6.2). Exact when each model serves exactly one agent; otherwise the
+# remaining, unmoved tokens keep the series' existing mix.
+#
+# Usage: ./econ-forecast/utils/cost.sh --forecast-run <run> \
+#          --scenario config/scenarios/team1-codex-to-claude.yaml --output <output>
+schema: scenario/1.0
+name: team1-codex-to-claude
+scope:
+  type: team
+  name: team1
+changes:
+  - agent_transfer:
+      from: codex
+      to: claude
+      fraction: 0.5
+      token_factor: 1.0

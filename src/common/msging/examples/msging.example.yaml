@@ -1,0 +1,59 @@
+# Config for the msging examples (design §5.1, §5.2).
+#
+# Nothing here needs editing before anything runs: both ${...} knobs carry a
+# working default. Override them to move the examples off the default port or
+# out of the default data directory:
+#
+#   TALIUM_EXAMPLE_PORT=9100 TALIUM_EXAMPLE_DIR=/tmp/msging-demo
+#
+# The numbers are deliberately small, so the examples finish in seconds and so
+# the §8.1 codes an app actually has to handle really trigger:
+#
+#   max_pending:   4      -> clnt_full.py can fill the durable store: slot_full
+#   max_msg_bytes: 65536  -> clnt_full.py can exceed it:               too_large
+#
+# The shipped config/msging.yaml points at https://ingest.prod:8443, which is
+# why the examples ship their own file rather than borrowing that one.
+
+client:
+  default_server: ${TALIUM_EXAMPLE_ALIAS:-ingest_local}
+  servers:
+    ingest_local:
+      base_path:    "http://127.0.0.1:${TALIUM_EXAMPLE_PORT:-8099}"
+      service_name: ingest
+    audit_local:
+      # Same endpoint, second service: an alias names a binding (endpoint +
+      # service), not a host. srv_two.py mounts this one next to `ingest`.
+      base_path:    "http://127.0.0.1:${TALIUM_EXAMPLE_PORT:-8099}"
+      service_name: audit
+  defaults:
+    req_timeout_s:    5
+    retry_num:        3
+    max_pending:      4      # small on purpose -- see the header
+    slot_wait_s:      0.2
+    max_in_flight:    8
+    sent_timeout_s:   60
+    close_timeout_s:  10
+    msg_id_block:     1000
+    idle_timeout_s:   20     # comfortably over the server's heartbeat_s
+    sweep_interval_s: 1
+    gzip_min_bytes:   1024
+    base_dir:         "${TALIUM_EXAMPLE_DIR:-~/.talium/msging-examples}/store"
+
+server:
+  queue_max:      100
+  workers:        2
+  retry_after_s:  1
+  heartbeat_s:    5
+  max_msg_bytes:  65536      # small on purpose -- see the header
+  notify_buffer:  100
+  notify_ttl_s:   60
+  registration:
+    mode: open
+
+producer_store:
+  backend: file
+  file:
+    # Shared by all three server examples, so a producer registered against one
+    # of them is still known to the next: they take turns on the same port.
+    path: "${TALIUM_EXAMPLE_DIR:-~/.talium/msging-examples}/producers.json"

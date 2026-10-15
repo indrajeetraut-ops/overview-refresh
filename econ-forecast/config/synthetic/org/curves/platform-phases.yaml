@@ -1,0 +1,28 @@
+# Usage level of the Platform team over the series: calm, within about +/-6% of 1.0 everywhere.
+# Platform is the team with margin, so it carries no crunch: a crunch the forecaster could see
+# (anywhere in its 90-day lookback, which for an end date late in a month reaches back to day 0
+# of the series) pushes the team's forecast over its budget line or widens its band, and the
+# demo is regenerated with `--end-date today`. Bound in ../series.yaml (`curve.teams`). See
+# development-phases.yaml for the axis, the why and the regeneration command.
+#   p 26-28  level 1.06 (days 50-54) small bump
+#   p 36     level 1.04 (day 70)
+#   p 47     level 0.97 (day 91)
+#   p 54     level 1.03 (day 105)
+schema_version: 1
+name: platform-phases
+interp: pchip
+axis: {start: 1, end: 61}
+anchors:
+  - [1, "1.000"]
+  - [24, "1.000"]
+  - [26, "1.060"]
+  - [28, "1.060"]
+  - [30, "1.000"]
+  - [36, "1.040"]
+  - [47, "0.970"]
+  - [54, "1.030"]
+  - [61, "1.000"]
+preview:
+  days: 120
+  baseline_tokens: 1000000
+description: "Platform team usage level: calm, within +/-6% of 1.0"

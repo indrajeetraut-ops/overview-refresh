@@ -1,0 +1,251 @@
+{
+  "events_by_type": {
+    "api_error": {
+      "event_ts": "2026-07-09T15:00:02.000Z",
+      "event_type": "api_error",
+      "parent_id": "evt-1",
+      "payload": {
+        "error_class": "overloaded",
+        "http_status": 529,
+        "message": "Overloaded",
+        "provider_request_id": "req-abc123",
+        "raw": "<full vendor record, elided>",
+        "retry_after_ms": 2000,
+        "retry_count": 1,
+        "retryable": true
+      },
+      "record_id": "evt-2"
+    },
+    "assistant_message": {
+      "event_ts": "2026-07-10T00:25:32.739Z",
+      "event_type": "assistant_message",
+      "parent_id": "770f0fdd-5c67-4e2f-b6e2-7e86d13b236f",
+      "payload": {
+        "attribution_agent": null,
+        "attribution_plugin": null,
+        "attribution_skill": null,
+        "block_types": [
+          "thinking"
+        ],
+        "cache_miss_tokens": null,
+        "cache_read_tokens": 19245,
+        "cache_write_detail": [
+          {
+            "tokens": 0,
+            "ttl_s": 300
+          },
+          {
+            "tokens": 7652,
+            "ttl_s": 3600
+          }
+        ],
+        "cache_write_tokens": 7652,
+        "content_kind": "thinking",
+        "duration_ms": null,
+        "effort": null,
+        "estimated_visible_tokens": 0,
+        "first_block_of_message": true,
+        "has_thinking": true,
+        "input_tokens": 3384,
+        "message_id": "msg_011CcsRgzdyqVgKp4qgUVxwo",
+        "model": "claude-sonnet-5",
+        "output_tokenizer": "o200k_base",
+        "output_tokens": 239,
+        "provider_request_id": "req_011CcsRgyVmdGWoEXdTuhMaH",
+        "raw": "<full vendor record, elided>",
+        "reasoning_tokens": null,
+        "stop_reason": "tool_use",
+        "text_char_count": null,
+        "text_truncated": false,
+        "thinking_char_count": 0,
+        "tool_arg_chars": 0,
+        "tool_call_count": 0,
+        "usage_scope": "response"
+      },
+      "record_id": "1f108cd8-c86c-4bd4-8141-7821a82ea099"
+    },
+    "attachment": {
+      "event_ts": "2026-07-10T00:25:30.305Z",
+      "event_type": "attachment",
+      "parent_id": "15c3e23b-868c-4fe1-aced-e116bd7284d7",
+      "payload": {
+        "added_names": [
+          "CronCreate",
+          "CronDelete",
+          "CronList",
+          "DesignSync",
+          "EnterPlanMode",
+          "EnterWorktree",
+          "ExitPlanMode",
+          "ExitWorktree",
+          "Monitor",
+          "NotebookEdit",
+          "PushNotification",
+          "RemoteTrigger",
+          "SendMessage",
+          "TaskCreate",
+          "TaskGet",
+          "TaskList",
+          "TaskOutput",
+          "TaskStop",
+          "TaskUpdate",
+          "WebFetch",
+          "WebSearch"
+        ],
+        "artifact_class": null,
+        "attachment_type": "deferred_tools_delta",
+        "content_chars": 217,
+        "content_truncated": false,
+        "extension": null,
+        "is_startup_context": false,
+        "raw": "<full vendor record, elided>",
+        "removed_names": []
+      },
+      "record_id": "b8bb057b-a318-4384-b270-dcc4d2f812e5"
+    },
+    "compaction": {
+      "event_ts": "2026-07-09T15:00:30.000Z",
+      "event_type": "compaction",
+      "parent_id": "evt-2",
+      "payload": {
+        "duration_ms": 1500,
+        "raw": "<full vendor record, elided>",
+        "tokens_after": 20000,
+        "tokens_before": 180000,
+        "tokens_reclaimed": 160000,
+        "trigger": "auto"
+      },
+      "record_id": "evt-3"
+    },
+    "file_change": {
+      "event_ts": "2026-07-10T00:30:01.061Z",
+      "event_type": "file_change",
+      "parent_id": "b3704f38-6030-450f-90fc-c763e86c03ea",
+      "payload": {
+        "artifact_class": "config",
+        "derived_from_event_id": "toolu_01HgF92CHnszTmKJQDKNrSJy",
+        "extension": ".json",
+        "hunks": [
+          {
+            "len": 9,
+            "old_len": 9,
+            "start": 97
+          }
+        ],
+        "lines_added": 2,
+        "lines_removed": 2,
+        "message_id": "msg_011CcsS2JCCMfuFHoDM7L6ST",
+        "operation": "edit",
+        "path": "/Users/user/.claude/settings.json",
+        "raw": "<full vendor record, elided>"
+      },
+      "record_id": null
+    },
+    "pr_link": {
+      "event_ts": "2026-07-09T17:00:05.000Z",
+      "event_type": "pr_link",
+      "parent_id": null,
+      "payload": {
+        "pr_number": 42,
+        "pr_repository": "acme/repo",
+        "pr_url": "https://github.com/acme/repo/pull/42",
+        "raw": "<full vendor record, elided>"
+      },
+      "record_id": null
+    },
+    "session_start": {
+      "event_ts": null,
+      "event_type": "session_start",
+      "parent_id": null,
+      "payload": {
+        "ai_title": "Fix Claude Code settings JSON errors",
+        "attribution_agent": null,
+        "cwd": "/Users/user/projects/talium/code-econ",
+        "git_branch": "main",
+        "git_remote": null,
+        "parent_session_id": null,
+        "raw": "<full vendor record, elided>",
+        "repo_id": null
+      },
+      "record_id": null
+    },
+    "sub_agent_spawn": {
+      "event_ts": "2026-07-08T20:40:54.520Z",
+      "event_type": "sub_agent_spawn",
+      "parent_id": "a92edb3f-1dd2-48d9-9540-ccbfb0e75564",
+      "payload": {
+        "agent_type": "general-purpose",
+        "child_session_id": "agent-a15f40f2871d0aa1b",
+        "description": "Baseline design-doc test",
+        "duration_ms": null,
+        "message_id": "msg_011CcqEgW1zqQ53ar6XhzNFb",
+        "prompt_char_count": 314,
+        "raw": "<full vendor record, elided>",
+        "requested_model": null,
+        "resolved_model": "claude-fable-5",
+        "run_in_background": false,
+        "status": "completed"
+      },
+      "record_id": "toolu_01WtHMtTZtb7KdyNMszp664x"
+    },
+    "tool_call": {
+      "event_ts": "2026-07-10T00:25:33.831Z",
+      "event_type": "tool_call",
+      "parent_id": "fc893300-025f-41b6-ac7a-9cc020d26389",
+      "payload": {
+        "bytes_read": 58,
+        "duration_ms": null,
+        "exit_status": 0,
+        "input": {
+          "command": "cat -A /Users/user/.claude/settings.json 2>&1 | head -100",
+          "description": "Show raw contents of settings.json with control characters visible"
+        },
+        "input_chars": 157,
+        "message_id": "msg_011CcsRgzdyqVgKp4qgUVxwo",
+        "raw": "<full vendor record, elided>",
+        "tool_name": "Bash"
+      },
+      "record_id": "toolu_01Ntcj44L7FXodtSisLbE2Wk"
+    },
+    "tool_result": {
+      "event_ts": "2026-07-10T00:25:43.076Z",
+      "event_type": "tool_result",
+      "parent_id": "fc893300-025f-41b6-ac7a-9cc020d26389",
+      "payload": {
+        "is_error": false,
+        "raw": "<full vendor record, elided>",
+        "source_tool_assistant_uuid": "fc893300-025f-41b6-ac7a-9cc020d26389",
+        "tool_denial_kind": null,
+        "tool_use_id": "toolu_01Ntcj44L7FXodtSisLbE2Wk"
+      },
+      "record_id": "9b847204-b7f6-494c-95d9-de23bd270c18"
+    },
+    "unknown": {
+      "event_ts": null,
+      "event_type": "unknown",
+      "parent_id": null,
+      "payload": {
+        "raw": "<full vendor record, elided>"
+      },
+      "record_id": null
+    },
+    "user_message": {
+      "event_ts": "2026-07-10T00:25:30.306Z",
+      "event_type": "user_message",
+      "parent_id": null,
+      "payload": {
+        "char_count": 314,
+        "is_injected": false,
+        "permission_mode": "default",
+        "plan_mode": false,
+        "raw": "<full vendor record, elided>",
+        "slash_command": null,
+        "text": "Help me fix these Claude Code settings issues.\n\nFor each issue: briefly explain what the fix will do, then ask me to confirm before running any shell command that deletes files, modifies global config, or changes my installation. Safe read-only checks are fine without asking. If a suggested fix look \u2026[+411 chars]",
+        "text_truncated": false
+      },
+      "record_id": "15c3e23b-868c-4fe1-aced-e116bd7284d7"
+    }
+  },
+  "note": "One representative event per event_type, from the normalizer's own fixture corpus. Illustration only -- normalized_schema.json is the contract, and covers fields this sample happens not to exercise. payload.raw is elided: it is the full vendor record, routinely kilobytes, and would bury the fields this example exists to show.",
+  "schema_version": "3.2.0"
+}

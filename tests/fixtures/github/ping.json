@@ -1,0 +1,7 @@
+{
+  "event": "ping",
+  "action": null,
+  "payload": {
+    "zen": "Speak like a human."
+  }
+}

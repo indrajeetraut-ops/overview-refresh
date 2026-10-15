@@ -1,0 +1,241 @@
+{
+  "schema_version": "4.3.0",
+  "session_id": "agent-a15f40f2871d0aa1b",
+  "parent_session_id": "0f5e45b9-ecc1-4773-913c-86cd341369d1",
+  "vendor": "claude_code",
+  "source": "jsonl",
+  "built": "complete",
+  "meta": {
+    "title": null,
+    "objective": null,
+    "resources": [],
+    "query_config_revision": "2026-08-27",
+    "warnings": []
+  },
+  "nodes": [
+    {
+      "id": "msg_011CcqEkigN9kFazuzH4CzLS",
+      "type": "assistant",
+      "ts": "2026-07-08T20:41:01.305Z",
+      "attrs": {
+        "message_id": "msg_011CcqEkigN9kFazuzH4CzLS",
+        "model": "claude-fable-5",
+        "has_thinking": true,
+        "input_tokens": 3490,
+        "output_tokens": 2,
+        "cache_read_tokens": 0,
+        "cache_write_tokens": 9918,
+        "estimated_reasoning_tokens": 0,
+        "reasoning_source": "estimated",
+        "reasoning_ratio": 1.52,
+        "estimated_visible_tokens": 27,
+        "tool_call_count": 1,
+        "attribution_skill": "superpowers:writing-skills",
+        "attribution_plugin": "superpowers",
+        "attribution_agent": "general-purpose",
+        "effort": null
+      },
+      "meta": {},
+      "children": [
+        "toolu_015dms5PG6G6pFC4Nbh5nqhp"
+      ],
+      "parent_id": "turn:1",
+      "refs": {}
+    },
+    {
+      "id": "msg_011CcqEpgcCp1PPF7bEKjBnN",
+      "type": "assistant",
+      "ts": "2026-07-08T20:42:20.191Z",
+      "attrs": {
+        "message_id": "msg_011CcqEpgcCp1PPF7bEKjBnN",
+        "model": "claude-fable-5",
+        "has_thinking": false,
+        "input_tokens": 716,
+        "output_tokens": 1945,
+        "cache_read_tokens": 9918,
+        "cache_write_tokens": 3743,
+        "estimated_reasoning_tokens": 0,
+        "reasoning_source": "estimated",
+        "reasoning_ratio": 1.52,
+        "estimated_visible_tokens": 1279,
+        "tool_call_count": 1,
+        "attribution_skill": "superpowers:writing-skills",
+        "attribution_plugin": "superpowers",
+        "attribution_agent": "general-purpose",
+        "effort": null
+      },
+      "meta": {},
+      "children": [
+        "toolu_01Pqg6NbTJn3eUoRm5AKpyjo"
+      ],
+      "parent_id": "turn:1",
+      "refs": {}
+    },
+    {
+      "id": "msg_011CcqEs2hzYLDW8q71dy3vQ",
+      "type": "assistant",
+      "ts": "2026-07-08T20:42:27.288Z",
+      "attrs": {
+        "message_id": "msg_011CcqEs2hzYLDW8q71dy3vQ",
+        "model": "claude-fable-5",
+        "has_thinking": false,
+        "input_tokens": 2,
+        "output_tokens": 3,
+        "cache_read_tokens": 13661,
+        "cache_write_tokens": 2706,
+        "estimated_reasoning_tokens": 1,
+        "reasoning_source": "estimated",
+        "reasoning_ratio": 1.52,
+        "estimated_visible_tokens": 1,
+        "tool_call_count": 0,
+        "attribution_skill": "superpowers:writing-skills",
+        "attribution_plugin": "superpowers",
+        "attribution_agent": "general-purpose",
+        "effort": null
+      },
+      "meta": {},
+      "children": [],
+      "parent_id": "turn:1",
+      "refs": {}
+    },
+    {
+      "id": "toolu_015dms5PG6G6pFC4Nbh5nqhp",
+      "type": "tool",
+      "ts": "2026-07-08T20:41:01.889Z",
+      "attrs": {
+        "tool_name": "Bash",
+        "input": {
+          "command": "mkdir -p /tmp/skilltest",
+          "description": "Create /tmp/skilltest directory"
+        },
+        "exit_status": 0,
+        "is_error": false,
+        "duration_ms": null,
+        "blocked_on_user_ms": null,
+        "tool_denial_kind": null,
+        "cmd": [
+          "mkdir"
+        ],
+        "result": {
+          "outcome": "ok",
+          "error_text": null,
+          "process": {
+            "stdout": "",
+            "stderr": "",
+            "interrupted": false,
+            "is_image": false,
+            "no_output_expected": true
+          }
+        }
+      },
+      "meta": {},
+      "children": [],
+      "parent_id": "msg_011CcqEkigN9kFazuzH4CzLS",
+      "refs": {}
+    },
+    {
+      "id": "toolu_01Pqg6NbTJn3eUoRm5AKpyjo",
+      "type": "tool",
+      "ts": "2026-07-08T20:42:20.191Z",
+      "attrs": {
+        "tool_name": "Write",
+        "input": {
+          "file_path": "/tmp/skilltest/baseline-doc.md",
+          "content": "[CONTENT OMITTED]"
+        },
+        "exit_status": 0,
+        "is_error": false,
+        "duration_ms": null,
+        "blocked_on_user_ms": null,
+        "tool_denial_kind": null,
+        "cmd": [],
+        "result": {
+          "outcome": "ok",
+          "error_text": null,
+          "file": {
+            "kind": "create",
+            "user_modified": false
+          }
+        },
+        "files": [
+          {
+            "path": "/tmp/skilltest/baseline-doc.md",
+            "extension": ".md",
+            "artifact_class": "documentation",
+            "operation": "create",
+            "hunks": [],
+            "mime_type": null,
+            "remote_id": null
+          }
+        ],
+        "file_change": true
+      },
+      "meta": {},
+      "children": [],
+      "parent_id": "msg_011CcqEpgcCp1PPF7bEKjBnN",
+      "refs": {}
+    },
+    {
+      "id": "82d3feb1-5ac9-4ce9-8067-82799e06faff",
+      "type": "user_prompt",
+      "ts": "2026-07-08T20:40:54.536Z",
+      "attrs": {
+        "text": "You are helping an engineering lead document a new system. Task: create a design document at /tmp/skilltest/baseline-doc.md (create the directory if needed) for a new internal service: a webhook receiver that ingests GitHub events (pushes, PRs, reviews) for ~200 repositories and stores them for later analytics. Decide the architecture yourself; keep the document under ~120 lines. This is a documentation-only task — do not write any code files, do not set up a project. When the file is written, reply with just: done",
+        "model": null,
+        "is_injected": false,
+        "resources": [
+          "5a181df3-a586-47e4-8a0c-2de869fea4f3",
+          "55ca48bc-f0fb-4288-b8fb-acb83c9c88db"
+        ]
+      },
+      "meta": {},
+      "children": [],
+      "parent_id": "turn:1",
+      "refs": {}
+    },
+    {
+      "id": "turn:1",
+      "type": "turn",
+      "ts": "2026-07-08T20:40:54.536Z",
+      "attrs": {
+        "turn_num": 1,
+        "prompt_id": "ba6d0450-eebd-41fd-b927-0783c1136ad9",
+        "status": "interrupted",
+        "duration_ms": 92752,
+        "permission_mode": null,
+        "plan_mode": null,
+        "tokens": {
+          "input_tokens": 4208,
+          "output_tokens": 1950,
+          "cache_read_tokens": 23579,
+          "cache_write_tokens": 16367,
+          "estimated_reasoning_tokens": 1
+        },
+        "attribution": {
+          "skill": [
+            "superpowers:writing-skills"
+          ],
+          "plugin": [
+            "superpowers"
+          ],
+          "agent": [
+            "general-purpose"
+          ],
+          "effort": []
+        }
+      },
+      "meta": {},
+      "children": [
+        "82d3feb1-5ac9-4ce9-8067-82799e06faff",
+        "msg_011CcqEkigN9kFazuzH4CzLS",
+        "msg_011CcqEpgcCp1PPF7bEKjBnN",
+        "msg_011CcqEs2hzYLDW8q71dy3vQ"
+      ],
+      "parent_id": null,
+      "refs": {}
+    }
+  ],
+  "roots": [
+    "turn:1"
+  ]
+}

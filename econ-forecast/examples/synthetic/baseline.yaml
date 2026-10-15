@@ -1,0 +1,54 @@
+schema_version: 3
+# Baseline: the plain default — no weekly pattern (weekend reduction is OFF by default),
+# no spikes, no curve. Just per-profile baselines with daily jitter and some inactivity.
+# One team per project (team1: payment/auth; team2: data_pipeline/search; team3: developer_tooling).
+series:
+  users_file: ../../artifacts/users/users.jsonl
+  roster_file: ../../artifacts/roster/teams.jsonl
+  start_date: '2026-07-01'
+  days: 60
+  timezone: Asia/Kolkata
+  profile_seed: 100
+  usage_seed: 123
+defaults:
+  daily_variation_pct: 30
+  output_ratio: 0.03
+  cache_hit_ratio: 0.95
+  cache_hit_variation_pp: 5
+  cache_write_ratio: 0.997       # share of non-cache-read input that is a cache write
+  cache_write_1h_share: 0.97     # share of cache writes at the 1-hour lifetime
+  mix_variation_pct: 10
+  daily_zero_probability: 0.1
+  # weekend_reduction_probability omitted -> defaults to 0 (no weekly pattern).
+profiles:
+  light_profile: {daily_input_tokens: 250000}
+  mid_profile: {daily_input_tokens: 1000000}
+  heavy_profile: {daily_input_tokens: 5000000}
+team_profiles:
+  team1:
+    profile_mix: {light_profile: 0.8, heavy_profile: 0.2}
+    project_mix: {payment_service_improvement: 0.7, auth_service_rewrite: 0.3}
+  team2:
+    profile_mix: {light_profile: 0.4, mid_profile: 0.4, heavy_profile: 0.2}
+    project_mix: {data_pipeline_upgrade: 0.6, search_service_improvement: 0.4}
+  team3:
+    profile_mix: {light_profile: 0.2, mid_profile: 0.4, heavy_profile: 0.4}
+    project_mix: {developer_tooling: 1.0}
+projects:
+  - {name: payment_service_improvement}
+  - {name: auth_service_rewrite}
+  - {name: data_pipeline_upgrade}
+  - {name: search_service_improvement}
+  - {name: developer_tooling}
+agents:
+  claude:
+    billing_mode: api
+    usage_share: 0.6
+    models: {claude-sonnet-5: 0.75, claude-opus-5: 0.25}
+  codex:
+    billing_mode: api
+    usage_share: 0.4
+    models: {gpt-5.6-terra: 0.75, gpt-5.6-sol: 0.25}
+events:
+  spike_rules: []
+  zero_periods: []

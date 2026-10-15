@@ -1,0 +1,109 @@
+{
+  "artifacts": [
+    {
+      "after_sha": null,
+      "artifact_id": "github:41213765:commit:2222222222000000000000000000000000000000",
+      "author_email": "a@example.com",
+      "author_login": "akhuteta",
+      "base_branch": null,
+      "before_sha": null,
+      "branch": "main",
+      "closed_at": null,
+      "commit_shas": null,
+      "created_at": "2026-08-01T10:00:00Z",
+      "files": [
+        {
+          "additions": null,
+          "deletions": null,
+          "op": "added",
+          "path": "src/x.py"
+        }
+      ],
+      "info": {},
+      "integration_method": null,
+      "is_bot": false,
+      "kind": "commit",
+      "labels": [],
+      "linked_issue": null,
+      "merge_commit_sha": null,
+      "merged_at": null,
+      "milestone": null,
+      "number": null,
+      "org_id": "org_test",
+      "parent_artifact_id": null,
+      "repo_id": "github:41213765",
+      "reverts_sha": null,
+      "sha": "2222222222000000000000000000000000000000",
+      "state": "pushed",
+      "stats": {},
+      "title": null,
+      "updated_at": "2026-08-01T10:00:00Z",
+      "user_id": null
+    },
+    {
+      "after_sha": null,
+      "artifact_id": "github:41213765:commit:3333333333000000000000000000000000000000",
+      "author_email": "a@example.com",
+      "author_login": "akhuteta",
+      "base_branch": null,
+      "before_sha": null,
+      "branch": "main",
+      "closed_at": null,
+      "commit_shas": null,
+      "created_at": "2026-08-01T11:00:00Z",
+      "files": [
+        {
+          "additions": null,
+          "deletions": null,
+          "op": "removed",
+          "path": "src/x.py"
+        }
+      ],
+      "info": {
+        "github.is_revert": true,
+        "github.push_meta": {
+          "after_sha": "3333333333000000000000000000000000000000",
+          "before_sha": "1111111111000000000000000000000000000000",
+          "commit_shas": [
+            "2222222222000000000000000000000000000000",
+            "3333333333000000000000000000000000000000"
+          ],
+          "integration_method": "rebase"
+        }
+      },
+      "integration_method": null,
+      "is_bot": false,
+      "kind": "commit",
+      "labels": [],
+      "linked_issue": null,
+      "merge_commit_sha": null,
+      "merged_at": null,
+      "milestone": null,
+      "number": null,
+      "org_id": "org_test",
+      "parent_artifact_id": null,
+      "repo_id": "github:41213765",
+      "reverts_sha": "2222222222000000000000000000000000000000",
+      "sha": "3333333333000000000000000000000000000000",
+      "state": "pushed",
+      "stats": {},
+      "title": null,
+      "updated_at": "2026-08-01T11:00:00Z",
+      "user_id": null
+    }
+  ],
+  "bump_counters": [],
+  "installation": null,
+  "issue_links": null,
+  "mapped": true,
+  "merge_commit_sha": null,
+  "pr_state_event": null,
+  "push_after": "3333333333000000000000000000000000000000",
+  "push_before": "1111111111000000000000000000000000000000",
+  "push_commit_shas": [
+    "2222222222000000000000000000000000000000",
+    "3333333333000000000000000000000000000000"
+  ],
+  "push_integration_method": "rebase",
+  "repos": []
+}

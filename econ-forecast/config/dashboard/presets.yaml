@@ -1,0 +1,46 @@
+# Dashboard scenario presets (forecast.dashboard, plan 2026-10-05 §2).
+# Each non-baseline preset becomes one scenario/1.0 file for the cost module, applied to the
+# whole organization (D5) from the day after the data ends. The runner supplies effective_from;
+# a preset never sets it. Changes apply in the order written.
+schema: dashboard-presets/1.0
+presets:
+  - id: baseline
+    label: Current trajectory
+    description: "The forecast as it stands, with no change to usage or model choice."
+  - id: opus-to-sonnet-30
+    label: Move 30% of Opus work to Sonnet
+    group: Model mix
+    description: "30% of Opus tokens run on Sonnet instead, at the same token volume."
+    changes:
+      - model_transfer: {from: claude-opus-5, to: claude-sonnet-5, fraction: 0.3, token_factor: 1.0}
+  - id: opus-to-sonnet-60
+    label: Move 60% of Opus work to Sonnet
+    group: Model mix
+    description: "60% of Opus tokens run on Sonnet instead, at the same token volume."
+    changes:
+      - model_transfer: {from: claude-opus-5, to: claude-sonnet-5, fraction: 0.6, token_factor: 1.0}
+  - id: sonnet-to-haiku-30
+    label: Move 30% of Sonnet work to Haiku
+    group: Model mix
+    description: "30% of Sonnet tokens run on Haiku instead, at the same token volume."
+    changes:
+      - model_transfer: {from: claude-sonnet-5, to: claude-haiku-4-5-20251001, fraction: 0.3, token_factor: 1.0}
+  - id: usage-up-20
+    label: Usage grows 20%
+    group: Usage
+    description: "Every model's token volume is 20% higher than the current trajectory."
+    changes:
+      - growth: {factor: 1.2}
+  - id: usage-down-15
+    label: Usage drops 15%
+    group: Usage
+    description: "Every model's token volume is 15% lower than the current trajectory."
+    changes:
+      - growth: {factor: 0.85}
+  - id: usage-up-20-opus-to-sonnet-50
+    label: Grow 20%, move half of Opus to Sonnet
+    group: Combined
+    description: "Token volume grows 20%, then half of the Opus tokens run on Sonnet instead."
+    changes:
+      - growth: {factor: 1.2}
+      - model_transfer: {from: claude-opus-5, to: claude-sonnet-5, fraction: 0.5, token_factor: 1.0}

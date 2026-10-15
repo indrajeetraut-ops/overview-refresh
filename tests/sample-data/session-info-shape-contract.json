@@ -1,0 +1,578 @@
+{
+  "compaction_count": [
+    "int"
+  ],
+  "cost_usd": [
+    "null"
+  ],
+  "error_count": [
+    "int"
+  ],
+  "files": [
+    "dict"
+  ],
+  "info": [
+    "dict"
+  ],
+  "info.cache": [
+    "dict"
+  ],
+  "info.cache.decay_events": [
+    "list"
+  ],
+  "info.cache.hit_ratio": [
+    "float"
+  ],
+  "info.cache.writes_1h": [
+    "int"
+  ],
+  "info.cache.writes_5m": [
+    "int"
+  ],
+  "info.carry": [
+    "dict"
+  ],
+  "info.carry.cache_read_tokens": [
+    "int"
+  ],
+  "info.carry.carry_usd_micros": [
+    "null"
+  ],
+  "info.carry.mean_context": [
+    "int"
+  ],
+  "info.carry.peak_context": [
+    "int"
+  ],
+  "info.carry.requests": [
+    "int"
+  ],
+  "info.channel_cost": [
+    "dict"
+  ],
+  "info.channel_cost.input": [
+    "dict"
+  ],
+  "info.channel_cost.input.tokens": [
+    "int"
+  ],
+  "info.channel_cost.input.usd_micros": [
+    "null"
+  ],
+  "info.channel_cost.output": [
+    "dict"
+  ],
+  "info.channel_cost.output.tokens": [
+    "int"
+  ],
+  "info.channel_cost.output.usd_micros": [
+    "null"
+  ],
+  "info.channel_cost.recache": [
+    "dict"
+  ],
+  "info.channel_cost.recache.tokens": [
+    "int"
+  ],
+  "info.channel_cost.recache.usd_micros": [
+    "null"
+  ],
+  "info.compactions": [
+    "list"
+  ],
+  "info.compactions[]": [
+    "dict"
+  ],
+  "info.compactions[].after": [
+    "int"
+  ],
+  "info.compactions[].before": [
+    "int"
+  ],
+  "info.compactions[].duration_ms": [
+    "int"
+  ],
+  "info.compactions[].reclaimed": [
+    "int"
+  ],
+  "info.compactions[].trigger": [
+    "str"
+  ],
+  "info.compactions[].ts": [
+    "str"
+  ],
+  "info.duration_ms": [
+    "int"
+  ],
+  "info.errors": [
+    "dict"
+  ],
+  "info.errors.by_class": [
+    "dict"
+  ],
+  "info.errors.by_class.*": [
+    "int"
+  ],
+  "info.errors.retried_tokens_est": [
+    "int"
+  ],
+  "info.errors.retry_count": [
+    "int"
+  ],
+  "info.event_count": [
+    "int"
+  ],
+  "info.git_commands": [
+    "dict"
+  ],
+  "info.git_commands.branch": [
+    "int"
+  ],
+  "info.git_commands.checkout": [
+    "int"
+  ],
+  "info.git_commands.commit": [
+    "int"
+  ],
+  "info.git_commands.push": [
+    "int"
+  ],
+  "info.inclusive_tokens": [
+    "int"
+  ],
+  "info.interrupted": [
+    "dict"
+  ],
+  "info.interrupted.count": [
+    "int"
+  ],
+  "info.interrupted.events": [
+    "list"
+  ],
+  "info.interrupted.events[]": [
+    "dict"
+  ],
+  "info.interrupted.events[].tokens": [
+    "int"
+  ],
+  "info.interrupted.events[].ts": [
+    "str"
+  ],
+  "info.interrupted.total_tokens": [
+    "int"
+  ],
+  "info.mcp_servers": [
+    "dict"
+  ],
+  "info.mcp_servers.attached": [
+    "list"
+  ],
+  "info.mcp_servers.attached[]": [
+    "str"
+  ],
+  "info.mcp_servers.by_server": [
+    "dict"
+  ],
+  "info.mcp_servers.by_server.*": [
+    "dict"
+  ],
+  "info.mcp_servers.by_server.*.bytes_read_total": [
+    "int"
+  ],
+  "info.mcp_servers.by_server.*.calls": [
+    "int"
+  ],
+  "info.own_event_count": [
+    "int"
+  ],
+  "info.practices": [
+    "dict"
+  ],
+  "info.practices.at_refs": [
+    "int"
+  ],
+  "info.practices.auto_compactions": [
+    "int"
+  ],
+  "info.practices.clear_used": [
+    "null"
+  ],
+  "info.practices.delegation_ratio": [
+    "float",
+    "null"
+  ],
+  "info.practices.exitplan_count": [
+    "int"
+  ],
+  "info.practices.first_prompt_chars": [
+    "int"
+  ],
+  "info.practices.fresh_session": [
+    "bool"
+  ],
+  "info.practices.interrupts": [
+    "int"
+  ],
+  "info.practices.manual_compactions": [
+    "int"
+  ],
+  "info.practices.plan_phase": [
+    "null"
+  ],
+  "info.practices.review_subagent": [
+    "bool"
+  ],
+  "info.practices.subagent_research": [
+    "int"
+  ],
+  "info.practices.verified": [
+    "bool"
+  ],
+  "info.practices.verifier_pass_rate": [
+    "float"
+  ],
+  "info.practices.verifier_runs": [
+    "int"
+  ],
+  "info.read_then_discard": [
+    "dict"
+  ],
+  "info.read_then_discard.events": [
+    "list"
+  ],
+  "info.read_then_discard.total_bytes_read": [
+    "int"
+  ],
+  "info.read_then_discard.total_est_tokens": [
+    "int"
+  ],
+  "info.repo": [
+    "dict"
+  ],
+  "info.repo.cwd": [
+    "str"
+  ],
+  "info.repo.git_branch": [
+    "str"
+  ],
+  "info.repo.repo_id": [
+    "str"
+  ],
+  "info.repo.repo_id_provenance": [
+    "str"
+  ],
+  "info.repo.repo_key": [
+    "str"
+  ],
+  "info.repo.repos": [
+    "list"
+  ],
+  "info.repo.repos[]": [
+    "dict"
+  ],
+  "info.repo.repos[].primary": [
+    "bool"
+  ],
+  "info.repo.repos[].refs": [
+    "int"
+  ],
+  "info.repo.repos[].repo_id": [
+    "str"
+  ],
+  "info.repo.repos[].repo_id_provenance": [
+    "str"
+  ],
+  "info.repo.repos[].repo_key": [
+    "str"
+  ],
+  "info.resume_cost": [
+    "dict"
+  ],
+  "info.resume_cost.count": [
+    "int"
+  ],
+  "info.resume_cost.events": [
+    "list"
+  ],
+  "info.resume_cost.projected": [
+    "dict"
+  ],
+  "info.resume_cost.projected.context_tokens": [
+    "int"
+  ],
+  "info.resume_cost.projected.ttl_s": [
+    "int"
+  ],
+  "info.resume_cost.projected.usd_micros": [
+    "null"
+  ],
+  "info.resume_cost.total_usd_micros": [
+    "null"
+  ],
+  "info.segments": [
+    "list"
+  ],
+  "info.segments[]": [
+    "dict"
+  ],
+  "info.segments[].beats": [
+    "dict"
+  ],
+  "info.segments[].beats.build": [
+    "int"
+  ],
+  "info.segments[].beats.check": [
+    "int"
+  ],
+  "info.segments[].beats.context_squeeze": [
+    "int"
+  ],
+  "info.segments[].beats.delegation": [
+    "int"
+  ],
+  "info.segments[].beats.interruption": [
+    "int"
+  ],
+  "info.segments[].beats.pause": [
+    "int"
+  ],
+  "info.segments[].beats.revision_loop": [
+    "int"
+  ],
+  "info.segments[].beats.setup": [
+    "int"
+  ],
+  "info.segments[].beats.wrap_up": [
+    "int"
+  ],
+  "info.segments[].carry_usd_micros": [
+    "null"
+  ],
+  "info.segments[].confidence": [
+    "float"
+  ],
+  "info.segments[].cost_usd_micros": [
+    "null"
+  ],
+  "info.segments[].files": [
+    "int"
+  ],
+  "info.segments[].index": [
+    "int"
+  ],
+  "info.segments[].label": [
+    "str"
+  ],
+  "info.segments[].repo_key": [
+    "str"
+  ],
+  "info.segments[].t0": [
+    "str"
+  ],
+  "info.segments[].t1": [
+    "str"
+  ],
+  "info.segments[].turns": [
+    "int"
+  ],
+  "info.story": [
+    "dict"
+  ],
+  "info.story.anchors": [
+    "dict"
+  ],
+  "info.story.anchors.superlatives": [
+    "list"
+  ],
+  "info.story.curve": [
+    "list"
+  ],
+  "info.story.curve[]": [
+    "list"
+  ],
+  "info.story.curve[][]": [
+    "float",
+    "int"
+  ],
+  "info.story.shape": [
+    "str"
+  ],
+  "info.title": [
+    "str"
+  ],
+  "info.tokens_total": [
+    "int"
+  ],
+  "long_turn_count": [
+    "int"
+  ],
+  "models": [
+    "dict"
+  ],
+  "models.*": [
+    "dict"
+  ],
+  "models.*.cache_read": [
+    "int"
+  ],
+  "models.*.cache_write": [
+    "int"
+  ],
+  "models.*.input": [
+    "int"
+  ],
+  "models.*.output": [
+    "int"
+  ],
+  "pr_list": [
+    "list"
+  ],
+  "pr_list[]": [
+    "dict"
+  ],
+  "pr_list[].pr_number": [
+    "int"
+  ],
+  "pr_list[].pr_repository": [
+    "str"
+  ],
+  "pr_list[].pr_url": [
+    "str"
+  ],
+  "pr_list[].ts": [
+    "str"
+  ],
+  "repo_id": [
+    "str"
+  ],
+  "repo_id_provenance": [
+    "str"
+  ],
+  "skills": [
+    "list"
+  ],
+  "skills[]": [
+    "dict"
+  ],
+  "skills[].allowed_tools": [
+    "list"
+  ],
+  "skills[].args_gist": [
+    "str"
+  ],
+  "skills[].caller_type": [
+    "null",
+    "str"
+  ],
+  "skills[].count": [
+    "int"
+  ],
+  "skills[].ended": [
+    "str"
+  ],
+  "skills[].skill_name": [
+    "str"
+  ],
+  "skills[].started": [
+    "str"
+  ],
+  "skills[].success": [
+    "bool"
+  ],
+  "skills[].tokens": [
+    "int"
+  ],
+  "subagent_count": [
+    "int"
+  ],
+  "subagents": [
+    "dict"
+  ],
+  "subagents.*": [
+    "dict"
+  ],
+  "subagents.*.agent_type": [
+    "str"
+  ],
+  "subagents.*.depth": [
+    "int"
+  ],
+  "subagents.*.duration_ms": [
+    "int"
+  ],
+  "subagents.*.files": [
+    "dict"
+  ],
+  "subagents.*.inclusive_tokens": [
+    "int"
+  ],
+  "subagents.*.model": [
+    "str"
+  ],
+  "subagents.*.origin": [
+    "str"
+  ],
+  "subagents.*.purpose": [
+    "str"
+  ],
+  "subagents.*.tokens": [
+    "int"
+  ],
+  "subagents.*.tools": [
+    "dict"
+  ],
+  "tokens_total": [
+    "int"
+  ],
+  "tools": [
+    "dict"
+  ],
+  "turn_count": [
+    "int"
+  ],
+  "turns": [
+    "list"
+  ],
+  "turns[]": [
+    "dict"
+  ],
+  "turns[].duration_ms": [
+    "int"
+  ],
+  "turns[].ended": [
+    "str"
+  ],
+  "turns[].files_changed": [
+    "int"
+  ],
+  "turns[].index": [
+    "int"
+  ],
+  "turns[].long": [
+    "bool"
+  ],
+  "turns[].message_count": [
+    "int"
+  ],
+  "turns[].source": [
+    "str"
+  ],
+  "turns[].started": [
+    "str"
+  ],
+  "turns[].subagent_session_ids": [
+    "list"
+  ],
+  "turns[].subagent_session_ids[]": [
+    "str"
+  ],
+  "turns[].subagent_tokens": [
+    "int"
+  ],
+  "turns[].subagents_spawned": [
+    "int"
+  ],
+  "turns[].tokens": [
+    "int"
+  ]
+}

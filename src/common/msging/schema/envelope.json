@@ -1,0 +1,12 @@
+{
+  "schema_version": "1.0",
+  "event_id": "sess-2026-07-25-abc",
+  "dedup": false,
+  "producer_id": "prodA",
+  "msg_id": 42,
+  "service_name": "ingest",
+  "created_at": "2026-07-25T10:15:30Z",
+  "producer_desc": "optional desc",
+  "info": {},
+  "payload": {}
+}

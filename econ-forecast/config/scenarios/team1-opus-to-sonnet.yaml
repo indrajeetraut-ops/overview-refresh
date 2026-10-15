@@ -1,0 +1,22 @@
+# model_transfer example (cost module design §6.1-§6.2).
+#
+# team1 moves 30% of its Opus tokens to Sonnet, effective partway through the
+# forecast horizon. The change also applies to team1's own Projects (k = 1) and,
+# scaled by team1's attribution share of the Organization's Opus usage, to the
+# Organization itself (design §6.3's own worked example: team1 = 40% of the
+# Organization's Opus -> the Organization moves 0.4 x 30% = 12% of its Opus).
+#
+# Usage: ./econ-forecast/utils/cost.sh --forecast-run <run> \
+#          --scenario config/scenarios/team1-opus-to-sonnet.yaml --output <output>
+schema: scenario/1.0
+name: team1-opus-to-sonnet
+scope:
+  type: team
+  name: team1
+changes:
+  - model_transfer:
+      from: claude-opus-5
+      to: claude-sonnet-5
+      fraction: 0.3
+      token_factor: 1.0
+      effective_from: 2026-10-15

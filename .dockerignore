@@ -1,0 +1,50 @@
+# The build context is the repo root (docker-compose sets `context: ..`), and the Dockerfile
+# only needs requirements.txt, src/, and config/. Everything else is either large, secret, or
+# host-specific, and every byte of it is uploaded to the daemon on each build.
+
+# Secrets first -- aws_creds is untracked and must never reach an image layer.
+aws_creds
+.env
+.envrc
+deploy/certs/
+
+# Local environments and caches
+venv/
+*venv/
+.venv/
+__pycache__/
+*.py[codz]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# The webui build stage (docker/Dockerfile) does its own `npm ci` + `vite build` from
+# src/webui/{package*.json,src/,...} -- a developer's own local node_modules/ or dist/
+# sitting on disk here must never leak into that stage's COPY, or the final image could
+# silently serve whatever stale/local build happened to exist on the machine that ran
+# `docker build`, mixed in with (not replaced by) the real one.
+src/webui/node_modules/
+src/webui/dist/
+
+# History and tooling
+.git/
+.gitignore
+.github/
+.claude/
+.agents/
+.worktrees/
+
+# Docs and design material -- not read at runtime
+docs/
+*.md
+
+# Test material: pytest is not run inside the image
+tests/
+
+# Local scratch output
+out.json
+log/
+logs/
+output/
+sample_data/
+.DS_Store

@@ -1,0 +1,66 @@
+# Named queries for the forecast loader (docs/plan/2026-10-05-forecast-dashboard-integration.md
+# §3.5, T5). `server.storage.forecast_load.replace_run` is the only caller. All of them run
+# inside the caller's transaction; the loader never commits.
+
+# One run at a time: two concurrent loads of different exports would each delete nothing of the
+# other's uncommitted rows and both insert. SHARE ROW EXCLUSIVE conflicts with itself, so the
+# second loader waits for the first to commit and then deletes its rows; plain SELECTs (the API)
+# are not blocked.
+lock_tables: |
+  LOCK TABLE forecast_runs, forecast_scope_series IN SHARE ROW EXCLUSIVE MODE;
+
+delete_series: |
+  DELETE FROM forecast_scope_series;
+
+delete_runs: |
+  DELETE FROM forecast_runs;
+
+# `meta` arrives as a JSON string: the ':' of a '::jsonb' cast would confuse the named-parameter
+# parser, hence CAST. `loaded_at` is the database's now() (the transaction's start).
+insert_run: |
+  INSERT INTO forecast_runs (run_id, origin, data_through, generated_at, meta, loaded_at)
+  VALUES (:run_id, :origin, :data_through, :generated_at, CAST(:meta AS jsonb), now());
+
+# Executed with a list of parameter dicts (one executemany batch).
+insert_series: |
+  INSERT INTO forecast_scope_series (run_id, scope_type, scope_id, preset_id, status, payload)
+  VALUES (:run_id, :scope_type, :scope_id, :preset_id, :status, CAST(:payload AS jsonb));
+
+count_rows: |
+  SELECT 'forecast_runs' AS table_name, count(*) AS row_count FROM forecast_runs
+  UNION ALL SELECT 'forecast_scope_series', count(*) FROM forecast_scope_series;
+
+# ---------------------------------------------------------------------------------------------
+# Read side (T6, `server.api.manager.forecast_store`): the API reads the one loaded run. Plain
+# SELECTs, so a load in progress does not block them.
+# ---------------------------------------------------------------------------------------------
+
+# The run to serve: the greatest `loaded_at`, ties the greatest `run_id`.
+# `origin` / `data_through` come back as text: a stored `infinity` (a date column allows it) would
+# make the driver raise while reading the row; as text it is just a value the reader rejects.
+latest_run: |
+  SELECT run_id, CAST(origin AS text) AS origin, CAST(data_through AS text) AS data_through, meta
+  FROM forecast_runs
+  ORDER BY loaded_at DESC, run_id DESC
+  LIMIT 1;
+
+# One scope's series, every preset (the whole payload: daily + periods).
+scope_series: |
+  SELECT preset_id, status, payload
+  FROM forecast_scope_series
+  WHERE run_id = :run_id AND scope_type = :scope_type AND scope_id = :scope_id;
+
+# The planner reads each period's `total` and `tokens_by_model` only: the per-date cumulative
+# arrays stay in the database. One row per (scope, preset, period); an `incomplete` scope has no
+# periods and yields one row with a null `ord`. `jsonb_typeof` keeps a damaged `periods` from
+# aborting the transaction (it reads as no periods, which the reader then rejects).
+plan_series: |
+  SELECT s.scope_type, s.scope_id, s.preset_id, s.status, p.ord AS ord,
+         p.elem -> 'total' AS total, p.elem -> 'tokens_by_model' AS tokens_by_model
+  FROM forecast_scope_series s
+  LEFT JOIN LATERAL jsonb_array_elements(
+      CASE WHEN jsonb_typeof(s.payload -> 'periods') = 'array'
+           THEN s.payload -> 'periods' ELSE CAST('[]' AS jsonb) END
+  ) WITH ORDINALITY AS p(elem, ord) ON true
+  WHERE s.run_id = :run_id AND s.scope_type IN ('team', 'repo')
+  ORDER BY s.scope_type, s.scope_id, s.preset_id, p.ord;

@@ -1,0 +1,6 @@
+email,team_id,role_in_team,role
+anil@acme.com,platform,lead,lead
+bea@acme.com,platform,,
+cy@acme.com,data,lead,lead
+dana@acme.com,data,,
+erin@acme.com,platform,,

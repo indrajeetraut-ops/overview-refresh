@@ -1,0 +1,29 @@
+# Batch uploader config (spec: docs/modules/batch-uploader.md).
+# Layering: defaults in code -> this file -> environment variables (arch §12).
+
+object_store:
+  backend: local                      # local | s3
+  local:
+    # This root stands in for the S3 bucket *root* — keys already start with
+    # "uploads/<upload_id>/..." (matching the doc §6 S3 layout), so don't
+    # suffix this path with "uploads" or you'll get "uploads/uploads/...".
+    root: "${TALIUM_DATA_DIR}/uploader-staging"
+  # s3:
+  #   bucket: "${TALIUM_UPLOAD_BUCKET}"
+  #   region: "${AWS_REGION}"
+  #   endpoint_url: null               # dev override, e.g. a local MinIO endpoint
+
+limits:
+  max_upload_bytes: 5368709120         # 5 GiB, uncompressed aggregate (doc §12 U1 default)
+  upload_timeout_s: 900.0              # wall clock per upload before a 499
+
+http:
+  host: "0.0.0.0"
+  port: 8080
+
+uploader_version: "0.1.0"
+
+# Orphan reclamation (doc §7, §11 U2): manifest-less uploads/<upload_id>/ prefixes
+# are reclaimed by an S3 lifecycle rule on the staging bucket (deployment config,
+# not application code) — delete objects under uploads/* older than N hours that
+# have no sibling manifest.json.

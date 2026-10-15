@@ -1,0 +1,46 @@
+version: "1"
+status: approved
+stored_field_rule: "A Type-prefixed path may address documented attrs for that node type in graph.schema.json."
+structural_fields:
+  Type.ts:
+    type: "string | null"
+    description: "Timestamp of the selected node type."
+derived_fields:
+  Tool.name:
+    type: string
+    description: "Exact harness tool name."
+  Tool.cmd:
+    type: "list[string]"
+    description: "Ordered executable basenames extracted at graph construction time."
+  Tool.outcome:
+    type: "success | failure | unknown"
+    description: "Outcome derived from the normalized tool result."
+  Tool.memory_access:
+    type: boolean
+    description: "True only when at least one file on the Tool matches the configured harness memory classifier."
+  Spawn.child_session_id:
+    type: "string | null"
+    description: "Universal session ID referenced by a spawn."
+  UserPrompt.preview:
+    type: string
+    description: "First 200 characters of the prompt."
+  UserPrompt.char_count:
+    type: integer
+    description: "Number of characters in the prompt."
+aliases:
+  model:
+    type: "string | null"
+    description: "Normalized or inherited model grouping field."
+  model_id:
+    type: "string | null"
+    description: "Exact vendor model identifier."
+  harness:
+    type: string
+    description: "Graph vendor such as claude_code or codex."
+summary_defaults:
+  Turn: [Turn.status, Turn.duration_ms, Turn.permission_mode, model]
+  UserPrompt: [UserPrompt.preview, UserPrompt.char_count]
+  Assistant: [model_id, Assistant.input_tokens, Assistant.output_tokens]
+  Tool: [Tool.name, Tool.cmd, Tool.outcome, Tool.duration_ms]
+  Spawn: [Spawn.agent_type, Spawn.status, Spawn.child_session_id]
+  Compaction: [Compaction.trigger, Compaction.tokens_reclaimed, Compaction.duration_ms]

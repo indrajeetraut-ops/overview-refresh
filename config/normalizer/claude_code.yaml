@@ -1,0 +1,215 @@
+# Normalizer config for the claude_code vendor (spec: docs/modules/normalizer.md).
+#
+# THIS FILE IS WHAT RUNS. `cli_normalize --config` defaults to it, and a missing file is an
+# error rather than a fallback -- falling back is how a run ends up configured by something
+# nobody looked at. Every value the normalizer has is stated here, so a run is fully described
+# by a file on disk.
+#
+# The pydantic model (src/collector/normalizer/config.py) still declares defaults, because
+# tests construct NormalizerConfig(...) directly to exercise one behaviour at a time. The two
+# cannot drift: tests/collector/normalizer/test_config_is_source_of_truth.py asserts this file
+# loads to exactly NormalizerConfig().
+
+# Stamped on every event: which normalizer built this.
+collector_version: 0.1.0
+
+# usage.<vendor key> -> assistant_message.<field>. Straight copies, no derivation.
+usage_field_map:
+  input_tokens: input_tokens
+  output_tokens: output_tokens
+  cache_read_tokens: cache_read_input_tokens
+  cache_write_tokens: cache_creation_input_tokens
+
+# -- what survives of a tool result -------------------------------------------------------
+#
+# A tool result holds two unlike things under one key: copies of files (up to 208 KB) and
+# facts about what happened -- gitOperation, filePath, type, status, agentId, resolvedModel,
+# tens of bytes each. Keep the facts, cut the bodies.
+#
+# Nothing is promoted to the payload. Which facts a consumer needs is the consumer's
+# decision, and the graph builder makes it at build time from `raw`, where it can be changed
+# without re-normalizing anything. Promotion is baked into stored data; extraction is not.
+#
+# Both lengths use the same -1 / 0 / N semantics as attachment_len:
+#   -1  keep the value whole
+#    0  empty it (key stays, so "vendor sent nothing" stays distinguishable from "we cut it")
+#    N  clip to N chars and append a visible truncation mark
+#
+# Bodies. 0 by default: a written file, a read file, a diff body and an Edit's before/after
+# are copies of the user's source. WHICH keys count as a body is structural and lives in
+# claude_code.py's _TOOL_RESULT_CONTENT_KEYS -- content, file, lines, originalFile,
+# oldString, newString, fileContent, text.
+tool_result_content_len: 0
+
+# Everything else under a result. 1000 covers the facts whole -- a gitOperation is 30-100
+# bytes, a commit summary on stdout ~250 -- while keeping a `cat` of a 25 KB file from riding
+# in on Bash's stdout, the one key that carries both kinds.
+tool_result_len: 1000
+
+# Intent: an ExitPlanMode plan, the prompt handed to a subagent. Kept whole (-1) because they
+# record what was being ATTEMPTED, not what a tool returned -- nobody's file is in here, and a
+# plan clipped at 1000 chars loses the part that says what it decided. Separate from
+# tool_result_len so keeping these whole does not also un-cap stdout.
+tool_result_intent_len: -1
+
+# A result that arrives as a JSON STRING -- MCP's shape, which key-name walking cannot see
+# inside until it is parsed. Content keys still apply, so fileContent (a Drive document's
+# whole body) is cut. Everything else takes this: whole, because an MCP listing is metadata
+# end to end and clipping it at 1000 produced a mid-object truncation that was neither
+# parseable nor useful. Only reaches values that PARSE as JSON -- error text and rejection
+# messages are bare strings, take tool_result_len, and stay capped.
+tool_result_mcp_len: -1
+
+# Splits mcp__<server>__<tool> into its parts.
+mcp_name_pattern: ^mcp__(?P<server>[^_].*?)__(?P<tool>.+)$
+
+# Org-authored, audited patterns. Empty by default -- what is redacted is gone.
+redaction_patterns: []
+
+# Write/Edit/MultiEdit content is categorically sensitive (proprietary source, not merely
+# secret-shaped), so this is on by default rather than pattern-driven.
+redact_generated_file_content: true
+
+# Assistant text is the surviving intent signal: reasoning plaintext is stripped by the
+# vendor before the transcript is written, so this is what is left to classify on.
+# -1 keeps it whole, 0 drops it, N truncates. Same semantics for every *_len below.
+assistant_text_len: 1000
+
+# Injected user records only -- skill bodies, reminders, task notifications. A TYPED prompt
+# ships whole regardless: it is the primary intent signal. Largest injection observed was a
+# 151,597-char skill body.
+user_meta_text_len: 1000
+
+# Counts the visible output so a consumer can subtract it from output_tokens and recover
+# what the reasoning cost. Off means the fields are null and tiktoken is never imported.
+count_estimated_visible_tokens: true
+
+# NOT Anthropic's tokenizer -- none is published. The count is stored raw and a per-model
+# multiplier is applied downstream (~1.13x on Sonnet 4.6, ~1.52x on Claude 5). Changing
+# this invalidates stored counts, which is why the name ships on every event.
+tokenizer_encoding: o200k_base
+
+# Context injected outside the message flow. Several types embed whole files.
+attachment_len: 1000
+
+# Per-type overrides. A skill listing is the same ~9KB of prose re-sent every session and
+# its names/skillCount metadata (kept regardless) already answers which skills were loaded.
+attachment_len_by_type:
+  skill_listing: 0
+  file: 0
+  already_read_file: 0
+  edited_text_file: 0
+  selected_lines_in_ide: 0
+
+# A type no one has seen. 0 because the whole point of the unknown case is that nobody has
+# looked at what is in the body.
+attachment_len_unknown_type: 0
+
+# What kind of thing a file is. An org decision (is a .mako a template or config?), hence
+# config. The raw extension always ships alongside, so a taxonomy change can be re-applied
+# to stored data without re-ingesting.
+artifact_class_by_extension:
+  code:
+  - .py
+  - .js
+  - .jsx
+  - .ts
+  - .tsx
+  - .go
+  - .rs
+  - .java
+  - .kt
+  - .rb
+  - .php
+  - .c
+  - .h
+  - .cpp
+  - .hpp
+  - .cs
+  - .swift
+  - .scala
+  - .sh
+  - .bash
+  - .zsh
+  - .sql
+  documentation:
+  - .md
+  - .markdown
+  - .rst
+  - .adoc
+  - .txt
+  config:
+  - .yaml
+  - .yml
+  - .toml
+  - .ini
+  - .cfg
+  - .json
+  - .env
+  - .properties
+  markup:
+  - .html
+  - .htm
+  - .css
+  - .scss
+  - .xml
+  data:
+  - .csv
+  - .tsv
+  - .parquet
+  - .jsonl
+  - .ndjson
+  notebook:
+  - .ipynb
+  template:
+  - .mako
+  - .jinja
+  - .jinja2
+  - .j2
+  - .hbs
+  - .mustache
+
+# Dotfiles and extensionless files: Path('.gitignore').suffix is '', so suffix lookup
+# cannot reach them.
+artifact_class_by_basename:
+  config:
+  - .gitignore
+  - .dockerignore
+  - .gitattributes
+  - .editorconfig
+  - .npmrc
+  - Dockerfile
+  - Makefile
+  - Procfile
+  - requirements.txt
+  - go.mod
+  - Gemfile
+  documentation:
+  - README
+  - LICENSE
+  - CHANGELOG
+  - NOTICE
+
+# Remote artifacts reached through MCP never produce a file_change, so the MIME type from
+# the tool result is the only signal that a Google Doc was touched at all.
+artifact_class_by_mime:
+  document:
+  - application/vnd.google-apps.document
+  - application/vnd.openxmlformats-officedocument.wordprocessingml.document
+  spreadsheet:
+  - application/vnd.google-apps.spreadsheet
+  - application/vnd.openxmlformats-officedocument.spreadsheetml.sheet
+  presentation:
+  - application/vnd.google-apps.presentation
+  - application/vnd.openxmlformats-officedocument.presentationml.presentation
+  documentation:
+  - text/markdown
+  - text/plain
+  code:
+  - text/x-python
+  - application/x-sh
+  data:
+  - text/csv
+  - application/json
+  pdf:
+  - application/pdf

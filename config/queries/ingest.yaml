@@ -1,0 +1,93 @@
+# Named queries for the ingest fold handler (ingest.md §3.3, §4.2). Compiled by QueryCatalog.
+
+# Race-safe create-on-first-sight: whoever wins the insert creates the row; everyone then
+# locks it (ingest.md §3.3 step 2). Identity comes from the Envelope's info bag + producer_id
+# (there is no wire header anymore, event-messaging-design.md §7).
+#
+# The conflict update only fires when the existing row is an OTel true-up stub (`status =
+# 'otel_only'`, dashboard-datasource-modes design §8, otel_trueup.py `_ensure_session_row`) --
+# real JSONL identity now expands the same session_id in place. For every other pre-existing
+# row (the ordinary repeat-upload case) the WHERE predicate is false and this is exactly the
+# prior DO NOTHING: a real session's identity fields, once set, are never rewritten by a later
+# upload. `started_at` is deliberately excluded from the update -- the stub's OTel-derived value
+# is a real (if slightly late) session start, and overwriting it with `now()` would make an
+# expanding session's history worse, not better.
+ensure_session: |
+  INSERT INTO sessions (session_id, producer_id, org_id, user_id, agent, agent_version,
+                        status, started_at, last_event_at, signal_blob, info_blob,
+                        parent_session_id, subagents)
+  VALUES (:session_id, :producer_id, :org_id, :user_id, :agent, :agent_version,
+          'live', now(), now(), '{}'::jsonb, '{}'::jsonb, :parent_session_id, '[]'::jsonb)
+  ON CONFLICT (session_id) DO UPDATE SET
+    producer_id = EXCLUDED.producer_id, org_id = EXCLUDED.org_id, user_id = EXCLUDED.user_id,
+    agent = EXCLUDED.agent, agent_version = EXCLUDED.agent_version, status = 'live'
+  WHERE sessions.status = 'otel_only';
+
+# Links a JSONL-side `user_id` to the vendor account identity OTel carries in `user.account_uuid`
+# (config/otel/claude_code.yaml's identity.user_attrs), so a session that only ever shows up via
+# OTel -- no JSONL upload ever lands with the same session_id -- can still resolve to the same
+# `user_id` instead of surfacing the raw account UUID (otel_trueup.py `_ensure_session_row`,
+# resolved via `otel.resolve_user_by_account_uuid`). Declared once at upload time
+# (utils/upload_claude_sessions.sh reads it from the local Claude Code OAuth credentials) --
+# never inferred or guessed. Only called when the caller actually has an account_uuid to record
+# (fold_handler.py), so an older collector that doesn't send one never creates an empty row.
+upsert_user_account_uuid: |
+  INSERT INTO users (user_id, account_uuid, info, created_at)
+  VALUES (:user_id, :account_uuid, '{}'::jsonb, now())
+  ON CONFLICT (user_id) DO UPDATE SET account_uuid = EXCLUDED.account_uuid
+  WHERE users.account_uuid IS DISTINCT FROM EXCLUDED.account_uuid;
+
+# Cross-source identity linking (pr-work-classification.md's github_user/user_id gap): finds a
+# `users` row that ALREADY claims a self-declared GitHub login, regardless of which side wrote
+# it -- git-source's own auto-created "github:<login>" stub (apply.py `resolve_user_id`, if a
+# PR from this person landed before they ever declared their handle here), or an earlier upload
+# under a different `user_id`. `ORDER BY created_at ASC LIMIT 1` is a deterministic tiebreaker
+# for the pathological case of two rows somehow both claiming the same login (no unique
+# constraint enforces one row per login -- fold_handler.py's reconciliation is what's meant to
+# prevent that from ever happening, not the schema).
+resolve_canonical_user_id_by_github_login: |
+  SELECT user_id FROM users WHERE github_user = :github_login ORDER BY created_at ASC LIMIT 1;
+
+# Declares `user_id`'s GitHub login (self-declared at upload time, normalized lower-case by the
+# caller since GitHub logins are case-insensitive). Only called after fold_handler.py has
+# already resolved `user_id` to whatever canonical identity this login belongs to via
+# `resolve_canonical_user_id_by_github_login` above -- so this is either a first-sighting
+# INSERT (new login, new row) or a no-op confirming a mapping that already matches.
+upsert_user_github_login: |
+  INSERT INTO users (user_id, github_user, info, created_at)
+  VALUES (:user_id, :github_user, '{}'::jsonb, now())
+  ON CONFLICT (user_id) DO UPDATE SET github_user = EXCLUDED.github_user
+  WHERE users.github_user IS DISTINCT FROM EXCLUDED.github_user;
+
+# Repository as a first-class entity (dashboard plan §3): insert-if-absent, bump last_seen_at
+# and label otherwise. Called from fold_handler.py and rollup.py, both times only when the
+# fold actually resolved a `repo_id` (metrics.py's `repo_info` evidence ladder) -- a session
+# with no evidence anywhere (no cwd, no remote, no PR) writes no row at all.
+upsert_repository: |
+  INSERT INTO repositories (repo_id, kind, label, first_seen_at, last_seen_at, info)
+  VALUES (:repo_id, :kind, :label, now(), now(),
+          jsonb_build_object('repo_id_provenance', CAST(:provenance AS text)))
+  ON CONFLICT (repo_id) DO UPDATE SET
+    last_seen_at = now(), label = EXCLUDED.label,
+    info = EXCLUDED.info;
+
+# Per-session serialization (ingest.md §1 decision 3): two msgs for the same session (a resend
+# or a longer re-upload) fold one at a time.
+lock_session: |
+  SELECT session_id FROM sessions WHERE session_id = :session_id FOR UPDATE;
+
+# Idle close-out (system-architecture.md §8.5: Live -> IdleClosed on idle timeout). CC never
+# emits a session_end (normalizer.md §8), so this timer is the only thing that ever moves a
+# session off 'live' for that vendor. Reopen (IdleClosed -> Live) is the mirror image, done in
+# fold/driver.py's fold() the moment a late event actually arrives for the session -- not here.
+idle_close_sessions: |
+  UPDATE sessions SET status = 'idle_closed'
+  WHERE status = 'live' AND last_event_at < :cutoff;
+
+# Coalesced parent-rollup trigger, fired when a subagent session commits (ingest.md §7). One
+# pending 'rollup' job per parent; the rollup worker (src/server/worker) consumes it.
+ring_rollup: |
+  INSERT INTO queue_jobs (topic, dedup_key, payload, run_after, enqueued_at)
+  VALUES ('rollup', CAST(:session_id AS text),
+          jsonb_build_object('session_id', CAST(:session_id AS text)), now(), now())
+  ON CONFLICT (topic, dedup_key) WHERE status = 'pending' DO NOTHING;

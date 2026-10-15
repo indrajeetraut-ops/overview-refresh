@@ -1,0 +1,42 @@
+anchors:
+- - 1
+  - '1.800'
+- - 5
+  - '1.800'
+- - 7
+  - '1.000'
+- - 19
+  - '1.000'
+- - 21
+  - '1.300'
+- - 23
+  - '1.300'
+- - 25
+  - '1.000'
+- - 30
+  - '1.000'
+- - 32
+  - '1.500'
+- - 39
+  - '1.500'
+- - 41
+  - '1.000'
+- - 45
+  - '0.960'
+- - 51
+  - '1.040'
+- - 57
+  - '1.000'
+- - 61
+  - '1.000'
+axis:
+  end: 61
+  start: 1
+description: 'Development team usage level: opening crunch, freeze bump, release crunch,
+  quiet end'
+interp: pchip
+name: development-phases
+preview:
+  baseline_tokens: 1000000.0
+  days: 120
+schema_version: 1

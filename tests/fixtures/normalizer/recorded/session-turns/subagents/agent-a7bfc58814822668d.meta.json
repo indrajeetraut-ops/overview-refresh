@@ -1,0 +1,7 @@
+{
+  "agentType": "general-purpose",
+  "description": "Final whole-branch review",
+  "toolUseId": "toolu_01UCaDyiw4YCZQM3CKoZL33G",
+  "spawnDepth": 1,
+  "model": "fable"
+}

@@ -1,0 +1,37 @@
+{
+  "schema_version": "4.2.0",
+  "session_id": "query-api-sample",
+  "parent_session_id": null,
+  "vendor": "claude_code",
+  "source": "jsonl",
+  "built": "complete",
+  "meta": {"title": "Query API sample"},
+  "roots": ["turn:1"],
+  "nodes": [
+    {
+      "id": "turn:1", "type": "turn", "ts": "2026-08-25T10:00:00Z",
+      "attrs": {"turn_num": 1, "status": "completed", "duration_ms": 100, "permission_mode": "default", "plan_mode": false, "attribution": {"skill": [], "plugin": [], "agent": [], "effort": []}, "tokens": {"input_tokens": 12, "output_tokens": 6, "cache_read_tokens": 2, "cache_write_tokens": 0, "estimated_reasoning_tokens": 1}},
+      "meta": {}, "children": ["assistant:1"], "parent_id": null, "refs": {}
+    },
+    {
+      "id": "assistant:1", "type": "assistant", "ts": "2026-08-25T10:00:01Z",
+      "attrs": {"model": "sample-model", "input_tokens": 12, "output_tokens": 6, "cache_read_tokens": 2, "cache_write_tokens": 0, "estimated_reasoning_tokens": 1},
+      "meta": {}, "children": ["tool:commit", "tool:failed", "spawn:1"], "parent_id": "turn:1", "refs": {}
+    },
+    {
+      "id": "tool:commit", "type": "tool", "ts": "2026-08-25T10:00:02Z",
+      "attrs": {"tool_name": "Bash", "cmd": ["git"], "input": {"command": "git commit -m query-api"}, "duration_ms": 10, "exit_status": 0, "files": [{"path": "src/example.py", "extension": ".py", "artifact_class": "code", "operation": "edit", "hunks": [{"start": 1, "len": 3, "old_len": 1}]}], "result": {"outcome": "ok", "error_text": null, "git": {"op": "commit", "sha": "abc123", "kind": "committed"}}},
+      "meta": {}, "children": [], "parent_id": "assistant:1", "refs": {}
+    },
+    {
+      "id": "tool:failed", "type": "tool", "ts": "2026-08-25T10:00:03Z",
+      "attrs": {"tool_name": "Bash", "cmd": ["git"], "input": {"command": "git push origin sample"}, "duration_ms": 8, "exit_status": 1, "result": {"outcome": "error", "error_text": "remote rejected"}},
+      "meta": {}, "children": [], "parent_id": "assistant:1", "refs": {}
+    },
+    {
+      "id": "spawn:1", "type": "spawn", "ts": "2026-08-25T10:00:04Z",
+      "attrs": {"agent_type": "Explore", "description": "inspect examples", "prompt_char_count": 16, "requested_model": "sample-model", "resolved_model": "sample-model", "run_in_background": false, "status": "completed", "duration_ms": 22},
+      "meta": {}, "children": [], "parent_id": "assistant:1", "refs": {"child_session_id": "sample-child-not-loaded"}
+    }
+  ]
+}

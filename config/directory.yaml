@@ -1,0 +1,16 @@
+# Org-directory module config (docs/design/identity-ingestion.md §3, plan G3).
+# Layering: defaults in code -> this file -> environment variables (arch §12).
+
+directory:
+  # Provider precedence, highest authority first. When two sources assert the same person,
+  # the higher-ranked one owns the field; a lower-ranked re-import cannot clobber it
+  # (IDENT §3). Slotting an IdP in ahead of `csv` when SCIM/LDAP land is an edit to this
+  # one line -- no code change (IDENT §8).
+  precedence: [scim, ldap, oidc, csv, telemetry]
+
+  # Single tenant per deployment in MVP; carried on every team/role row so multi-tenant
+  # becomes a filter, not a rewrite (IDENT §7).
+  default_org_id: default
+
+  # A record that declares no roles gets this one, at org scope (IDENT §3.2).
+  default_role: dev

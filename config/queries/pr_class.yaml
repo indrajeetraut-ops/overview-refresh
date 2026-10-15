@@ -1,0 +1,371 @@
+# Named queries for pr-work-classification.md's two derived tables. Compiled by QueryCatalog
+# at load. No FKs (storage.md §3.1): artifact_id/session_id are plain indexed columns resolved
+# against git_artifacts/sessions by the caller.
+#
+# Unlike git-source's upserts, these are plain replace-on-conflict for every column EXCEPT
+# `rework_ratio`: both tables are computed FROM SCRATCH by this module on each run (design §7,
+# "a logic fix is a re-run, byte-identical result"), so there is no other writer's value to
+# accidentally clobber -- except rework_ratio, owned by the sibling rework module (design
+# §5.7), which this module's own classify pass never computes and must not overwrite with its
+# own None.
+
+# ------------------------------------------------------------------------- correlation (§4, §8)
+
+upsert_session_git_link: |
+  INSERT INTO session_git_links (session_id, artifact_id, method, confidence, signals, created_at)
+  VALUES (:session_id, :artifact_id, :method, :confidence, CAST(:signals AS jsonb), now())
+  ON CONFLICT (session_id, artifact_id) DO UPDATE SET
+    method = EXCLUDED.method, confidence = EXCLUDED.confidence, signals = EXCLUDED.signals;
+
+# Reverse lookup: every session that fed one PR (or commit) artifact -- the attribution
+# rollup's join and the owning-PR dedup both walk this direction.
+sessions_for_artifact: |
+  SELECT session_id, method, confidence, signals FROM session_git_links
+  WHERE artifact_id = :artifact_id;
+
+links_for_session: |
+  SELECT artifact_id, method, confidence, signals FROM session_git_links
+  WHERE session_id = :session_id;
+
+# Batched form of the above -- G1 (mvp-gap-closure-plan)'s person session-history table needs
+# "which PR(s), if any, did each of these N sessions feed" in one round trip rather than one
+# query per session.
+links_for_sessions: |
+  SELECT session_id, artifact_id FROM session_git_links
+  WHERE session_id = ANY(:session_ids);
+
+# A session's own commit shas, walked out of its signal_blob, from BOTH places the vendor
+# records one -- either alone leaves real commits invisible:
+#
+#   1. STRUCTURED: `gitOperation.commit.sha` on the tool's RESULT (a `tool_result` event's
+#      `payload.raw.toolUseResult.gitOperation`), NOT on the `tool_call` -- the normalizer keeps
+#      the result verbatim under `raw` and never flattens it, so this reads the nested path.
+#   2. STDOUT TEXT: when the agent commits by running `git commit` through Bash, the result is a
+#      plain Bash payload -- `gitOperation` is null and the sha only ever appears in git's own
+#      `[<branch> <sha>] <subject>` first line of `stdout`. Measured on a real machine: 9 of 35
+#      sessions that committed had the sha ONLY here, and PR #58 alone matched 37 such shas while
+#      showing "0 session(s)". Structured-only capture silently loses every Bash-path commit.
+#
+# `(?n)` makes `^` match at line starts (hooks can print ahead of git's own output) and the
+# greedy `[^]]+` walks to the LAST space-separated token before `]`, which is what makes
+# `[main (root-commit) abc1234]` and `[detached HEAD abc1234]` resolve to the sha rather than to
+# a branch-name fragment. Branch names carrying `/` or `#` are covered by the same class.
+#
+# A false positive here is inert, not harmful: a sha that matches no PR's `commit_shas` simply
+# lands in `unresolved` and links nothing. `DISTINCT` because `git commit --amend` inside one
+# session can repeat a sha, and because a commit can surface through both sources at once.
+session_commit_shas: |
+  SELECT DISTINCT sha FROM (
+    SELECT e -> 'payload' -> 'raw' -> 'toolUseResult' -> 'gitOperation' -> 'commit' ->> 'sha' AS sha
+    FROM sessions sess,
+         LATERAL jsonb_array_elements(COALESCE(sess.signal_blob -> 'events', '[]'::jsonb)) e
+    WHERE sess.session_id = :session_id
+      AND e ->> 'event_type' = 'tool_result'
+      AND e -> 'payload' -> 'raw' -> 'toolUseResult' -> 'gitOperation' -> 'commit' ->> 'sha' IS NOT NULL
+    UNION
+    SELECT m[1] AS sha
+    FROM sessions sess,
+         LATERAL jsonb_array_elements(COALESCE(sess.signal_blob -> 'events', '[]'::jsonb)) e,
+         LATERAL regexp_matches(e -> 'payload' -> 'raw' -> 'toolUseResult' ->> 'stdout',
+                                '(?n)^\[[^]]+ ([0-9a-f]{7,40})\]', 'g') AS m
+    WHERE sess.session_id = :session_id
+      AND e ->> 'event_type' = 'tool_result'
+  ) commit_shas;
+
+# The commit artifacts (and their owning PR, via commit_shas membership) for a set of shas, in
+# one pass -- the correlator's core join. `commit_artifacts` resolves sha -> commit artifact;
+# `owning_prs_for_shas` resolves sha -> every in-scope PR whose commit_shas contains it (§6.4
+# needs "every", not "one", to compute owning_pr = min(created_at, merged_at) across them --
+# earliest-OPENED wins the tie, with `merged_at` only a deterministic secondary tiebreak).
+#
+# PREFIX match, not exact equality: measured real data shows Claude Code's own commit-sha
+# capture (the vendor's `gitOperation.commit.sha` on the tool result) only ever carries git's
+# abbreviated hash (~7 chars -- there is no full sha anywhere in Claude Code's own telemetry to
+# extract), while
+# GitHub's API always returns the full 40-char sha into `git_artifacts`. A short sha is a valid
+# PREFIX of the real commit, not a different value -- git itself guarantees the abbreviation it
+# prints is unique within the repo at the time it was printed, so prefix matching is git's own
+# notion of "same commit," not a guess. `matched_sha` echoes back which of the CALLER's (possibly
+# short) shas caused the match, since the row's own `sha` column is always the full one and the
+# caller needs to map back to its original key. Collision caveat: an extremely active repo could
+# in theory grow a second commit sharing the same short prefix after the fact -- accepted as a
+# rare, documented limitation rather than solved here (matches this module's existing tolerance
+# for the heuristic fallback's own confidence caveat).
+commit_artifacts_for_shas: |
+  SELECT a.artifact_id, a.sha, a.repo_id, m.short_sha AS matched_sha
+  FROM git_artifacts a
+  JOIN LATERAL (
+    SELECT short_sha FROM unnest(CAST(:shas AS text[])) AS short_sha
+    WHERE a.sha LIKE short_sha || '%'
+    LIMIT 1
+  ) m ON true
+  WHERE a.kind = 'commit';
+
+owning_prs_for_shas: |
+  SELECT artifact_id, repo_id, base_branch, branch, created_at, merged_at, commit_shas
+  FROM git_artifacts a
+  WHERE kind = 'pr' AND merged_at IS NOT NULL
+    AND EXISTS (
+      SELECT 1
+      FROM jsonb_array_elements_text(a.commit_shas) AS full_sha
+      JOIN unnest(CAST(:shas AS text[])) AS short_sha ON full_sha LIKE short_sha || '%'
+    );
+
+# The reverse of `session_commit_shas`: every session that has recorded ANY of the given shas
+# (here always full, from a landed commit/merged-PR artifact) as one of its own tool-result
+# commit captures -- possibly only a PREFIX of it, for the same reason as above. This is what
+# lets the `git_correlate` trigger (rung when a commit or a merged PR artifact lands) find WHICH
+# sessions to (re-)correlate, without scanning every session in the system.
+sessions_with_commit_sha: |
+  SELECT DISTINCT sess.session_id
+  FROM sessions sess,
+       LATERAL jsonb_array_elements(COALESCE(sess.signal_blob -> 'events', '[]'::jsonb)) e,
+       LATERAL (
+         SELECT e -> 'payload' -> 'raw' -> 'toolUseResult' -> 'gitOperation' -> 'commit' ->> 'sha' AS sha
+         UNION ALL
+         SELECT m[1]
+         FROM regexp_matches(e -> 'payload' -> 'raw' -> 'toolUseResult' ->> 'stdout',
+                             '(?n)^\[[^]]+ ([0-9a-f]{7,40})\]', 'g') AS m
+       ) src
+       CROSS JOIN unnest(CAST(:shas AS text[])) AS full_sha
+  WHERE e ->> 'event_type' = 'tool_result'
+    AND src.sha IS NOT NULL
+    AND full_sha LIKE src.sha || '%';
+
+# Resolves the `"<default-branch>"` eval_scope sentinel (§3.1) for a batch of repos in one
+# round trip, rather than one query per candidate PR's repo.
+repo_default_branches: |
+  SELECT repo_id, default_branch FROM git_repos WHERE repo_id = ANY(CAST(:repo_ids AS text[]));
+
+# The heuristic fallback's candidate pool (§4.2): in-scope merged PRs for one repo that carry a
+# real file list -- a bare webhook-mapped PR has `files IS NULL` (git-source A4 never learns a
+# webhook payload's file paths), so only backfilled PRs are ever heuristic-matchable. Documented
+# limit, not a bug: `docs/modules/pr-work-classification.md` §4.2 calls this the last resort.
+merged_prs_with_files_for_repo: |
+  SELECT artifact_id, files, base_branch, branch, updated_at
+  FROM git_artifacts
+  WHERE kind = 'pr' AND repo_id = :repo_id AND merged_at IS NOT NULL
+    AND files IS NOT NULL AND files <> '[]'::jsonb;
+
+# --------------------------------------------------------------------------- coverage (§4.4, §7)
+
+# "% sessions linked, unlinked bucket": a session counts as a correlation CANDIDATE only if it
+# recorded at least one commit sha (§4.4 -- a session with no merged output is a real, reported
+# cost bucket, not folded silently into "unlinked" noise from sessions that never touched git).
+correlation_coverage: |
+  SELECT
+    count(*) FILTER (WHERE has_commits)                              AS candidate_sessions,
+    count(*) FILTER (WHERE has_commits AND is_linked)                 AS linked_sessions,
+    count(*) FILTER (WHERE has_commits AND NOT is_linked)              AS unlinked_sessions
+  FROM (
+    SELECT sess.session_id,
+      EXISTS (
+        SELECT 1 FROM jsonb_array_elements(COALESCE(sess.signal_blob -> 'events', '[]'::jsonb)) e
+        WHERE e ->> 'event_type' = 'tool_result'
+          AND (
+            e -> 'payload' -> 'raw' -> 'toolUseResult' -> 'gitOperation' -> 'commit' ->> 'sha' IS NOT NULL
+            OR e -> 'payload' -> 'raw' -> 'toolUseResult' ->> 'stdout' ~ '(?n)^\[[^]]+ [0-9a-f]{7,40}\]'
+          )
+      ) AS has_commits,
+      EXISTS (SELECT 1 FROM session_git_links l WHERE l.session_id = sess.session_id) AS is_linked
+    FROM sessions sess
+  ) per_session;
+
+# --------------------------------------------------------------------------- classification (§5, §8)
+
+upsert_pr_classification: |
+  INSERT INTO pr_classification
+    (artifact_id, change_type, change_confidence, change_tier, artifact_class, is_revert,
+     is_recall, recall_reason, recall_confidence, module, rework_ratio, features_digest,
+     analyzer, classified_at)
+  VALUES
+    (:artifact_id, :change_type, :change_confidence, :change_tier, :artifact_class, :is_revert,
+     :is_recall, :recall_reason, :recall_confidence, :module, :rework_ratio,
+     CAST(:features_digest AS jsonb), :analyzer, now())
+  ON CONFLICT (artifact_id) DO UPDATE SET
+    change_type = EXCLUDED.change_type, change_confidence = EXCLUDED.change_confidence,
+    change_tier = EXCLUDED.change_tier, artifact_class = EXCLUDED.artifact_class,
+    is_revert = EXCLUDED.is_revert, is_recall = EXCLUDED.is_recall,
+    recall_reason = EXCLUDED.recall_reason, recall_confidence = EXCLUDED.recall_confidence,
+    module = EXCLUDED.module,
+    rework_ratio = COALESCE(CAST(:rework_ratio AS numeric), pr_classification.rework_ratio),
+    features_digest = EXCLUDED.features_digest, analyzer = EXCLUDED.analyzer,
+    classified_at = now();
+
+# The full artifact shape the classify pipeline needs -- deliberately a plain SELECT, not a
+# reuse of the write-side upsert params (which are JSON-STRING-encoded for the jsonb cast):
+# JSONB columns come back as native Python dicts/lists from a raw text() query (confirmed
+# empirically; psycopg's own adapter does this, not SQLAlchemy's), which is the shape
+# classify.py/integration.py's functions actually expect.
+get_artifact_for_classify: |
+  SELECT artifact_id, repo_id, number, state, title, labels, info, reverts_sha, files, stats,
+         merged_at, base_branch, branch, commit_shas
+  FROM git_artifacts WHERE artifact_id = :artifact_id AND kind = 'pr';
+
+get_pr_classification: |
+  SELECT artifact_id, change_type, change_confidence, change_tier, artifact_class, is_revert,
+         is_recall, recall_reason, recall_confidence, module, rework_ratio, features_digest,
+         analyzer, classified_at
+  FROM pr_classification WHERE artifact_id = :artifact_id;
+
+# --------------------------------------------------------------------------- rollup (§6)
+
+# One artifact's classification joined to every session that fed it, deduped to the OWNING pr
+# per commit (§6.4) at the caller's level -- this query returns the raw link set; the dedup
+# arithmetic itself needs the full commit->PR membership graph, not expressible as one query
+# with clean semantics, so B6's rollup does it in Python over this plus owning_prs_for_shas.
+attribution_rows_for_repo: |
+  SELECT c.artifact_id, c.change_type, c.artifact_class, c.module, c.rework_ratio,
+         l.session_id, l.method, l.confidence
+  FROM pr_classification c
+  JOIN git_artifacts a ON a.artifact_id = c.artifact_id
+  LEFT JOIN session_git_links l ON l.artifact_id = c.artifact_id
+  WHERE a.repo_id = :repo_id;
+
+# Every rollup-by-dimension query below shares one shape: DEDUPE to (session_id, dimension
+# value) BEFORE summing cost. Without the inner DISTINCT, a session that links to two DIFFERENT
+# PRs sharing the same dimension value (two "fix" PRs, say) would have its full cost counted
+# once per PR -- a second double-counting risk beyond §6.4's owning-PR dedup (which only
+# protects one COMMIT riding several PRs, not one SESSION touching several).
+#
+# Cost source: `session_info.cost_effective_usd_micros` (otel_trueup.py's ledger, storage.md
+# §3.4), NOT `cost_usd` -- despite the name, `cost_usd` is a documented dead column the JSONL
+# fold declares but never writes (`fold/driver.py`'s own comment: "cost_usd is the one field
+# this fold still never computes -- otel_trueup.py owns cost, in a separate write"), and
+# otel_trueup writes its ledger to `cost_effective_usd_micros` instead, not to `cost_usd`.
+# `cost_effective_usd_micros` is populated for EVERY session regardless of `datasource`
+# (`both`/`otel_only`/`jsonl_only`) -- a `jsonl_only` session gets it from `common.model_pricing.Pricer`
+# pricing its own recorded token counts, exactly the case git-source-linked history usually is.
+# Stored in micros (BigInteger); `/ 1000000` converts to dollars, `::numeric` first so the
+# division is exact rather than floored/floated.
+rollup_by_change_type: |
+  SELECT dedup.change_type, count(*) AS session_count,
+         COALESCE(sum(si.cost_effective_usd_micros), 0)::numeric / 1000000 AS total_cost_usd
+  FROM (
+    SELECT DISTINCT l.session_id, c.change_type
+    FROM session_git_links l JOIN pr_classification c ON c.artifact_id = l.artifact_id
+  ) dedup
+  JOIN session_info si ON si.session_id = dedup.session_id
+  GROUP BY dedup.change_type
+  ORDER BY dedup.change_type;
+
+rollup_by_artifact_class: |
+  SELECT dedup.artifact_class, count(*) AS session_count,
+         COALESCE(sum(si.cost_effective_usd_micros), 0)::numeric / 1000000 AS total_cost_usd
+  FROM (
+    SELECT DISTINCT l.session_id, c.artifact_class
+    FROM session_git_links l JOIN pr_classification c ON c.artifact_id = l.artifact_id
+  ) dedup
+  JOIN session_info si ON si.session_id = dedup.session_id
+  GROUP BY dedup.artifact_class
+  ORDER BY dedup.artifact_class;
+
+rollup_by_module: |
+  SELECT dedup.module, count(*) AS session_count,
+         COALESCE(sum(si.cost_effective_usd_micros), 0)::numeric / 1000000 AS total_cost_usd
+  FROM (
+    SELECT DISTINCT l.session_id, c.module
+    FROM session_git_links l JOIN pr_classification c ON c.artifact_id = l.artifact_id
+    WHERE c.module IS NOT NULL
+  ) dedup
+  JOIN session_info si ON si.session_id = dedup.session_id
+  GROUP BY dedup.module
+  ORDER BY dedup.module;
+
+rollup_by_repo: |
+  SELECT dedup.repo_id, count(*) AS session_count,
+         COALESCE(sum(si.cost_effective_usd_micros), 0)::numeric / 1000000 AS total_cost_usd
+  FROM (
+    SELECT DISTINCT l.session_id, a.repo_id
+    FROM session_git_links l JOIN git_artifacts a ON a.artifact_id = l.artifact_id
+  ) dedup
+  JOIN session_info si ON si.session_id = dedup.session_id
+  GROUP BY dedup.repo_id
+  ORDER BY dedup.repo_id;
+
+rollup_by_user: |
+  SELECT dedup.user_id, count(*) AS session_count,
+         COALESCE(sum(si.cost_effective_usd_micros), 0)::numeric / 1000000 AS total_cost_usd
+  FROM (
+    SELECT DISTINCT l.session_id, sess.user_id
+    FROM session_git_links l JOIN sessions sess ON sess.session_id = l.session_id
+    WHERE sess.user_id IS NOT NULL
+  ) dedup
+  JOIN session_info si ON si.session_id = dedup.session_id
+  GROUP BY dedup.user_id
+  ORDER BY dedup.user_id;
+
+# Labels are a jsonb ARRAY (a PR can carry several) -- exploded via jsonb_array_elements_text,
+# so one session linked to a multi-labeled PR contributes to each label's bucket once (a
+# session genuinely IS attributable to every label its PR carries; this is not the same
+# double-counting the other dimensions guard against, since each label is a distinct bucket).
+rollup_by_label: |
+  SELECT dedup.label, count(*) AS session_count,
+         COALESCE(sum(si.cost_effective_usd_micros), 0)::numeric / 1000000 AS total_cost_usd
+  FROM (
+    SELECT DISTINCT l.session_id, lbl.label
+    FROM session_git_links l
+    JOIN git_artifacts a ON a.artifact_id = l.artifact_id
+    JOIN LATERAL jsonb_array_elements_text(a.labels) AS lbl(label) ON true
+  ) dedup
+  JOIN session_info si ON si.session_id = dedup.session_id
+  GROUP BY dedup.label
+  ORDER BY dedup.label;
+
+# Per-PR attributed cost (session_git_links' PK already prevents a session/PR pair from
+# double-counting here -- this is the one rollup query that does NOT need the dedup subquery
+# above, because it groups by the artifact itself rather than a dimension several PRs share).
+pr_attributed_cost: |
+  SELECT c.artifact_id, c.rework_ratio,
+         COALESCE(sum(si.cost_effective_usd_micros), 0)::numeric / 1000000 AS attributed_cost_usd
+  FROM pr_classification c
+  JOIN session_git_links l ON l.artifact_id = c.artifact_id
+  JOIN session_info si ON si.session_id = l.session_id
+  GROUP BY c.artifact_id, c.rework_ratio;
+
+# Σ (attributed PR cost × rework_ratio) (§6.1) -- null (not zero) until the sibling rework
+# module has run for at least one PR, so a caller can tell "no rework yet computed" from "zero
+# rework cost, computed."
+rework_cost_total: |
+  SELECT sum(sub.attributed_cost_usd * sub.rework_ratio) AS rework_cost_usd
+  FROM (
+    SELECT c.artifact_id, c.rework_ratio,
+           COALESCE(sum(si.cost_effective_usd_micros), 0)::numeric / 1000000 AS attributed_cost_usd
+    FROM pr_classification c
+    JOIN session_git_links l ON l.artifact_id = c.artifact_id
+    JOIN session_info si ON si.session_id = l.session_id
+    WHERE c.rework_ratio IS NOT NULL
+    GROUP BY c.artifact_id, c.rework_ratio
+  ) sub;
+
+# Coverage by confidence band (§7's determinism/coverage bar): correlation links bucketed by
+# how sure the match is -- 1.0 (trailer/sha, exact) vs "high" (>=0.7, presently unreachable
+# since heuristic's floor is 0.3) vs "low" (heuristic, <0.7).
+correlation_coverage_by_confidence_band: |
+  SELECT
+    CASE WHEN confidence >= 1.0 THEN 'exact'
+         WHEN confidence >= 0.7 THEN 'high'
+         ELSE 'low' END AS confidence_band,
+    count(*) AS link_count
+  FROM session_git_links
+  GROUP BY confidence_band
+  ORDER BY confidence_band;
+
+# ------------------------------------------------------------------ session_info.pr_list (§8)
+
+# The denormalized read view a dashboard hits (storage.md §3.4) -- refreshed per session
+# whenever its links change (correlate.py, right after correlate_session) and re-derivable in
+# bulk any time from session_git_links + pr_classification, never hand-maintained separately.
+refresh_session_pr_list: |
+  UPDATE session_info
+  SET pr_list = COALESCE((
+    SELECT jsonb_agg(jsonb_build_object(
+      'artifact_id', l.artifact_id, 'method', l.method, 'confidence', l.confidence,
+      'change_type', c.change_type, 'repo_id', a.repo_id, 'number', a.number
+    ) ORDER BY l.artifact_id)
+    FROM session_git_links l
+    JOIN git_artifacts a ON a.artifact_id = l.artifact_id
+    LEFT JOIN pr_classification c ON c.artifact_id = l.artifact_id
+    WHERE l.session_id = session_info.session_id
+  ), '[]'::jsonb)
+  WHERE session_id = :session_id;

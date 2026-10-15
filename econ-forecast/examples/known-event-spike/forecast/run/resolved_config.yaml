@@ -1,0 +1,57 @@
+allocation:
+  lookback_days: 28
+default_org_id: talium.ai
+history:
+  lookback_days: 90
+  minimum_active_days: 4
+  minimum_days: 14
+input:
+  dataset_dir: ../../../dataset/synth-baseline
+known_events:
+  agents: {}
+  org:
+    end_date: '2026-09-18'
+    multiplier: 1.4
+    spread: 0.15
+    start_date: '2026-09-14'
+  projects: {}
+  teams: {}
+model:
+  method: ets
+  seasonal: auto
+  trend: auto
+runtime:
+  workers: 1
+schema_version: 1
+scopes:
+- name: null
+  org_id: null
+  type: organization
+- name: team1
+  org_id: null
+  type: team
+- name: team2
+  org_id: null
+  type: team
+- name: team3
+  org_id: null
+  type: team
+- name: payment_service_improvement
+  org_id: null
+  type: project
+- name: auth_service_rewrite
+  org_id: null
+  type: project
+- name: data_pipeline_upgrade
+  org_id: null
+  type: project
+- name: search_service_improvement
+  org_id: null
+  type: project
+- name: developer_tooling
+  org_id: null
+  type: project
+uncertainty:
+  max_negative_correction_ratio: 0.05
+  paths: 1000
+  seed: 42

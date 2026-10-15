@@ -1,0 +1,168 @@
+# Synthetic org example -- daily usage series. start_date is a placeholder: cli_synth_org.py
+# (P9) retimes it (and every event date below by the same delta) when --end-date is given, so
+# the data always ends "now" without hand-editing this file.
+schema_version: 3
+series:
+  users_file: ../users/users.jsonl    # rewritten by cli_synth_org.py to the chain's own output
+  roster_file: ../roster/teams.jsonl  # rewritten by cli_synth_org.py to the chain's own output
+    # Inclusive start date and number of calendar days.
+  start_date: '2026-07-01'
+  days: 120
+  timezone: Asia/Kolkata
+  # Fixes one profile per user for the entire series (a power user stays a power user).
+  profile_seed: 100
+  # Independent streams for activity, Project, volume, spikes, and token mix.
+  usage_seed: 41
+# Ratios use 0..1. *_pct is relative percent; *_pp is percentage points.
+defaults:
+  # 30 means baseline multiplied by a uniform factor between 0.70 and 1.30.
+  daily_variation_pct: 30
+  output_ratio: 0.03
+  cache_hit_ratio: 0.95
+  # An 80% cache-hit ratio with 5 points varies between 75% and 85%.
+  cache_hit_variation_pp: 5
+  cache_write_ratio: 0.997       # share of non-cache-read input that is a cache write
+  cache_write_1h_share: 0.97     # share of cache writes at the 1-hour lifetime
+  # Perturb positive agent/model weights relatively, then normalize.
+  mix_variation_pct: 10
+  daily_zero_probability: 0.1
+  # Weekend drop. Layer 1 v2 has no separate weekend inactivity: a weekend day is scaled by
+  # weekend_reduction_factor with this probability, otherwise it runs at the weekday level.
+  # The v1 config was 60% inactive and 0.25x when active, about 0.11x a weekday on average;
+  # 1.0 and 0.11 keep that average, with low activity on every weekend instead of none on most.
+  weekend_reduction_probability: 1.0
+  weekend_reduction_factor: 0.11
+# Per-user total processed input on an ACTIVE weekday (input + cache_read).
+# Output is additional; daily totals are not model context-window limits.
+# A wide spread, so users are visibly different on the dashboard: idle 0.4M, light 3M, mid 9M,
+# heavy 18M, power 45M (2.5x heavy). The power profile also spikes on its own: on about three
+# active weekdays in ten (spike_probability 0.30) the user's whole day is 1.5-2.5x, so the two
+# power users each spike one to two days a week. The idle profile is the low-usage user, about 13%
+# of the org's median user over 28 days.
+profiles:
+  idle_profile:
+    daily_input_tokens: 400000
+  light_profile:
+    daily_input_tokens: 3000000
+  mid_profile:
+    daily_input_tokens: 9000000
+  heavy_profile:
+    daily_input_tokens: 18000000
+  power_profile:
+    daily_input_tokens: 45000000
+    spike_probability: 0.30
+    spike_multiplier_min: 1.5
+    spike_multiplier_max: 2.5
+# Profile mix gives fixed user counts; Project mix is sampled per active day.
+# Only daily inactivity and the weekend reduction may be overridden per Team.
+# User counts (allocate_integer of the roster count; the roster is 20/10/5):
+#   Development (20): 2 power, 1 heavy, 3 mid, 13 light, 1 idle  -> over budget (about 113-140%)
+#   Platform (10):    1 heavy, 2 mid, 5 light, 2 idle            -> margin (about 53-61%)
+#   QA (5):           1 heavy, 2 mid, 1 light, 1 idle            -> near its line (about 85-115%)
+# Tuned with the generate -> forecast loop of the synthetic-demo-realism plan, over end dates
+# from 2026-09-28 to 2026-11-30 (usage_seed 41 was picked from 7 seeds for the smallest swing of
+# the landings across them); retune the mixes, not the profile tokens, if a team should land
+# elsewhere.
+team_profiles:
+  Development:
+    profile_mix:
+      power_profile: 0.10
+      heavy_profile: 0.05
+      mid_profile: 0.15
+      light_profile: 0.65
+      idle_profile: 0.05
+    project_mix:
+      payment_service_improvement: 0.7
+      auth_service_rewrite: 0.3
+    # Fewer absences than the default 10%: with two power users carrying about half of the team's
+    # tokens, a missing one moves the whole team's day (and its monthly landing) too much.
+    activity:
+      daily_zero_probability: 0.04
+      weekend_reduction_probability: 1.0
+      weekend_reduction_factor: 0.11
+  Platform:
+    profile_mix:
+      heavy_profile: 0.10
+      mid_profile: 0.20
+      light_profile: 0.50
+      idle_profile: 0.20
+    project_mix:
+      ci_pipeline_maintenance: 0.4
+      data_pipeline_upgrade: 0.6
+    activity:
+      daily_zero_probability: 0.1
+      weekend_reduction_probability: 1.0
+      weekend_reduction_factor: 0.06
+  QA:
+    profile_mix:
+      heavy_profile: 0.20
+      mid_profile: 0.40
+      light_profile: 0.20
+      idle_profile: 0.20
+    project_mix:
+      auth_service_rewrite: 0.2
+      search_service_improvement: 0.4
+      automation_suite: 0.4
+    # Five people: fewer absences than the default keep a crunch week from vanishing by chance.
+    activity:
+      daily_zero_probability: 0.03
+      weekend_reduction_probability: 1.0
+      weekend_reduction_factor: 0.11
+projects:
+- name: payment_service_improvement
+- name: auth_service_rewrite
+- name: data_pipeline_upgrade
+- name: ci_pipeline_maintenance
+- name: search_service_improvement
+- name: automation_suite
+# API only. Each user-day total is allocated once across agents, then models.
+# Adding a model does not multiply the daily baseline.
+# Only claude_code is in scope (D1): there are no prices for codex/GPT models, and every
+# model named here must resolve in the model_pricing catalog (a dated id such as
+# claude-haiku-4-5-20251001 resolves to its registry id).
+agents:
+  claude_code:
+    billing_mode: api
+    usage_share: 1.0
+    models:
+      claude-sonnet-5: 0.4
+      claude-opus-5: 0.4
+      claude-haiku-4-5-20251001: 0.2
+# Optional consumption events; coverage is always complete, even on zero days.
+# One org-wide rule for occasional busy days: with a 10% chance per weekday (untargeted, no
+# date_range, so cli_synth_org.py's retiming has nothing to shift) every user's day is scaled
+# by 1.3-1.6x. How many fall in the last 28 days depends on the end date (1-2 on the dates
+# measured, 6 in the whole series at 2026-10-09; it is a random draw per calendar day), so the dashboard's daily chart is not
+# smooth. Per-user spikes are the power profile's own (above); a Layer 1 spike rule fires for
+# every targeted user at once, so a "this user spikes" rule is not possible here.
+events:
+  spike_rules:
+  - id: busy_days
+    probability: 0.10
+    multiplier_min: 1.3
+    multiplier_max: 1.6
+    targets: {teams: [], agents: [], models: []}   # empty = every team, agent and model
+  zero_periods: []
+# Team usage levels that move over the series (configs and regeneration: curves/*.yaml).
+# Axis 1..61, one anchor step is about 2 days of the 120; curves are stretched over the series,
+# so they follow --end-date with no retiming.
+#   Development: a 1.8x opening crunch (days 0-8), a 1.3x bump (days 40-44) and a 1.5x release
+#                crunch (days 62-76), which sits inside the last 60 days the dashboard shows.
+#   QA:          a 1.7x opening crunch, a 1.15x bump and a 1.4x test-cycle crunch (days 79-86).
+#   Platform:    calm, within +/-6% of 1.0 everywhere. It is the team with margin, so it carries
+#                no crunch: the forecaster fits the 90 days before its origin, and for an end
+#                date late in a month that window reaches back to day 0 of the series.
+# Without moving levels every day is an independent draw around a fixed level and the
+# forecast's monthly band is about +/-2% at org level; with them it is wider, and how wide
+# depends on the end date, because the forecaster re-selects its model on every fit (plan F7).
+# Swept over 25 end dates from 2026-09-28 to 2026-11-30 the org's p10-p90 width was 3-119% of
+# its expected landing, and the realised weekly weekday mean of a crunch was 1.2-1.75x a regular
+# week for Development and 1.2-1.5x for QA, and 1.2-1.55x for the org (the curve levels are 1.5x and 1.4x). The opening
+# crunch is outside the forecaster's lookback for an end date early in a month, so then the
+# dashboard windows show only the crunches of days 62-86.
+curve:
+  artifacts: curves/artifacts
+  teams:
+    Development: development-phases:7d0fbbc6c63cabfe
+    Platform: platform-phases:f7dc7a3ea48064a4
+    QA: qa-phases:b1de0343eb4232d6

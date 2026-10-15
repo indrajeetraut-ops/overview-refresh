@@ -1,0 +1,70 @@
+# The demo's front door. Terminates TLS for {$DEMO_HOST} with an automatically renewed
+# Let's Encrypt certificate, and puts HTTP basic auth in front of everything that has no
+# authentication of its own.
+#
+# Three routes, and the split between them is the whole security model:
+#
+#   /otlp/*   -> ingest    NO basic auth. Claude Code's OTLP exporter already sends
+#                          `Authorization: Bearer tk_org_...` and there is only one
+#                          Authorization header to go around. This route's auth is the org
+#                          token check in src/server/ingest/otlp/auth.py, which is real:
+#                          sha256-at-rest, revocable, and the org_id on every stored row
+#                          comes from the verified principal rather than the payload.
+#
+#   /upload/* -> uploader  Basic auth. src/server/uploader/app.py is unauthenticated by
+#                          explicit v1 decision, so this is the only thing standing in front
+#                          of "anyone can stage arbitrary tarballs into the bucket".
+#
+#   /, /v1/*  -> api       Basic auth. Same situation at src/server/api/app.py, plus this is
+#                          the human-facing dashboard.
+#
+# Note what is absent: /talium/ingest/v1/* is never proxied. msging registration is
+# `mode: open` (config/msging.yaml), so exposing it would hand a producer key to anyone who
+# asked. The collector reaches ingest over the compose network instead. Do not add a route.
+#
+# Responses are compressed at origin; Cloudflare re-encodes as needed (api-latency plan Phase
+# B).
+
+{$DEMO_HOST} {
+	encode zstd gzip
+	log {
+		output stdout
+		format console
+	}
+
+	handle /otlp/* {
+		reverse_proxy ingest:8443
+	}
+
+	# handle_path (not handle) strips the /upload prefix, so an external
+	# POST /upload/v1/uploads?org=... arrives at the uploader as POST /v1/uploads?org=...
+	# with the query string intact. The prefix exists because the API and the uploader both
+	# claim /v1/* and they have to be told apart at this layer.
+	handle_path /upload/* {
+		basic_auth {
+			{$DEMO_USER} {$DEMO_PASS_HASH}
+		}
+
+		reverse_proxy uploader:8080 {
+			# config/uploader.yaml allows a 900s upload window for up to 5 GiB uncompressed.
+			# Caddy streams request bodies by default, so nothing buffers to disk here, but
+			# the read/write deadlines have to outlast the application's own timeout or the
+			# proxy gives up first and the client sees a confusing 502 instead of a 499.
+			transport http {
+				read_timeout 960s
+				write_timeout 960s
+			}
+		}
+	}
+
+	# Everything else is the dashboard. The SPA cannot be split onto another origin:
+	# src/server/api/static/js/api.mjs hardcodes BASE = '/v1' against location.origin, and
+	# the API process serves the static files itself.
+	handle {
+		basic_auth {
+			{$DEMO_USER} {$DEMO_PASS_HASH}
+		}
+
+		reverse_proxy api:8090
+	}
+}

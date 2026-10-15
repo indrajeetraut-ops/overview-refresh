@@ -1,0 +1,42 @@
+{
+  "event": "issues",
+  "action": "closed",
+  "payload": {
+    "action": "closed",
+    "issue": {
+      "number": 318,
+      "title": "Async auth middleware",
+      "state": "closed",
+      "user": {
+        "login": "akhuteta"
+      },
+      "labels": [
+        {
+          "name": "auth"
+        },
+        {
+          "name": "perf"
+        }
+      ],
+      "milestone": {
+        "title": "Sprint 21"
+      },
+      "assignees": [
+        {
+          "login": "akhuteta"
+        }
+      ],
+      "comments": 4,
+      "created_at": "2026-09-01T10:00:00Z",
+      "updated_at": "2026-09-04T16:30:00Z",
+      "closed_at": "2026-09-04T16:30:00Z"
+    },
+    "repository": {
+      "id": 41213765,
+      "full_name": "talium-ai/code-econ"
+    },
+    "installation": {
+      "id": 42
+    }
+  }
+}

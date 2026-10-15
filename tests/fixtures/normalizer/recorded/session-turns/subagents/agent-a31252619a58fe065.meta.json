@@ -1,0 +1,7 @@
+{
+  "agentType": "general-purpose",
+  "description": "Implement Task 8: EventClient",
+  "toolUseId": "toolu_01KDqFtv5LoE8mvyNQbgtTED",
+  "spawnDepth": 1,
+  "model": "sonnet"
+}

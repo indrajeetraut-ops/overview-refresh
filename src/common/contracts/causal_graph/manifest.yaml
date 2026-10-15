@@ -1,0 +1,37 @@
+name: causal_graph
+bundle_version: "1"
+status: approved
+components:
+  build_interface:
+    version: "1"
+    path: interfaces/build.yaml
+  context_interface:
+    version: "1"
+    path: interfaces/context.yaml
+  query_interface:
+    version: "1"
+    path: interfaces/query.yaml
+  named_api_interface:
+    version: "1"
+    path: interfaces/named_apis.yaml
+  graph_schema:
+    version: "4.3.0"
+    path: schemas/graph.schema.json
+  query_spec_schema:
+    version: "1"
+    path: schemas/query_spec.schema.json
+  query_result_schema:
+    version: "1"
+    path: schemas/query_result.schema.json
+  filter_grammar:
+    version: "1"
+    path: query_language/filter.lark
+  query_semantics:
+    version: "1"
+    path: query_language/semantics.yaml
+  field_catalog:
+    version: "1"
+    path: query_language/fields.yaml
+external_contracts:
+  normalized_session:
+    path: ../../events/normalized_schema.json

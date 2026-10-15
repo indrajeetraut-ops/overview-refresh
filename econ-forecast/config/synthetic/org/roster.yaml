@@ -1,0 +1,14 @@
+# Synthetic org example -- team roster. 35 of the 100 pooled users are rostered (20 + 10 + 5);
+# the other 65 stay unassigned (never appear in the generated series or the org-expand output,
+# per D3/§5.2). The budgets in org.yaml are $200 per rostered developer, so change both together.
+schema_version: 1
+roster:
+  users_file: ../users/users.jsonl  # rewritten by cli_synth_org.py to the chain's own output
+  seed: 42
+  teams:
+  - team_name: Development
+    count: 20
+  - team_name: Platform
+    count: 10
+  - team_name: QA
+    count: 5

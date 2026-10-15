@@ -1,0 +1,178 @@
+# The stop-gap: the whole local stack on one host, behind basic auth, with the database
+# pre-seeded from a dump. No AWS anything -- no S3, no Parameter Store, no instance profile,
+# and therefore no IAM permissions to wait on.
+#
+#   utils/stopgap_seed.sh                                  # on your Mac: dump the local DB
+#   DEMO_HOST=:80 DEMO_PASSWORD=... utils/stopgap_up.sh    # on the target host: bring it up
+#
+# This is docker-compose.stack.yml plus a front door, minus the exposed ports. Deliberately
+# NOT docker-compose.demo.yml: that one expects a separate database instance and an S3
+# staging bucket reached through an instance profile. Here Postgres is a container with a
+# volume and the uploader stages to a local directory, exactly as it does on a laptop.
+#
+# Requires an .env one level up, written by utils/stopgap_up.sh:
+#   POSTGRES_PASSWORD DEMO_HOST DEMO_USER DEMO_PASS_HASH TALIUM_ORG_ID
+#   COLLECT_INTERVAL_S HTTP_PORT HTTPS_PORT
+name: talium-stopgap
+
+x-logging: &logging
+  driver: json-file
+  options:
+    max-size: "20m"
+    max-file: "5"
+
+x-app: &app
+  build:
+    context: ..
+    dockerfile: docker/Dockerfile
+  environment: &app-env
+    TALIUM_DB_DSN: postgresql+psycopg://postgres:${POSTGRES_PASSWORD:?not set -- run utils/stopgap_up.sh}@postgres:5432/econ
+    TALIUM_DATA_DIR: /data
+  volumes:
+    - stopgap_data:/data
+  logging: *logging
+  restart: unless-stopped
+
+services:
+  postgres:
+    image: postgres:16
+    container_name: talium_stopgap_pg
+    environment:
+      POSTGRES_DB: econ
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?not set -- run utils/stopgap_up.sh}
+    volumes:
+      - stopgap_pgdata:/var/lib/postgresql/data
+      # Anything in here runs once, when the data directory is first created. A .sql.gz is
+      # gunzipped and piped to psql by the image's own entrypoint. Empty dir = empty database,
+      # which is a fine outcome: `init` then builds the schema and you start from nothing.
+      - ../deploy/seed:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      # -h 127.0.0.1 is load-bearing, not decoration. While the seed dump is restoring,
+      # postgres is up on the unix socket but NOT listening on TCP -- the entrypoint holds
+      # that back until the initdb scripts finish. A socket-based pg_isready reports healthy
+      # immediately, compose starts the app containers, and they die trying to connect.
+      # Checking over TCP is what makes `depends_on: service_healthy` mean what it says.
+      test: ["CMD-SHELL", "pg_isready -h 127.0.0.1 -U postgres -d econ"]
+      interval: 5s
+      timeout: 5s
+      retries: 60 # 5 min: a large seed restore is slow, and this only gates startup
+    logging: *logging
+    restart: unless-stopped
+
+  # TLS and basic auth. DEMO_HOST doubles as Caddy's site address:
+  #   :80                  plain HTTP, no certificate  (fine behind a VPN or for a quick look)
+  #   econ.example.com     automatic Let's Encrypt, needs the A record to resolve here first
+  # See deploy/caddy/Caddyfile for why /otlp/* is exempt from basic auth.
+  caddy:
+    image: caddy:2-alpine
+    container_name: talium_stopgap_caddy
+    ports:
+      - "${HTTP_PORT:-80}:80"
+      - "${HTTPS_PORT:-443}:443"
+    environment:
+      DEMO_HOST: "${DEMO_HOST:?not set}"
+      DEMO_USER: "${DEMO_USER:?not set}"
+      # Every `$` in the bcrypt hash must be DOUBLED in .env -- compose interpolates `$VAR`
+      # inside env files, and an un-escaped hash loses everything after its cost factor,
+      # leaving a hash no password can match. utils/stopgap_up.sh does this for you.
+      DEMO_PASS_HASH: "${DEMO_PASS_HASH:?not set}"
+    volumes:
+      - ../deploy/caddy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data # the certificate and ACME account key
+      - caddy_config:/config
+    logging: *logging
+    restart: unless-stopped
+    depends_on:
+      api:
+        condition: service_healthy
+
+  # Schema + org token. Runs to completion; everything that touches the database waits.
+  # Against a seeded database `cli_db init` finds the tables present and reports "exists".
+  init:
+    <<: *app
+    container_name: talium_stopgap_init
+    environment:
+      <<: *app-env
+      TALIUM_ORG_ID: "${TALIUM_ORG_ID:-talium-demo}"
+      TALIUM_INGEST_PORT: "${HTTP_PORT:-80}"
+    entrypoint: ["bash", "/app/docker/init-stack.sh"]
+    volumes:
+      - stopgap_data:/data
+      - ./init-stack.sh:/app/docker/init-stack.sh:ro
+    restart: "no"
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  ingest:
+    <<: *app
+    container_name: talium_stopgap_ingest
+    command: ["python", "-m", "server.ingest.cli_serve", "--config", "config/ingest.yaml"]
+    healthcheck:
+      test: ["CMD-SHELL", "python -c \"import urllib.request as u; u.urlopen('http://localhost:8443/healthz')\""]
+      interval: 5s
+      timeout: 3s
+      retries: 12
+    depends_on:
+      postgres:
+        condition: service_healthy
+      init:
+        condition: service_completed_successfully
+
+  worker:
+    <<: *app
+    container_name: talium_stopgap_worker
+    command: ["python", "-m", "server.worker.cli_work", "--config", "config/worker.yaml"]
+    depends_on:
+      postgres:
+        condition: service_healthy
+      init:
+        condition: service_completed_successfully
+
+  api:
+    <<: *app
+    container_name: talium_stopgap_api
+    command: ["python", "-m", "server.api.cli_serve_api", "--config", "config/api.yaml"]
+    healthcheck:
+      test: ["CMD-SHELL", "python -c \"import urllib.request as u; u.urlopen('http://localhost:8090/healthz')\""]
+      interval: 5s
+      timeout: 3s
+      retries: 12
+    depends_on:
+      postgres:
+        condition: service_healthy
+      init:
+        condition: service_completed_successfully
+
+  # Staging is the shared /data volume, not S3 -- which is the whole reason this needs no
+  # AWS credentials. config/uploader.yaml and docker/config/collector.yaml are used unchanged.
+  uploader:
+    <<: *app
+    container_name: talium_stopgap_uploader
+    command: ["python", "-m", "server.uploader.cli_serve", "--config", "config/uploader.yaml"]
+    healthcheck:
+      test: ["CMD-SHELL", "python -c \"import urllib.request as u; u.urlopen('http://localhost:8080/healthz')\""]
+      interval: 5s
+      timeout: 3s
+      retries: 12
+
+  collector:
+    <<: *app
+    container_name: talium_stopgap_collector
+    entrypoint: ["bash", "/app/docker/collect-loop.sh"]
+    environment:
+      <<: *app-env
+      COLLECT_INTERVAL_S: "${COLLECT_INTERVAL_S:-30}"
+    volumes:
+      - stopgap_data:/data
+      - ./collect-loop.sh:/app/docker/collect-loop.sh:ro
+      - ./config/collector.yaml:/app/docker-config/collector.yaml:ro
+    depends_on:
+      ingest:
+        condition: service_healthy
+
+volumes:
+  stopgap_pgdata:
+  stopgap_data:
+  caddy_data:
+  caddy_config:

@@ -1,0 +1,439 @@
+version: "1"
+status: approved
+
+# Named APIs are stable domain contracts. Internal execution strategy is not visible in these
+# request/result shapes.
+common:
+  scope:
+    kind: "self | tree | subagents | session"
+    session_id: "required only for kind=session"
+  error:
+    raised_as: NamedApiError
+    shape:
+      version: "1"
+      api: string
+      code: string
+      message: string
+      details: object
+    codes:
+      invalid_scope: "The requested scope is unknown or malformed."
+      invalid_filter: "A named-API filter value is malformed or unsupported."
+      query_validation_error: "The internal query could not be validated."
+      child_graph_unloaded: "A known child session required for the request is not loaded."
+
+apis:
+  - name: budget
+    signature: "budget(family, *, scope='tree', by='model', model=None, permission_mode=None, turn=None)"
+    inputs:
+      scope: common.scope
+      by: "model | permission_mode | turn | subagent"
+      model: "exact model identifier | null"
+      permission_mode: "permission-mode value | null"
+      turn: "{session_id: string, turn_num: integer} | null"
+    result:
+      kind: budget_report
+      shape:
+        version: "1"
+        kind: budget
+        status: "complete | partial"
+        scope: common.scope
+        by: "model | permission_mode | turn | subagent"
+        rows:
+          - key: object
+            usage:
+              input_tokens: integer
+              output_tokens: integer
+              cache_read_tokens: integer
+              cache_write_tokens: integer
+              reasoning_tokens: integer
+              reasoning_included_in_output_tokens: true
+        warnings: [{code: string, message: string}]
+      keys:
+        model: {model: string}
+        permission_mode: {permission_mode: "string | null"}
+        turn: {session_id: string, turn_num: integer}
+        subagent: {session_id: string}
+    errors:
+      invalid_budget_axis: "by must be model, permission_mode, turn, or subagent."
+
+  - name: goods
+    signature: "goods(family, *, scope='tree', artifact_class=None, extension=None)"
+    description: "Reports local filesystem artifacts produced by tools in the requested scope. One artifact record represents one reported path; it is not a snapshot of the file's current contents."
+    inputs:
+      scope:
+        value: common.scope
+        description: "Selects the sessions whose tool-produced local artifacts are considered."
+      artifact_class:
+        value: "artifact class | null"
+        description: "Keeps only artifacts in the stated classification. This is a repository taxonomy inferred from a path's extension or basename; it is not a MIME type."
+        accepted_values: [code, documentation, config, markup, data, notebook, template, document, spreadsheet, presentation, pdf, unknown]
+      extension:
+        value: "file extension including dot | null"
+        description: "Keeps only artifacts whose reported raw filename suffix exactly matches this value, for example `.py` or `.md`. It is independent of artifact_class."
+    result:
+      kind: goods_report
+      shape:
+        version: "1"
+        kind: goods
+        status: "complete | partial"
+        scope: common.scope
+        artifacts:
+          - path:
+              value: string
+              description: "The filesystem path reported by the producing tool. This required value is the artifact's public identity and deduplication key; paths are not resolved or rewritten."
+            extension:
+              value: "string | null"
+              description: "The raw filename suffix reported by the normalizer, including its leading dot when present."
+            artifact_class:
+              value: "code | documentation | config | markup | data | notebook | template | document | spreadsheet | presentation | pdf | unknown | null"
+              description: "Repository-defined category inferred from the path's extension or basename. It is not the artifact's MIME type; null means the producer could not classify it."
+            changes:
+              - operation:
+                  value: "create | edit | delete | unknown"
+                  description: "The operation reported by this contributing tool call, not the artifact's resulting state."
+                source:
+                  description: "Provenance for this individual operation. Together, session_id and node_id are a session-scoped reference to its Tool node."
+                  session_id:
+                    value: string
+                    description: "Identifier of the session that contains the contributing Tool node."
+                  node_id:
+                    value: string
+                    description: "Identifier of the contributing Tool node within session_id. It is opaque but can be matched to node results returned for that same session."
+                hunk_count:
+                  value: integer
+                  description: "Number of edited regions reported by the tool for this operation. Zero does not imply that no file operation occurred."
+                line_totals:
+                  description: "A calculation over every reported hunk for this one operation. The retained hunk data supports only a net line change, not exact added and removed counts."
+                  status:
+                    value: "available | unavailable | not_reported"
+                    description: "available means net_delta was calculated; unavailable means overlapping hunk coordinates make the calculation unreliable; not_reported means the producer supplied no hunks."
+                  net_delta:
+                    value: "integer | null"
+                    description: "When status is available, the sum of `(len - old_len)` over all reported hunks for this operation. Positive means net added lines; negative means net removed lines."
+                  reason:
+                    value: "overlapping_hunks | no_hunks | absent"
+                    description: "Present when status is unavailable or not_reported, explaining why net_delta is null."
+        warnings: [{code: string, message: string}]
+      aggregation_rule: "Artifacts are deduplicated by path. Each contributing tool operation remains a distinct change, so deduplication never discards operation or hunk provenance."
+      exclusion_rule: "Remote-only artifacts and memory-classified file writes are excluded. Remote provider identifiers are ingestion details and not public. Memory activity is reported by memory_usage(). In a mixed tool call, only matching memory files are excluded. A partial response includes a remote_artifact_excluded warning only when matching remote records were excluded."
+      line_total_rule: "line_totals is calculated from all hunks belonging to one change. Artifact-level totals are deliberately not returned: independently reported operations can overlap, and the retained hunk metadata cannot yield honest added/removed counts."
+    errors:
+      invalid_goods_filter: "artifact_class or extension is malformed."
+
+  - name: memory_usage
+    signature: "memory_usage(family, *, scope='tree')"
+    description: "Reports configured harness-memory file activity and the complete model-response usage associated with it. Read activity is retained but kept distinct from memory creation and editing."
+    inputs:
+      scope:
+        value: common.scope
+        description: "Selects the loaded sessions whose classified memory Tool nodes are considered."
+    result:
+      kind: memory_usage_report
+      shape:
+        version: "1"
+        kind: memory_usage
+        status: "complete | partial"
+        scope: common.scope
+        counts:
+          tool_calls: integer
+          distinct_files: integer
+          responses: integer
+          tool_calls_by_activity: {read: integer, write: integer, read_write: integer}
+          file_operations: {read: integer, create: integer, edit: integer, delete: integer, unknown: integer}
+        usage:
+          associated: {input_tokens: integer, output_tokens: integer, cache_read_tokens: integer, cache_write_tokens: integer, reasoning_tokens: integer, reasoning_included_in_output_tokens: true}
+          memory_only: usage
+          mixed: usage
+        breakdowns:
+          by_model: [{key: {model: "string | null"}, response_count: integer, usage: usage}]
+          by_effort: [{key: {effort: "string | null"}, response_count: integer, usage: usage}]
+          by_activity: [{key: {activity: "read | write | read_write"}, response_count: integer, usage: usage}]
+          by_work_class: [{key: {work_class: "memory_only | mixed"}, response_count: integer, usage: usage}]
+        files:
+          - path: string
+            memory_kind: "index | entry | unknown"
+            operations: {read: integer, create: integer, edit: integer, delete: integer, unknown: integer}
+            edit_line_totals: {status: "available | unavailable | not_reported", net_delta: "integer | null", reason: "overlapping_hunks | invalid_hunks | no_edit_hunks | absent"}
+            changes:
+              - operation: "read | create | edit | delete | unknown"
+                source: {session_id: string, node_id: string}
+                hunk_count: integer
+                line_totals: object
+        warnings: [{code: string, message: string}]
+      response_identity: "Associated usage is deduplicated by {session_id, message_id}. A response with several memory tools contributes once."
+      attribution_rule: "memory_only means every Tool/Spawn action in the response is classified memory activity; mixed means at least one other Tool or Spawn is present. Full response usage is attributed without proration."
+      usage_invariant: "For each usage field, associated equals memory_only plus mixed. Every breakdown independently sums to associated. reasoning_tokens remains included in output_tokens."
+      activity_rule: "Each tool call and response occupies exactly one read, write, or read_write activity bucket. File-operation counts are not mutually exclusive at tool level and may exceed tool_calls."
+      file_rule: "Files are deduplicated by reported path while every contributing change remains in causal order. Memory content and final file size are never returned. Edit net_delta is the sum of len-old_len over valid non-overlapping Edit hunks."
+    errors: {}
+
+  - name: list_tools
+    signature: "list_tools(family, *, scope='tree')"
+    description: "Lists the distinct tools used in the requested scope and their invocation counts. It is the lightweight starting point for tool exploration; use tool_usage to inspect individual matching invocations."
+    inputs:
+      scope:
+        value: common.scope
+        description: "Selects the loaded sessions whose Tool nodes are counted."
+    result:
+      kind: tool_list_report
+      shape:
+        version: "1"
+        kind: tool_list
+        status: "complete | partial"
+        scope: common.scope
+        count:
+          value: integer
+          description: "Number of distinct entries in tools, across both tool classes."
+        tools:
+          - tool_class:
+              value: "harness | command"
+              description: "harness represents an agent-harness operation; command represents an executable extracted from a configured shell-capable harness invocation."
+            name:
+              value: string
+              description: "For harness, the exact Tool.name, including the full normalized name of an MCP tool. For command, the extracted executable basename."
+            invocation_count:
+              value: integer
+              description: "Number of Tool nodes that used this entry. A repeated command within one shell invocation counts once for that command; a harness tool invocation always counts once."
+        warnings: [{code: string, message: string}]
+      ordering_rule: "Rows are ordered first by tool_class (harness before command), then by descending invocation_count, then by case-sensitive name ascending."
+      mcp_rule: "MCP tools are harness entries. Their full normalized MCP tool name is returned unchanged in name; they are neither omitted nor converted into command entries."
+    errors: {}
+
+  - name: tool_usage
+    signature: "tool_usage(family, *, scope='tree', tool_class=None, name=None, outcome='all', invocation_matches=None, limit=None)"
+    description: "Explores individual tool invocations in the requested scope. It is normally used after list_tools identifies a harness or command of interest; failure selection is expressed with outcome='failure'."
+    inputs:
+      scope:
+        value: common.scope
+        description: "Selects the sessions whose tool invocations are considered."
+      tool_class:
+        value: "harness | command | null"
+        description: "Selects the namespace used by name. `harness` matches the harness operation name, such as Read, Edit, Bash, or web_search. `command` matches an executable extracted from a configured shell-capable tool, such as git or sed. Null applies no namespace filter."
+      name:
+        value: "string | null"
+        description: "Exact, case-sensitive value to match in the namespace selected by tool_class. It is invalid without tool_class. With harness it matches the complete harness tool name; with command it uses membership in the tool's extracted command list."
+      outcome:
+        value: "success | failure | all"
+        default: all
+        description: "Restricts completed calls by derived outcome. success includes calls with a completed, non-error, non-denied, non-interrupted result; failure includes errors, denials, and interrupted calls; all also includes calls whose result was not recorded, represented as outcome=unknown in the response."
+      invocation_matches:
+        value: "RE2 regular-expression string | null"
+        description: "Applies a bounded RE2 search to the complete recorded shell command invocation (`Tool.input.command`), after the graph's normal redaction/scrubbing policy. A call without command text does not match. This does not reparse command text."
+      limit:
+        value: "integer 1..10000 | null"
+        description: "Maximum number of tool records returned in causal order. Null applies the named API hard cap of 10000."
+    result:
+      kind: tool_usage_report
+      shape:
+        version: "1"
+        kind: tool_usage
+        status: "complete | partial"
+        scope: common.scope
+        count:
+          value: integer
+          description: "Exact number of matching tool invocations before limit is applied."
+        returned_count:
+          value: integer
+          description: "Number of records in tools; equal to min(count, effective limit)."
+        truncated:
+          value: boolean
+          description: "True when limit omitted one or more matching records."
+        tools:
+          - identity:
+              session_id:
+                value: string
+                description: "Session containing this tool invocation."
+              node_id:
+                value: string
+                description: "Opaque identifier of the Tool node within session_id."
+            harness_name:
+              value: string
+              description: "The harness operation name, for example Read, Edit, Bash, or web_search."
+            commands:
+              value: "[string]"
+              description: "Ordered executable basenames extracted from the recorded command text. The list is empty for non-shell tools or when extraction produced no command."
+            invocation:
+              value: "string | null"
+              description: "Complete recorded shell command text after the graph's normal redaction/scrubbing policy; null when the invocation has no command text."
+            outcome:
+              value: "success | failure | unknown"
+              description: "Derived result state. unknown means the graph has no completed result for the call."
+            duration_ms:
+              value: "integer | null"
+              description: "Duration reported by the harness, when available."
+            exit_status:
+              value: "integer | null"
+              description: "Process exit status reported for the invocation, when the harness provides one."
+            denial_kind:
+              value: "string | null"
+              description: "Reason a call was denied, when the recorded result supplies one."
+            failure_message:
+              value: "string | null"
+              description: "Recorded failure text for an error or denial, when supplied. It is not synthesized or parsed."
+        warnings: [{code: string, message: string}]
+    errors:
+      invalid_tool_selector: "name requires tool_class, and tool_class must be harness or command."
+      invalid_tool_outcome: "outcome must be success, failure, or all."
+      invalid_invocation_regex: "invocation_matches is not a valid configured-size RE2 expression."
+      invalid_tool_limit: "limit must be an integer from 1 through 10000."
+
+  - name: turns
+    signature: "turns(family, *, turn_id, node_type=None)"
+    description: "Returns one loaded turn's stable summary. The optional node_type asks for summaries of that turn's contained nodes; it does not change the reported turn summary. QuerySpec use and per-turn rollup caching are internal implementation details."
+    inputs:
+      turn_id:
+        value: "{session_id: string, turn_num: integer}"
+        description: "Required public identity of the loaded turn. turn_num is the 1-based session-local ordinal; the private graph key turn:{n} is never accepted."
+      node_type:
+        value: "node | user_prompt | assistant | tool | spawn | null"
+        default: null
+        description: "When supplied, adds nodes containing summaries of every contained node of that type. node includes all contained node types. Null omits nodes."
+    result:
+      kind: turn_report
+      shape:
+        version: "1"
+        kind: turns
+        status: complete
+        turn:
+          identity: "{session_id: string, turn_num: integer}"
+          ts: "RFC 3339 string | null"
+          status: "string | null"
+          duration_ms: "integer | null"
+          models: "[string]"
+          usage: {input_tokens: integer, output_tokens: integer, cache_read_tokens: integer, cache_write_tokens: integer, reasoning_tokens: integer, reasoning_included_in_output_tokens: true}
+          mode: {permission_mode: "string | null", plan_mode: "boolean | null"}
+          attribution: {skill: "[string]", plugin: "[string]", agent: "[string]", effort: "[string]"}
+          tool_count: integer
+          tools_used: [{tool_class: "harness | command", name: string, invocation_count: integer}]
+          subagent_spawns:
+            count: integer
+            spawns: [{session_id: "string | null", spawn_id: string, spawned_at: "RFC 3339 string | null", agent_type: "string | null", description: "string | null", status: "string | null"}]
+          mcp_invocations:
+            count: integer
+            tools: [{name: string, invocation_count: integer}]
+        nodes:
+          value: "[{identity: {session_id: string, node_id: string}, type: string, ts: RFC 3339 string | null, fields: object}] | absent"
+          description: "Present only when node_type is supplied. It contains only nodes causally contained by the selected turn."
+        warnings: [{code: string, message: string}]
+    errors:
+      invalid_turn_id: "turn_id must be exactly a non-empty session_id and turn_num >= 1."
+      turn_not_loaded: "The requested session or turn is not available in the loaded family."
+      invalid_turn_node_type: "node_type must be node, user_prompt, assistant, tool, spawn, or null."
+
+  - name: subagents
+    signature: "subagents(family, *, scope='self')"
+    description: "Lists subagents spawned directly by the family's master session. It reports spawn-time facts only and never loads, walks, or aggregates a child session."
+    inputs:
+      scope:
+        value: "self"
+        default: self
+        description: "Fixed to the master session. tree, subagents, and session scopes are invalid because this API is an inventory of the master's Spawn nodes, not a report over child graphs."
+    result:
+      kind: subagents_report
+      shape:
+        version: "1"
+        kind: subagents
+        status: complete
+        scope: {kind: self}
+        count:
+          value: integer
+          description: "Number of Spawn nodes in the master session."
+        subagents:
+          - session_id:
+              value: "string | null"
+              description: "Child-session identifier recorded when the subagent was spawned. Null means the producer did not provide one; it is not an indication that a child graph was loaded."
+            turn_id:
+              value: "{session_id: string, turn_num: integer}"
+              description: "Public identity of the master-session turn that contains the Spawn node. This is not the graph's private `turn:{n}` storage key."
+            spawn_id:
+              value: string
+              description: "Opaque identifier of the master-session Spawn node."
+            spawned_at:
+              value: "RFC 3339 string | null"
+              description: "Timestamp recorded for the spawn event."
+            agent_type:
+              value: "string | null"
+              description: "Requested subagent type, for example Explore or general-purpose."
+            description:
+              value: "string | null"
+              description: "Short task label supplied when the subagent was spawned."
+            prompt_char_count:
+              value: "integer | null"
+              description: "Length of the spawn instruction, measured before scrubbing. The instruction text itself is not returned."
+            requested_model:
+              value: "string | null"
+              description: "Model requested for the child at spawn time, when supplied."
+            resolved_model:
+              value: "string | null"
+              description: "Model recorded as actually used, when supplied by the spawn record."
+            run_in_background:
+              value: "boolean | null"
+              description: "Whether the parent continued without waiting for the child, when supplied."
+            status:
+              value: "string | null"
+              description: "Outcome recorded on the spawn record, when available. It is not derived by inspecting a child graph."
+            duration_ms:
+              value: "integer | null"
+              description: "Child duration recorded on the spawn record, when available. It is not calculated from a child graph."
+        warnings: [{code: string, message: string}]
+      child_graph_rule: "A returned row is derived entirely from the master session's Spawn node. The child session may be absent or unloaded without changing count, status, or any row field."
+    errors:
+      invalid_subagent_scope: "subagents only accepts scope='self'."
+
+  - name: gitops
+    signature: "gitops(family, *, scope='tree', operation=None, limit=None)"
+    description: "Lists structured Git operations recorded on tool results. It reports only operations recognized by the graph's Git-result extractor; use tool_usage with tool_class='command' and name='git' to investigate unstructured or failed Git invocations."
+    inputs:
+      scope:
+        value: common.scope
+        description: "Selects the sessions whose recognized Git operations are considered."
+      operation:
+        value: "commit | push | pr | branch | null"
+        description: "Keeps only the named Git-operation kind. Null returns every recognized operation."
+      limit:
+        value: "integer 1..10000 | null"
+        description: "Maximum number of operations returned in causal order. Null applies the named API hard cap of 10000."
+    result:
+      kind: gitops_report
+      shape:
+        version: "1"
+        kind: gitops
+        status: "complete | partial"
+        scope: common.scope
+        count:
+          value: integer
+          description: "Exact number of matching recognized Git operations before limit is applied."
+        returned_count:
+          value: integer
+          description: "Number of records in operations; equal to min(count, effective limit)."
+        truncated:
+          value: boolean
+          description: "True when limit omitted one or more matching operations."
+        operations:
+          - identity:
+              session_id:
+                value: string
+                description: "Session containing the Tool node that recorded this operation."
+              node_id:
+                value: string
+                description: "Opaque identifier of that Tool node within session_id."
+            operation:
+              value: "commit | push | pr | branch"
+              description: "Recognized Git-result kind."
+            harness_name:
+              value: string
+              description: "Harness operation that produced the Git result, normally Bash."
+            commands:
+              value: "[string]"
+              description: "Executable basenames extracted from the recorded invocation."
+            invocation:
+              value: "string | null"
+              description: "Complete recorded command text after normal redaction/scrubbing, when present."
+            details:
+              value: "commit: {sha: string | null, kind: string | null} | push: {branch: string | null} | pr: {number: integer | null, url: string | null, action: string | null} | branch: {ref: string | null, action: string | null}"
+              description: "Operation-specific structured facts preserved by the Git-result extractor. Exactly the object shape matching operation is present; no values are parsed from command text."
+        warnings: [{code: string, message: string}]
+      recognition_rule: "A Git command without a recognized structured Git result is not an operations row, even when commands contains git."
+    errors:
+      invalid_git_operation: "operation must be commit, push, pr, branch, or null."
+      invalid_git_limit: "limit must be an integer from 1 through 10000."

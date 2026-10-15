@@ -1,0 +1,39 @@
+{
+  "event": "push",
+  "action": null,
+  "payload": {
+    "ref": "refs/heads/main",
+    "before": "a0c2f5a000000000000000000000000000000000",
+    "after": "5b1e9c0f00000000000000000000000000000000",
+    "repository": {
+      "id": 41213765,
+      "full_name": "talium-ai/code-econ"
+    },
+    "installation": {
+      "id": 42
+    },
+    "commits": [
+      {
+        "id": "5b1e9c0f00000000000000000000000000000000",
+        "message": "Adapter/normalizer: pair tool calls by record id (#1184)",
+        "timestamp": "2026-07-26T15:41:22Z",
+        "author": {
+          "name": "Anil Khuteta",
+          "email": "anil@example.com",
+          "username": "akhuteta"
+        },
+        "added": [
+          "src/collector/normalizer/claude_code.py"
+        ],
+        "removed": [],
+        "modified": [
+          "tests/collector/normalizer/test_tool_pairing.py"
+        ]
+      }
+    ],
+    "head_commit": {
+      "id": "5b1e9c0f00000000000000000000000000000000",
+      "timestamp": "2026-07-26T15:41:22Z"
+    }
+  }
+}

@@ -1,0 +1,22 @@
+# Mirrors the backfill query shape (git-source.md §8.2): PRs with the stats, files and reviews
+# the REST list pass cannot return, in one round trip. `first` kept small -- this is the probe,
+# not the real bulk backfill reader (implementation plan A5).
+#
+# `rateLimit { cost remaining nodeCount resetAt }` is mandatory on every query document
+# (git-source.md §7.4): the client's throttle measures the real cost from this field rather
+# than estimating it, and `GitHubClient.graphql()` refuses to load a document missing it.
+query Probe($owner:String!, $name:String!) {
+  rateLimit { cost remaining nodeCount resetAt }
+  repository(owner:$owner, name:$name) {
+    databaseId
+    pullRequests(first:5, orderBy:{field:UPDATED_AT, direction:DESC}) {
+      nodes {
+        number title state merged createdAt updatedAt mergedAt
+        additions deletions changedFiles
+        author { login }
+        reviews(first:10) { totalCount }
+        files(first:5) { nodes { path additions deletions } }
+      }
+    }
+  }
+}

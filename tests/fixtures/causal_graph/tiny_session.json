@@ -1,0 +1,219 @@
+{
+  "vendor": "claude_code",
+  "session_id": "sess-tiny-0001",
+  "source": "jsonl",
+  "agent_version": "1.0.0",
+  "parent_session_id": null,
+  "events": [
+    {
+      "event_type": "session_start",
+      "record_id": "ss1",
+      "parent_id": null,
+      "event_ts": "2026-07-10T00:00:00.000Z",
+      "payload": {
+        "ai_title": "Add the read feature",
+        "cwd": "/repo",
+        "git_branch": "main",
+        "parent_session_id": null,
+        "repo_id": null,
+        "raw": {"type": "summary", "sessionId": "sess-tiny-0001"}
+      }
+    },
+    {
+      "event_type": "user_message",
+      "record_id": "u1",
+      "parent_id": "ss1",
+      "event_ts": "2026-07-10T00:00:01.000Z",
+      "payload": {
+        "text": "Add a feature that reads the config",
+        "char_count": 35,
+        "is_injected": false,
+        "plan_mode": null,
+        "slash_command": null,
+        "text_truncated": false,
+        "raw": {"type": "user", "promptId": "P1", "uuid": "u1"}
+      }
+    },
+    {
+      "event_type": "attachment",
+      "record_id": "att1",
+      "parent_id": "u1",
+      "event_ts": "2026-07-10T00:00:01.100Z",
+      "payload": {
+        "attachment_type": "file",
+        "added_names": ["config.py"],
+        "added_types": ["text"],
+        "display_path": "config.py",
+        "path": "/repo/config.py",
+        "content_chars": 200,
+        "content_truncated": false,
+        "is_startup_context": false,
+        "raw": {"type": "attachment", "promptId": "P1"}
+      }
+    },
+    {
+      "event_type": "assistant_message",
+      "record_id": "a1a",
+      "parent_id": "u1",
+      "event_ts": "2026-07-10T00:00:02.000Z",
+      "payload": {
+        "message_id": "M1",
+        "first_block_of_message": true,
+        "has_thinking": true,
+        "model": "claude-opus-4-8",
+        "input_tokens": 100,
+        "output_tokens": 50,
+        "cache_read_tokens": 10,
+        "cache_write_tokens": 5,
+        "block_types": ["thinking", "text", "tool_use"],
+        "content_kind": "mixed",
+        "stop_reason": null,
+        "usage_scope": "message",
+        "estimated_visible_tokens": 12,
+        "tool_call_count": 1,
+        "reasoning_tokens": null,
+        "raw": {"type": "assistant", "message": {"id": "M1"}, "uuid": "a1a"}
+      }
+    },
+    {
+      "event_type": "assistant_message",
+      "record_id": "a1b",
+      "parent_id": "a1a",
+      "event_ts": "2026-07-10T00:00:02.500Z",
+      "payload": {
+        "message_id": "M1",
+        "first_block_of_message": false,
+        "has_thinking": false,
+        "model": "claude-opus-4-8",
+        "input_tokens": 999,
+        "output_tokens": 999,
+        "cache_read_tokens": 999,
+        "cache_write_tokens": 999,
+        "block_types": ["tool_use"],
+        "content_kind": "tool_use",
+        "stop_reason": null,
+        "usage_scope": "message",
+        "estimated_visible_tokens": 6,
+        "tool_call_count": 1,
+        "reasoning_tokens": null,
+        "raw": {"type": "assistant", "message": {"id": "M1"}, "uuid": "a1b"}
+      }
+    },
+    {
+      "event_type": "tool_call",
+      "record_id": "tc1",
+      "parent_id": "a1a",
+      "event_ts": "2026-07-10T00:00:03.000Z",
+      "payload": {
+        "tool_name": "Read",
+        "input": {"file_path": "/repo/config.py"},
+        "input_chars": 30,
+        "message_id": "M1",
+        "duration_ms": 42,
+        "exit_status": 0,
+        "raw": {"type": "assistant", "message": {"id": "M1"}, "uuid": "tc1"}
+      }
+    },
+    {
+      "event_type": "tool_result",
+      "record_id": "tr1",
+      "parent_id": "tc1",
+      "event_ts": "2026-07-10T00:00:03.500Z",
+      "payload": {
+        "tool_use_id": "tc1",
+        "is_error": false,
+        "tool_denial_kind": null,
+        "source_tool_assistant_uuid": "a1a",
+        "raw": {"type": "user", "promptId": "P1", "uuid": "tr1"}
+      }
+    },
+    {
+      "event_type": "sub_agent_spawn",
+      "record_id": "sp1",
+      "parent_id": "a1a",
+      "event_ts": "2026-07-10T00:00:04.000Z",
+      "payload": {
+        "agent_type": "Explore",
+        "child_session_id": "agent-child-001",
+        "description": "explore the codebase",
+        "duration_ms": 5000,
+        "message_id": "M1",
+        "prompt_char_count": 120,
+        "requested_model": "claude-sonnet-4",
+        "resolved_model": "claude-sonnet-4",
+        "run_in_background": false,
+        "status": "completed",
+        "raw": {"type": "assistant", "message": {"id": "M1"}, "uuid": "sp1"}
+      }
+    },
+    {
+      "event_type": "unknown",
+      "record_id": "td1",
+      "parent_id": "sp1",
+      "event_ts": "2026-07-10T00:00:05.000Z",
+      "payload": {
+        "raw": {
+          "type": "system",
+          "subtype": "turn_duration",
+          "durationMs": 12345,
+          "messageCount": 4,
+          "uuid": "td1"
+        }
+      }
+    },
+    {
+      "event_type": "user_message",
+      "record_id": "u2",
+      "parent_id": "td1",
+      "event_ts": "2026-07-10T00:00:06.000Z",
+      "payload": {
+        "text": "wait, cancel that",
+        "char_count": 17,
+        "is_injected": false,
+        "plan_mode": null,
+        "slash_command": null,
+        "text_truncated": false,
+        "raw": {"type": "user", "promptId": "P2", "uuid": "u2"}
+      }
+    },
+    {
+      "event_type": "user_message",
+      "record_id": "u3",
+      "parent_id": "u2",
+      "event_ts": "2026-07-10T00:00:07.000Z",
+      "payload": {
+        "text": "actually, proceed and summarize",
+        "char_count": 31,
+        "is_injected": false,
+        "plan_mode": null,
+        "slash_command": null,
+        "text_truncated": false,
+        "raw": {"type": "user", "promptId": "P3", "uuid": "u3"}
+      }
+    },
+    {
+      "event_type": "assistant_message",
+      "record_id": "a3",
+      "parent_id": "u3",
+      "event_ts": "2026-07-10T00:00:09.500Z",
+      "payload": {
+        "message_id": "M3",
+        "first_block_of_message": true,
+        "has_thinking": false,
+        "model": "claude-opus-4-8",
+        "input_tokens": 20,
+        "output_tokens": 10,
+        "cache_read_tokens": 2,
+        "cache_write_tokens": 1,
+        "block_types": ["text"],
+        "content_kind": "text",
+        "stop_reason": null,
+        "usage_scope": "message",
+        "estimated_visible_tokens": 8,
+        "tool_call_count": 0,
+        "reasoning_tokens": null,
+        "raw": {"type": "assistant", "message": {"id": "M3"}, "uuid": "a3"}
+      }
+    }
+  ]
+}

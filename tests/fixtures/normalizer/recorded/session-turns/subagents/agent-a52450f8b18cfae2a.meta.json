@@ -1,0 +1,7 @@
+{
+  "agentType": "general-purpose",
+  "description": "Implement Task 7: shipper",
+  "toolUseId": "toolu_0121bT7wJeAVev4L9t1zotEV",
+  "spawnDepth": 1,
+  "model": "sonnet"
+}

@@ -1,0 +1,52 @@
+pydantic>=2.7
+httpx>=0.27
+tenacity>=8.3
+structlog>=24.1
+PyYAML>=6.0
+pytest>=8.0
+Faker==40.38.0
+sqlalchemy>=2.0
+alembic>=1.13
+psycopg[binary]>=3.1
+fastapi>=0.115
+uvicorn>=0.30
+boto3>=1.34
+pytest-asyncio>=0.24
+opentelemetry-proto>=1.44          # OTLP protobuf bindings for the OTel intake receiver
+protobuf>=5.27                     # transitive of opentelemetry-proto; pinned explicitly
+
+# GitHub App JWT signing (RS256) -- git-source.md §7.4; [crypto] pulls cryptography
+PyJWT[crypto]>=2.8
+
+# Test-only httpx recorder for the GitHub client's rate-limit/retry paths (git-source.md §11,
+# implementation plan A2) -- records REST and GraphQL exchanges without a live GitHub account.
+respx>=0.21
+
+# Forecasting engine, numerical runtime, diagnostics, and local report/browser tests.
+# Exact pins are the macOS ARM64 / Python 3.14 numerical-preflight set.
+numpy==2.4.6
+scipy==1.17.1
+pandas==3.0.5
+statsmodels==0.15.0
+matplotlib==3.11.2
+plotly==7.0.0
+psutil==7.2.2
+threadpoolctl==3.6.0
+playwright==1.62.0
+
+# Causal-graph engine (src/analysis/causal_graph) -- ported from the integ branch.
+# lark: the filter-expression grammar parser. google-re2: RE2 regex for tool_usage/MATCHES.
+# tree-sitter[-bash]: structured Bash command extraction (command_extractors.py).
+# tiktoken: token estimation for the reasoning-token model (reasoning.py).
+lark>=1.1,<2
+google-re2>=1.1,<2
+tree-sitter>=0.22,<1
+tree-sitter-bash>=0.21,<1
+tiktoken>=0.14.0
+
+# TZ track (single_user/service.py's `ZoneInfo(users.timezone)`): `zoneinfo` falls back to this
+# package per-lookup whenever the OS's own tzdata is missing a key -- verified needed, not
+# precautionary: the API's own base image (python:3.12-slim on Debian trixie's tzdata 2026b)
+# ships modern IANA names but drops legacy aliases (e.g. `Asia/Calcutta` -> `Asia/Kolkata`),
+# which a real browser's `Intl.DateTimeFormat` can still report.
+tzdata>=2024.1

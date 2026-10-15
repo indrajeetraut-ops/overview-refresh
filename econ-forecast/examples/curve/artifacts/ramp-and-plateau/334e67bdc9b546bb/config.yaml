@@ -1,0 +1,21 @@
+anchors:
+- - 1
+  - '1.0'
+- - 4
+  - '+1.5'
+- - 8
+  - '+1.0'
+- - 10
+  - '3.6'
+- - 12
+  - '3.5'
+axis:
+  end: 12
+  start: 1
+description: slow ramp through the quarter, then a plateau
+interp: pchip
+name: ramp-and-plateau
+preview:
+  baseline_tokens: 1000000.0
+  days: 90
+schema_version: 1

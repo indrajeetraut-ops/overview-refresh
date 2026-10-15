@@ -1,0 +1,29 @@
+# Collector config for the local docker stack. Identical to config/collector.yaml except for
+# the ingest address.
+#
+# It needs its own file because `base_path` is deliberately a literal in the checked-in config
+# rather than an ${ENV} ref (docs/manual-testing.md §5): the collector's loader has no
+# bash-style ":-default", so an unset variable would collapse to an empty string and fail
+# validation with a confusing message. Inside the compose network the host is the service
+# name, not localhost.
+source_store:
+  backend: local
+  local:
+    root: ${TALIUM_DATA_DIR}/uploader-staging   # the same volume the uploader writes
+
+checkpoint_store:
+  backend: file
+  file:
+    path: ${TALIUM_DATA_DIR}/collector_checkpoints.json
+
+msging:
+  client:
+    default_server: ingest
+    servers:
+      ingest:
+        base_path: http://ingest:8443
+        service_name: ingest
+    defaults:
+      base_dir: ${TALIUM_DATA_DIR}/collector_msging
+
+flush_timeout_s: 30.0

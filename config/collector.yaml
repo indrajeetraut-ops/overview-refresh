@@ -1,0 +1,40 @@
+# Collector engine config (spec: docs/modules/source-adapter.md §6, §11).
+source_store:
+  backend: local # local | s3
+  local:
+    # Must match the uploader's object_store.local.root (config/uploader.yaml) --
+    # this is the same staging bucket, read side instead of write side.
+    root: ${TALIUM_DATA_DIR}/uploader-staging
+  # s3:
+  #   bucket: talium-staging
+  #   region: us-east-1
+  # If the uploader (either generation) is configured with a base prefix
+  # (object_store.s3.prefix / TALIUM_S3_PREFIX on the Go client), the collector needs no
+  # config change of its own -- object keys are always derived from each manifest's own S3
+  # key (cli_collect.py's --scope is the sweep root only), so --scope must be set to
+  # "<base>uploads/" to find manifests under that prefix.
+
+checkpoint_store:
+  backend: file
+  file:
+    path: ${TALIUM_DATA_DIR}/collector_checkpoints.json
+
+msging:
+  # The msging client config (event-messaging-design.md §5.1). The engine calls
+  # clnt_init(this) then register(); one msg per normalized session, ACKed over SSE.
+  client:
+    default_server: ingest
+    servers:
+      ingest:
+        # A literal placeholder, not an ${ENV} ref, on purpose: this loader's env
+        # substitution (config.py's _ENV_REF) has no bash-style ":-default" fallback, so an
+        # unset var would collapse to an empty string and fail base_path's required-string
+        # validation. Edit for a real deployment; unused (the transport is swapped) under
+        # --dump-to. Use https:// in a real deployment -- http warns about cleartext api_keys.
+        base_path: http://localhost:8443
+        service_name: ingest
+    defaults:
+      # The client's durable msg store + producer identity live here (design §3).
+      base_dir: ${TALIUM_DATA_DIR}/collector_msging
+
+flush_timeout_s: 30.0

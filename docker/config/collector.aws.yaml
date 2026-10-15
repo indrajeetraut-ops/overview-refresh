@@ -1,0 +1,35 @@
+# Collector config for the AWS team stack (docker/docker-compose.aws.yml): reads the Go
+# uploader's (talium-uploadd, upload.talium.ai) staging bucket directly.
+#
+# The base prefix is NOT configured here. Object keys are derived from each manifest's own S3
+# key (ClaudeCodeSourceReader.group), so only the sweep root differs, and collect-loop.sh takes
+# that from COLLECT_SCOPE ("upload/cc/logs/uploads/" on prod -- see docker-compose.aws.yml).
+#
+# Credentials: boto3's default chain. On EC2 that is the instance role over IMDS (hop limit 2,
+# or containers cannot reach it); in the laptop rehearsal it is ~/.aws via AWS_PROFILE
+# (docker-compose.aws.local.yml). Never static keys in this file.
+source_store:
+  backend: s3
+  s3:
+    bucket: "${TALIUM_S3_BUCKET}"
+    region: "${AWS_REGION}"
+    endpoint_url: null
+
+checkpoint_store:
+  backend: file
+  file:
+    # On the host's aws_data volume. Losing it costs a full re-sweep of the bucket, not data:
+    # re-shipping a session is a no-op downstream (the fold extends append-only prefixes).
+    path: ${TALIUM_DATA_DIR}/collector_checkpoints.json
+
+msging:
+  client:
+    default_server: ingest
+    servers:
+      ingest:
+        base_path: http://ingest:8443
+        service_name: ingest
+    defaults:
+      base_dir: ${TALIUM_DATA_DIR}/collector_msging
+
+flush_timeout_s: 30.0

@@ -1,0 +1,64 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://talium.dev/contracts/causal-graph/query_result.schema.json",
+  "title": "Talium causal graph query result",
+  "type": "object",
+  "required": ["version", "status", "kind", "truncated", "warnings"],
+  "properties": {
+    "version": {"const": "1"},
+    "status": {"enum": ["complete", "partial"]},
+    "kind": {"enum": ["nodes", "groups", "aggregate"]},
+    "items": {"type": "array", "items": {"$ref": "#/$defs/node_result"}},
+    "groups": {"type": "array", "items": {"$ref": "#/$defs/group_result"}},
+    "aggregate": {"type": "object"},
+    "truncated": {"type": "boolean"},
+    "warnings": {"type": "array", "items": {"$ref": "#/$defs/warning"}}
+  },
+  "additionalProperties": false,
+  "oneOf": [
+    {"properties": {"kind": {"const": "nodes"}}, "required": ["items"], "not": {"anyOf": [{"required": ["groups"]}, {"required": ["aggregate"]}]}},
+    {"properties": {"kind": {"const": "groups"}}, "required": ["groups"], "not": {"anyOf": [{"required": ["items"]}, {"required": ["aggregate"]}]}},
+    {"properties": {"kind": {"const": "aggregate"}}, "required": ["aggregate"], "not": {"anyOf": [{"required": ["items"]}, {"required": ["groups"]}]}}
+  ],
+  "$defs": {
+    "identity": {
+      "type": "object",
+      "required": ["session_id"],
+      "properties": {
+        "session_id": {"type": "string", "minLength": 1},
+        "turn_num": {"type": "integer", "minimum": 1},
+        "node_id": {"type": "string", "minLength": 1}
+      },
+      "additionalProperties": false,
+      "oneOf": [{"required": ["turn_num"], "not": {"required": ["node_id"]}}, {"required": ["node_id"], "not": {"required": ["turn_num"]}}]
+    },
+    "node_result": {
+      "type": "object",
+      "required": ["identity", "type", "ts"],
+      "properties": {
+        "identity": {"$ref": "#/$defs/identity"},
+        "type": {"type": "string"},
+        "ts": {"type": ["string", "null"]},
+        "fields": {"type": ["object", "null"]},
+        "node": {"type": ["object", "null"]}
+      },
+      "additionalProperties": false
+    },
+    "group_result": {
+      "type": "object",
+      "required": ["key", "aggregates"],
+      "properties": {
+        "key": {"type": "object"},
+        "aggregates": {"type": "object"},
+        "members": {"type": ["array", "null"], "items": {"$ref": "#/$defs/node_result"}}
+      },
+      "additionalProperties": false
+    },
+    "warning": {
+      "type": "object",
+      "required": ["code", "message"],
+      "properties": {"code": {"type": "string", "minLength": 1}, "message": {"type": "string", "minLength": 1}},
+      "additionalProperties": false
+    }
+  }
+}

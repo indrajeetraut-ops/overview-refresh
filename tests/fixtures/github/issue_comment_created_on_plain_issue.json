@@ -1,0 +1,20 @@
+{
+  "event": "issue_comment",
+  "action": "created",
+  "payload": {
+    "action": "created",
+    "issue": {
+      "number": 55
+    },
+    "comment": {
+      "id": 990101
+    },
+    "repository": {
+      "id": 41213765,
+      "full_name": "talium-ai/code-econ"
+    },
+    "installation": {
+      "id": 42
+    }
+  }
+}

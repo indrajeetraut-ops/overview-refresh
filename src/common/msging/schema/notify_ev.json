@@ -1,0 +1,9 @@
+{
+  "msg_id": 42,
+  "producer_id": "prodA",
+  "event_id": "sess-2026-07-25-abc",
+  "code": "ack",
+  "reason": "",
+  "info": {},
+  "ts": "2026-07-25T10:15:31Z"
+}

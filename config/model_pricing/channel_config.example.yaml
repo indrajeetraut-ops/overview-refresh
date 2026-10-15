@@ -1,0 +1,29 @@
+# config/model_pricing/channel_config.example.yaml
+#
+# Example org -> vendor -> channel mapping (design docs/modules/model-pricing.md §4.3).
+#
+# The real file is `channel_config.yaml`, OPTIONAL and absent by default -- if absent,
+# every org uses each vendor's own API channel (anthropic / openai / gemini). To use
+# this file, copy it to `channel_config.yaml` (untracked; add real org ids and
+# channels) and edit it for orgs that buy a vendor's models through a cloud channel
+# instead of that vendor's own API.
+#
+# Only list a vendor when the org does NOT use that vendor's own API -- an org/vendor
+# pair not listed here just falls through to the vendor channel (§4.3 table). Orgs
+# deploy agents through one managed configuration per vendor, so the channel is an
+# org-wide fact, not a per-model one.
+#
+# The channel named for a vendor must be one of the cloud channels actually priced in
+# `model_pricing.yaml`'s `channels` list (§4.2) -- `Catalog.for_org` raises
+# `ConfigError` at load time if it is not, rather than failing silently at lookup time.
+#
+# Loaded by `common.model_pricing.config.load_channel_config` (`ChannelConfig`).
+
+schema_version: 1
+
+orgs:
+  talium.ai:
+    anthropic: aws_bedrock:us-east-1:regional   # Claude via Bedrock, not the Anthropic API
+    # openai not listed -> openai (OpenAI API)
+  acme:
+    openai: azure:eastus2:data_zone             # GPT models via Azure Foundry, data-zone deployment

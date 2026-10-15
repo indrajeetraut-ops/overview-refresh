@@ -1,0 +1,7 @@
+{
+  "agentType": "general-purpose",
+  "description": "Fix final-review findings",
+  "toolUseId": "toolu_01YZNfoD59WfY16UwZ9qBS3F",
+  "spawnDepth": 1,
+  "model": "fable"
+}

@@ -1,0 +1,118 @@
+# Synthetic org example -- org-expand configuration. Three contrasting teams (design §8):
+# Development (many small PRs, fast merges, higher revert/abandon), Platform (high efficiency,
+# large PRs, careful reviews) and QA (strict review, very low revert rate). A spend-heavy,
+# poor-cache-habits profile for the recoverable-spend story is described at the end of `teams`.
+schema_version: 1
+org:
+  series_dir: ../series  # rewritten by cli_synth_org.py to the chain's own output
+  # Catalog version to price with (common.model_pricing); null = the current version. The
+  # chain snapshots the bound version(s), history.yaml and channel config into <output>/pricing/
+  # so the dataset reproduces without the live catalog.
+  pricing_version: null
+  seed: 7
+  github_owner: acme
+  admin:
+    github_login: vp-eng
+    display_name: Jordan Avery
+    email: jordan.avery@acme.dev
+  agent_versions: ["2.1.250", "2.1.260", "2.1.270"]
+
+calibration:
+  target_merged_prs_per_dev_week: 3.0
+
+repos:
+  - project: payment_service_improvement
+    name: payment-service
+    default_branch: main
+    modules:
+      - {path: src/, weight: 0.40, extensions: {".py": 0.85, ".sh": 0.15}}
+      - {path: services/gateway/, weight: 0.30, extensions: {".go": 0.90, ".yaml": 0.10}}
+      - {path: ops/scripts/, weight: 0.15, extensions: {".go": 0.5, ".yaml": 0.5}}
+      - {path: docs/runbooks/, weight: 0.15, extensions: {".yaml": 0.3, ".tf": 0.7}}
+
+  - project: auth_service_rewrite
+    name: auth-service
+    default_branch: main
+    modules:
+      - {path: src/auth/, weight: 0.45, extensions: {".py": 0.85, ".sql": 0.15}}
+      - {path: src/saml/, weight: 0.30, extensions: {".py": 0.8, ".sql": 0.2}}
+      - {path: migrations/, weight: 0.15, extensions: {".sql": 1.0}}
+      - {path: api/, weight: 0.10, extensions: {".py": 1.0}}
+
+  - project: data_pipeline_upgrade
+    name: data-pipeline
+    default_branch: main
+    modules:
+      - {path: src/scripts/, weight: 0.40, extensions: {".sh": 0.85, ".py": .15}}
+      - {path: src/etl/, weight: 0.30, extensions: {".py": 0.8, ".ts": 0.2}}
+      - {path: src/ingest/, weight: 0.20, extensions: {".py": 1.0}}
+      - {path: src/env/, weight: 0.10, extensions: {".sh": 1.0}}
+
+  - project: search_service_improvement
+    name: search-service
+    default_branch: main
+    modules:
+      - {path: notebooks/, weight: 0.40, extensions: {".py": 1.0}}
+      - {path: src/features/, weight: 0.35, extensions: {".ts": 0.6, ".py": 0.4}}
+      - {path: src/eval/, weight: 0.25, extensions: {".py": 0.7, ".ts": 0.3}}
+
+  - project: ci_pipeline_maintenance
+    name: ci-pipeline
+    default_branch: main
+    modules:
+      - {path: config/, weight: 1, extensions: {".yaml": 0.7, ".py": 0.3}}
+  
+  - project: automation_suite
+    name: qa-automation
+    default_branch: main
+    modules:
+      - {path: src/, weight: 1, extensions: {".py": 1}}
+  
+
+teams:
+  # Development (20 devs): many small PRs, fast merges, higher revert/abandon.
+  Development:
+    tokens_per_loc_multiplier: 1.1
+    pr:
+      size_median_loc: 90
+    work:
+      unlinked_share: 0.15
+    review:
+      first_review_median_hours: 2
+      changes_requested_rate: 0.15
+      revert_rate: 0.06
+      abandon_rate: 0.10
+
+  # Platform (10 devs): high efficiency, large PRs, careful reviews.
+  Platform:
+    tokens_per_loc_multiplier: 0.7
+    pr:
+      size_median_loc: 320
+    review:
+      changes_requested_rate: 0.35
+    habits:
+      cache_bust_per_100_requests: 0.2
+      resume_prob_per_turn: 0.02
+
+  # QA (5 devs): strict review, very low revert rate.
+  QA:
+    tokens_per_loc_multiplier: 1.0
+    review:
+      changes_requested_rate: 0.55
+      first_review_median_hours: 8
+      revert_rate: 0.005
+      abandon_rate: 0.03
+
+  # The example's heavy-spend/poor-cache-habits profile is unused here; to tell the
+  # recoverable-spend story, move its habits/sessions keys onto a team above.
+
+# $200 per rostered developer per month: a team's budget is its roster count (roster.yaml)
+# times 200, and the org's is the sum over teams. Change both files together.
+budgets:
+  period: monthly
+  org_usd: 7000          # 35 developers
+  # Keys must be the roster's team names. An unknown name is silently ignored today.
+  teams:
+    Development: 4000    # 20 developers
+    Platform: 2000       # 10 developers
+    QA: 1000             #  5 developers

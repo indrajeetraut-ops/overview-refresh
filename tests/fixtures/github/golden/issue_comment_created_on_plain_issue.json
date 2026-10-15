@@ -1,0 +1,21 @@
+{
+  "artifacts": [],
+  "bump_counters": [
+    {
+      "artifact_id": "github:41213765:issue:55",
+      "dedup_key": "990101:created",
+      "delta": 1,
+      "field": "comment_count"
+    }
+  ],
+  "installation": null,
+  "issue_links": null,
+  "mapped": true,
+  "merge_commit_sha": null,
+  "pr_state_event": null,
+  "push_after": null,
+  "push_before": null,
+  "push_commit_shas": null,
+  "push_integration_method": null,
+  "repos": []
+}

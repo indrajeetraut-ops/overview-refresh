@@ -1,0 +1,10 @@
+# Usage grows 25% across the Organization from mid-September (e.g. new hires onboard).
+# Every series in every scope is scaled from effective_from on; earlier days are unchanged.
+schema: scenario/1.0
+name: org-growth
+scope:
+  type: organization
+changes:
+  - growth:
+      factor: 1.25
+      effective_from: 2026-09-15

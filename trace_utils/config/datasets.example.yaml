@@ -1,0 +1,16 @@
+# trace_utils dataset config. Copy to datasets.yaml and edit.
+# Secrets NEVER go here — reference env vars with ${VAR}.
+
+datasets:
+  - name: ultralazr-cc
+    url: https://huggingface.co/datasets/ultralazr/claude-code-traces
+  - name: trace-commons
+    url: https://huggingface.co/datasets/trace-commons/agent-traces
+    subpath: sessions/claude_code      # optional: scope to one tree within the repo
+  - name: nlile-merged
+    url: hf://datasets/nlile/misc-merged-claude-code-traces-v1
+
+source:
+  mode: stream                          # stream (no download) | download
+  cache_dir: ~/.talium/trace_cache      # local dir or s3://bucket/prefix
+  hf_token_env: HF_TOKEN                # name of env var holding the HF token (optional)

@@ -1,0 +1,33 @@
+version: "1"
+revision: "2026-08-27"
+filter:
+  max_expression_chars: 4096
+  max_nesting: 32
+  max_regex_chars: 512
+command_extractors:
+  Bash:
+    command_field: input.command
+    parser: bash_tree_sitter
+    basename_style: posix
+    command_case: preserve
+  PowerShell:
+    command_field: input.command
+    parser: powershell_ast
+    basename_style: windows
+    command_case: casefold
+memory_classifiers:
+  claude_code:
+    - path_glob: "**/.claude/projects/*/memory/MEMORY.md"
+      kind: index
+    - path_glob: "**/.claude/projects/*/memory/**"
+      kind: entry
+budget_cache:
+  policy: lazy_memory_only
+  owner: family_query_context
+  key_dimensions: [scope, by, model, permission_mode, turn, query_config_revision]
+  turn_rollup:
+    identity: [session_id, turn_num]
+    usage_source: contained_assistant_usage
+    reusable_for: [model, permission_mode, turn, subagent]
+    persisted: false
+    hit_bypasses_recomputation: true

@@ -1,0 +1,279 @@
+{
+  "latest_run_id": "0fd82583-0dd1-40cc-9b09-4e08b6b4c55b",
+  "runs": [
+    {
+      "completed_at": "2026-09-24T05:53:45.887114+00:00",
+      "counts": {
+        "failed": 0,
+        "passed": 521,
+        "skipped": 0,
+        "total": 521
+      },
+      "junit_path": "runs/20260924T055237Z_0fd82583/junit.xml",
+      "report_path": "runs/20260924T055237Z_0fd82583/report.md",
+      "result_path": "runs/20260924T055237Z_0fd82583/result.json",
+      "run_id": "0fd82583-0dd1-40cc-9b09-4e08b6b4c55b",
+      "started_at": "2026-09-24T05:52:37.659891+00:00",
+      "status": "passed_with_unverified",
+      "unverified_tests": [
+        "econ-forecast/tests/utils/test_plot_forecast_browser.py::test_offline_render_hover_zoom_reset_legend_and_hostile_text",
+        "econ-forecast/tests/utils/test_plot_forecast_browser.py::test_default_main_graph_has_no_individual_sample_lines",
+        "econ-forecast/tests/utils/test_plot_forecast_browser.py::test_all_projects_render_as_separate_labeled_panels",
+        "econ-forecast/tests/utils/test_plot_forecast_browser.py::test_reference_plot_workload_four_models_90_days_1000_samples"
+      ]
+    },
+    {
+      "completed_at": "2026-09-24T02:44:13.869026+00:00",
+      "counts": {
+        "failed": 0,
+        "passed": 521,
+        "skipped": 0,
+        "total": 521
+      },
+      "junit_path": "runs/20260924T024305Z_d21eb8ca/junit.xml",
+      "report_path": "runs/20260924T024305Z_d21eb8ca/report.md",
+      "result_path": "runs/20260924T024305Z_d21eb8ca/result.json",
+      "run_id": "d21eb8ca-753f-48e5-90c0-ad72ebe06714",
+      "started_at": "2026-09-24T02:43:05.719078+00:00",
+      "status": "passed_with_unverified",
+      "unverified_tests": [
+        "econ-forecast/tests/utils/test_plot_forecast_browser.py::test_offline_render_hover_zoom_reset_legend_and_hostile_text",
+        "econ-forecast/tests/utils/test_plot_forecast_browser.py::test_default_main_graph_has_no_individual_sample_lines",
+        "econ-forecast/tests/utils/test_plot_forecast_browser.py::test_all_projects_render_as_separate_labeled_panels",
+        "econ-forecast/tests/utils/test_plot_forecast_browser.py::test_reference_plot_workload_four_models_90_days_1000_samples"
+      ]
+    },
+    {
+      "completed_at": "2026-09-23T17:36:29.206836+00:00",
+      "counts": {
+        "failed": 0,
+        "passed": 521,
+        "skipped": 0,
+        "total": 521
+      },
+      "junit_path": "runs/20260923T173519Z_3cc2a9cd/junit.xml",
+      "report_path": "runs/20260923T173519Z_3cc2a9cd/report.md",
+      "result_path": "runs/20260923T173519Z_3cc2a9cd/result.json",
+      "run_id": "3cc2a9cd-748f-4849-a2c4-a4d140483e1d",
+      "started_at": "2026-09-23T17:35:19.436344+00:00",
+      "status": "passed_with_unverified",
+      "unverified_tests": [
+        "econ-forecast/tests/utils/test_plot_forecast_browser.py::test_offline_render_hover_zoom_reset_legend_and_hostile_text",
+        "econ-forecast/tests/utils/test_plot_forecast_browser.py::test_default_main_graph_has_no_individual_sample_lines",
+        "econ-forecast/tests/utils/test_plot_forecast_browser.py::test_all_projects_render_as_separate_labeled_panels",
+        "econ-forecast/tests/utils/test_plot_forecast_browser.py::test_reference_plot_workload_four_models_90_days_1000_samples"
+      ]
+    },
+    {
+      "completed_at": "2026-09-23T16:59:19.652896+00:00",
+      "counts": {
+        "failed": 0,
+        "passed": 522,
+        "skipped": 0,
+        "total": 522
+      },
+      "junit_path": "runs/20260923T165810Z_1549ecae/junit.xml",
+      "report_path": "runs/20260923T165810Z_1549ecae/report.md",
+      "result_path": "runs/20260923T165810Z_1549ecae/result.json",
+      "run_id": "1549ecae-595d-49d0-a29b-b86e56706fd8",
+      "started_at": "2026-09-23T16:58:10.849193+00:00",
+      "status": "passed_with_unverified",
+      "unverified_tests": [
+        "econ-forecast/tests/utils/test_plot_forecast_browser.py::test_offline_render_hover_zoom_reset_legend_and_hostile_text",
+        "econ-forecast/tests/utils/test_plot_forecast_browser.py::test_default_main_graph_has_no_individual_sample_lines",
+        "econ-forecast/tests/utils/test_plot_forecast_browser.py::test_all_projects_render_as_separate_labeled_panels",
+        "econ-forecast/tests/utils/test_plot_forecast_browser.py::test_reference_plot_workload_four_models_90_days_1000_samples"
+      ]
+    },
+    {
+      "completed_at": "2026-09-23T16:57:13.272501+00:00",
+      "counts": {
+        "failed": 2,
+        "passed": 520,
+        "skipped": 0,
+        "total": 522
+      },
+      "junit_path": "runs/20260923T165543Z_0e405429/junit.xml",
+      "report_path": "runs/20260923T165543Z_0e405429/report.md",
+      "result_path": "runs/20260923T165543Z_0e405429/result.json",
+      "run_id": "0e405429-5002-4ee0-a453-a5e1e7369b29",
+      "started_at": "2026-09-23T16:55:43.448313+00:00",
+      "status": "failed",
+      "unverified_tests": [
+        "econ-forecast/tests/utils/test_plot_forecast_browser.py::test_offline_render_hover_zoom_reset_legend_and_hostile_text",
+        "econ-forecast/tests/utils/test_plot_forecast_browser.py::test_default_main_graph_has_no_individual_sample_lines",
+        "econ-forecast/tests/utils/test_plot_forecast_browser.py::test_all_projects_render_as_separate_labeled_panels",
+        "econ-forecast/tests/utils/test_plot_forecast_browser.py::test_reference_plot_workload_four_models_90_days_1000_samples"
+      ]
+    },
+    {
+      "completed_at": "2026-09-23T15:56:22.026462+00:00",
+      "counts": {
+        "failed": 0,
+        "passed": 540,
+        "skipped": 0,
+        "total": 540
+      },
+      "junit_path": "runs/20260923T153931Z_96bbcf50/junit.xml",
+      "report_path": "runs/20260923T153931Z_96bbcf50/report.md",
+      "result_path": "runs/20260923T153931Z_96bbcf50/result.json",
+      "run_id": "96bbcf50-dd68-43a9-afc9-eb9cbd2cf2ad",
+      "started_at": "2026-09-23T15:39:31.209181+00:00",
+      "status": "passed_with_unverified",
+      "unverified_tests": [
+        "econ-forecast/tests/utils/test_plot_forecast_browser.py::test_offline_render_hover_zoom_reset_legend_and_hostile_text",
+        "econ-forecast/tests/utils/test_plot_forecast_browser.py::test_default_main_graph_has_no_individual_sample_lines",
+        "econ-forecast/tests/utils/test_plot_forecast_browser.py::test_all_projects_render_as_separate_labeled_panels",
+        "econ-forecast/tests/utils/test_plot_forecast_browser.py::test_reference_plot_workload_four_models_90_days_1000_samples"
+      ]
+    },
+    {
+      "completed_at": "2026-09-23T15:00:31.928651+00:00",
+      "counts": {
+        "failed": 0,
+        "passed": 493,
+        "skipped": 0,
+        "total": 493
+      },
+      "junit_path": "runs/20260923T145933Z_ceb8984d/junit.xml",
+      "report_path": "runs/20260923T145933Z_ceb8984d/report.md",
+      "result_path": "runs/20260923T145933Z_ceb8984d/result.json",
+      "run_id": "ceb8984d-8651-462f-87d6-c2a9656eb09d",
+      "started_at": "2026-09-23T14:59:33.999768+00:00",
+      "status": "passed_with_unverified",
+      "unverified_tests": [
+        "econ-forecast/tests/utils/test_plot_forecast_browser.py::test_offline_render_hover_zoom_reset_legend_and_hostile_text",
+        "econ-forecast/tests/utils/test_plot_forecast_browser.py::test_default_main_graph_has_no_individual_sample_lines",
+        "econ-forecast/tests/utils/test_plot_forecast_browser.py::test_all_projects_render_as_separate_labeled_panels",
+        "econ-forecast/tests/utils/test_plot_forecast_browser.py::test_reference_plot_workload_four_models_90_days_1000_samples"
+      ]
+    },
+    {
+      "completed_at": "2026-09-23T06:50:03.775717+00:00",
+      "counts": {
+        "failed": 0,
+        "passed": 472,
+        "skipped": 0,
+        "total": 472
+      },
+      "junit_path": "runs/20260923T064910Z_d5883a4f/junit.xml",
+      "report_path": "runs/20260923T064910Z_d5883a4f/report.md",
+      "result_path": "runs/20260923T064910Z_d5883a4f/result.json",
+      "run_id": "d5883a4f-131e-4b89-a9e9-b6e0ce038f43",
+      "started_at": "2026-09-23T06:49:10.757676+00:00",
+      "status": "passed_with_unverified",
+      "unverified_tests": [
+        "econ-forecast/tests/utils/test_plot_forecast_browser.py::test_offline_render_hover_zoom_reset_legend_and_hostile_text",
+        "econ-forecast/tests/utils/test_plot_forecast_browser.py::test_default_main_graph_has_no_individual_sample_lines",
+        "econ-forecast/tests/utils/test_plot_forecast_browser.py::test_all_projects_render_as_separate_labeled_panels",
+        "econ-forecast/tests/utils/test_plot_forecast_browser.py::test_reference_plot_workload_four_models_90_days_1000_samples"
+      ]
+    },
+    {
+      "completed_at": "2026-09-23T05:08:36.040796+00:00",
+      "counts": {
+        "failed": 0,
+        "passed": 472,
+        "skipped": 0,
+        "total": 472
+      },
+      "junit_path": "runs/20260923T050740Z_0617c232/junit.xml",
+      "report_path": "runs/20260923T050740Z_0617c232/report.md",
+      "result_path": "runs/20260923T050740Z_0617c232/result.json",
+      "run_id": "0617c232-10df-4742-ab7a-f4a12f560a0d",
+      "started_at": "2026-09-23T05:07:40.069513+00:00",
+      "status": "passed_with_unverified",
+      "unverified_tests": [
+        "econ-forecast/tests/utils/test_plot_forecast_browser.py::test_offline_render_hover_zoom_reset_legend_and_hostile_text",
+        "econ-forecast/tests/utils/test_plot_forecast_browser.py::test_default_main_graph_has_no_individual_sample_lines",
+        "econ-forecast/tests/utils/test_plot_forecast_browser.py::test_all_projects_render_as_separate_labeled_panels",
+        "econ-forecast/tests/utils/test_plot_forecast_browser.py::test_reference_plot_workload_four_models_90_days_1000_samples"
+      ]
+    },
+    {
+      "completed_at": "2026-09-23T05:06:41.007034+00:00",
+      "counts": {
+        "failed": 1,
+        "passed": 471,
+        "skipped": 0,
+        "total": 472
+      },
+      "junit_path": "runs/20260923T050533Z_40a24450/junit.xml",
+      "report_path": "runs/20260923T050533Z_40a24450/report.md",
+      "result_path": "runs/20260923T050533Z_40a24450/result.json",
+      "run_id": "40a24450-cce8-4d45-8a63-d573fa893dc1",
+      "started_at": "2026-09-23T05:05:33.113251+00:00",
+      "status": "failed",
+      "unverified_tests": [
+        "econ-forecast/tests/utils/test_plot_forecast_browser.py::test_offline_render_hover_zoom_reset_legend_and_hostile_text",
+        "econ-forecast/tests/utils/test_plot_forecast_browser.py::test_default_main_graph_has_no_individual_sample_lines",
+        "econ-forecast/tests/utils/test_plot_forecast_browser.py::test_all_projects_render_as_separate_labeled_panels",
+        "econ-forecast/tests/utils/test_plot_forecast_browser.py::test_reference_plot_workload_four_models_90_days_1000_samples"
+      ]
+    },
+    {
+      "completed_at": "2026-09-22T02:56:53.516493+00:00",
+      "counts": {
+        "failed": 0,
+        "passed": 435,
+        "skipped": 0,
+        "total": 435
+      },
+      "junit_path": "runs/20260922T025605Z_676edbef/junit.xml",
+      "report_path": "runs/20260922T025605Z_676edbef/report.md",
+      "result_path": "runs/20260922T025605Z_676edbef/result.json",
+      "run_id": "676edbef-7e62-404a-99db-a122e5d99489",
+      "started_at": "2026-09-22T02:56:05.401960+00:00",
+      "status": "passed_with_unverified",
+      "unverified_tests": [
+        "econ-forecast/tests/utils/test_plot_forecast_browser.py::test_offline_render_hover_zoom_reset_legend_and_hostile_text",
+        "econ-forecast/tests/utils/test_plot_forecast_browser.py::test_default_main_graph_has_no_individual_sample_lines",
+        "econ-forecast/tests/utils/test_plot_forecast_browser.py::test_all_projects_render_as_separate_labeled_panels",
+        "econ-forecast/tests/utils/test_plot_forecast_browser.py::test_reference_plot_workload_four_models_90_days_1000_samples"
+      ]
+    },
+    {
+      "completed_at": "2026-09-20T16:05:10.365933+00:00",
+      "counts": {
+        "failed": 0,
+        "passed": 376,
+        "skipped": 0,
+        "total": 376
+      },
+      "junit_path": "runs/20260920T160428Z_95b3dcb3/junit.xml",
+      "report_path": "runs/20260920T160428Z_95b3dcb3/report.md",
+      "result_path": "runs/20260920T160428Z_95b3dcb3/result.json",
+      "run_id": "95b3dcb3-477d-445e-b703-4d71a4a05bb7",
+      "started_at": "2026-09-20T16:04:28.938811+00:00",
+      "status": "passed_with_unverified",
+      "unverified_tests": [
+        "econ-forecast/tests/utils/test_plot_forecast_browser.py::test_offline_render_hover_zoom_reset_legend_and_hostile_text",
+        "econ-forecast/tests/utils/test_plot_forecast_browser.py::test_default_main_graph_has_no_individual_sample_lines",
+        "econ-forecast/tests/utils/test_plot_forecast_browser.py::test_all_projects_render_as_separate_labeled_panels",
+        "econ-forecast/tests/utils/test_plot_forecast_browser.py::test_reference_plot_workload_four_models_90_days_1000_samples"
+      ]
+    },
+    {
+      "completed_at": "2026-09-19T12:09:16.130270+00:00",
+      "counts": {
+        "failed": 0,
+        "passed": 287,
+        "skipped": 0,
+        "total": 287
+      },
+      "junit_path": "runs/20260919T120843Z_4f62adae/junit.xml",
+      "report_path": "runs/20260919T120843Z_4f62adae/report.md",
+      "result_path": "runs/20260919T120843Z_4f62adae/result.json",
+      "run_id": "4f62adae-d914-4952-98a2-0260e12daf73",
+      "started_at": "2026-09-19T12:08:43.694043+00:00",
+      "status": "passed_with_unverified",
+      "unverified_tests": [
+        "econ-forecast/tests/utils/test_plot_forecast_browser.py::test_offline_render_hover_zoom_reset_legend_and_hostile_text",
+        "econ-forecast/tests/utils/test_plot_forecast_browser.py::test_default_main_graph_has_no_individual_sample_lines",
+        "econ-forecast/tests/utils/test_plot_forecast_browser.py::test_all_projects_render_as_separate_labeled_panels",
+        "econ-forecast/tests/utils/test_plot_forecast_browser.py::test_reference_plot_workload_four_models_90_days_1000_samples"
+      ]
+    }
+  ],
+  "schema_version": 1
+}

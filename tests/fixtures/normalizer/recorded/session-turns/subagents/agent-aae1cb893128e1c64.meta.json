@@ -1,0 +1,7 @@
+{
+  "agentType": "general-purpose",
+  "description": "Review Task 3 (spec + quality)",
+  "toolUseId": "toolu_01YYWDXjS7xng1Zp4NzrMdVb",
+  "spawnDepth": 1,
+  "model": "sonnet"
+}

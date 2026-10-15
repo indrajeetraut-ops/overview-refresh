@@ -1,0 +1,32 @@
+{
+  "completed_at": "2026-09-20T16:05:10.365933+00:00",
+  "counts": {
+    "failed": 0,
+    "passed": 376,
+    "skipped": 0,
+    "total": 376
+  },
+  "exit_code": 0,
+  "junit_path": "/Users/sumandra/projects/talium/forecasting/code-econ/.claude/worktrees/curve-impl/econ-forecast/docs/test-results/runs/20260920T160428Z_95b3dcb3/junit.xml",
+  "pytest_command": [
+    "/Users/sumandra/projects/talium/forecasting/code-econ/venv/bin/python",
+    "-m",
+    "pytest",
+    "-q",
+    "econ-forecast/tests",
+    "--ignore=econ-forecast/tests/utils/test_plot_forecast_browser.py",
+    "--junitxml=/Users/sumandra/projects/talium/forecasting/code-econ/.claude/worktrees/curve-impl/econ-forecast/docs/test-results/runs/20260920T160428Z_95b3dcb3/junit.xml"
+  ],
+  "report_dir": "/Users/sumandra/projects/talium/forecasting/code-econ/.claude/worktrees/curve-impl/econ-forecast/docs/test-results/runs/20260920T160428Z_95b3dcb3",
+  "report_path": "/Users/sumandra/projects/talium/forecasting/code-econ/.claude/worktrees/curve-impl/econ-forecast/docs/test-results/runs/20260920T160428Z_95b3dcb3/report.md",
+  "run_id": "95b3dcb3-477d-445e-b703-4d71a4a05bb7",
+  "schema_version": 1,
+  "started_at": "2026-09-20T16:04:28.938811+00:00",
+  "status": "passed_with_unverified",
+  "unverified_tests": [
+    "econ-forecast/tests/utils/test_plot_forecast_browser.py::test_offline_render_hover_zoom_reset_legend_and_hostile_text",
+    "econ-forecast/tests/utils/test_plot_forecast_browser.py::test_default_main_graph_has_no_individual_sample_lines",
+    "econ-forecast/tests/utils/test_plot_forecast_browser.py::test_all_projects_render_as_separate_labeled_panels",
+    "econ-forecast/tests/utils/test_plot_forecast_browser.py::test_reference_plot_workload_four_models_90_days_1000_samples"
+  ]
+}

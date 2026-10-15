@@ -1,0 +1,201 @@
+# The AWS team stack: collector -> ingest -> worker -> api on one dedicated EC2, reading the
+# Go uploader's (talium-uploadd on upload.talium.ai) S3 staging prefix, plus a second API on
+# its own port serving the synthetic org. Plan: docs/plan/2026-09-23-aws-team-deployment.md.
+#
+#   utils/aws_up.sh             # ON the host: write .env.aws, build, start, print URLs + token
+#   utils/aws_up.sh --local     # laptop rehearsal against the real bucket (aws.local overlay)
+#   utils/aws_synth_load.sh     # (re)load econ_synth from deploy/seed/econ_synth.sql.gz
+#   utils/aws_down.sh [--wipe]
+#
+# Topology is the stop-gap's (Postgres as a container, named volume on the host's disk) with
+# the demo's S3-reading collector, minus the Python uploader: uploads land in S3 through
+# talium-uploadd on its own box, and this stack only ever READS that bucket, with the instance
+# role (s3:ListBucket + s3:GetObject on the upload prefix, IMDSv2 hop limit 2).
+#
+# No container_name anywhere: the laptop rehearsal runs this same file under another project
+# name (talium-aws-local), and fixed names would collide. Use `docker compose exec <service>`.
+#
+# Requires an env file written by utils/aws_up.sh (.env.aws, never committed):
+#   POSTGRES_PASSWORD ECON_SITE SYNTH_SITE SYNTH_PORT DEMO_USER DEMO_PASS_HASH TALIUM_ORG_ID
+#   TALIUM_S3_BUCKET TALIUM_S3_KEY_BASE AWS_REGION ECON_VIEWER_ID SYNTH_VIEWER_ID
+#   COLLECT_INTERVAL_S HTTP_PORT HTTPS_PORT SYNTH_PUBLISH_PORT
+name: talium-aws
+
+x-logging: &logging
+  driver: json-file
+  options:
+    max-size: "20m"
+    max-file: "5"
+
+x-app: &app
+  build:
+    context: ..
+    dockerfile: docker/Dockerfile
+    args:
+      # The F2 trusted-header viewer, baked into the JS at build time (see docker/Dockerfile).
+      # Empty until the directory is imported -- manager screens 401 until then.
+      VITE_VIEWER_ID: "${ECON_VIEWER_ID:-}"
+  environment: &app-env
+    TALIUM_DB_DSN: postgresql+psycopg://postgres:${POSTGRES_PASSWORD:?not set -- run utils/aws_up.sh}@postgres:5432/econ
+    TALIUM_DATA_DIR: /data
+  volumes:
+    - aws_data:/data
+  logging: *logging
+  restart: unless-stopped
+
+services:
+  postgres:
+    image: postgres:16
+    environment:
+      POSTGRES_DB: econ
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?not set -- run utils/aws_up.sh}
+    volumes:
+      # Both databases live here: econ (built by init, filled by the collector) and econ_synth
+      # (created and restored by utils/aws_synth_load.sh). No initdb.d seed mount -- the real
+      # database starts empty and fills from the S3 sweep, by decision.
+      - aws_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      # Over TCP on purpose (see docker-compose.stopgap.yml): a socket check goes healthy
+      # before postgres accepts TCP connections, and the app containers die connecting.
+      test: ["CMD-SHELL", "pg_isready -h 127.0.0.1 -U postgres -d econ"]
+      interval: 5s
+      timeout: 5s
+      retries: 60
+    logging: *logging
+    restart: unless-stopped
+
+  # TLS, basic auth, and the econ / synth split by port. See deploy/caddy/Caddyfile.aws.
+  caddy:
+    image: caddy:2-alpine
+    ports:
+      - "${HTTP_PORT:-80}:80" # also serves the ACME http-01 challenge for both sites
+      - "${HTTPS_PORT:-443}:443"
+      # Published == listened on prod (9443:9443). The rehearsal publishes it elsewhere.
+      - "${SYNTH_PUBLISH_PORT:-9443}:${SYNTH_PORT:-9443}"
+    environment:
+      ECON_SITE: "${ECON_SITE:?not set -- run utils/aws_up.sh}"
+      SYNTH_SITE: "${SYNTH_SITE:?not set -- run utils/aws_up.sh}"
+      DEMO_USER: "${DEMO_USER:?not set}"
+      # Every `$` of the bcrypt hash is DOUBLED in .env.aws -- compose interpolates env files
+      # too, and an un-escaped hash silently loses everything after its cost factor.
+      DEMO_PASS_HASH: "${DEMO_PASS_HASH:?not set}"
+    volumes:
+      - ../deploy/caddy/Caddyfile.aws:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data # certificate + ACME account key; losing it burns LE rate limit
+      - caddy_config:/config
+    logging: *logging
+    restart: unless-stopped
+    depends_on:
+      api:
+        condition: service_healthy
+      api_synth:
+        condition: service_healthy
+
+  # Schema + org token for the REAL database. Runs to completion. Never pointed at econ_synth.
+  init:
+    <<: *app
+    environment:
+      <<: *app-env
+      TALIUM_ORG_ID: "${TALIUM_ORG_ID:?not set}"
+      TALIUM_INGEST_PORT: "443"
+    entrypoint: ["bash", "/app/docker/init-stack.sh"]
+    volumes:
+      - aws_data:/data
+      - ./init-stack.sh:/app/docker/init-stack.sh:ro
+    restart: "no"
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  ingest:
+    <<: *app
+    command: ["python", "-m", "server.ingest.cli_serve", "--config", "config/ingest.yaml"]
+    healthcheck:
+      test: ["CMD-SHELL", "python -c \"import urllib.request as u; u.urlopen('http://localhost:8443/healthz')\""]
+      interval: 5s
+      timeout: 3s
+      retries: 12
+    depends_on:
+      postgres:
+        condition: service_healthy
+      init:
+        condition: service_completed_successfully
+
+  # econ only. It never sees econ_synth, so nothing re-folds synthetic rows.
+  worker:
+    <<: *app
+    command: ["python", "-m", "server.worker.cli_work", "--config", "config/worker.yaml"]
+    depends_on:
+      postgres:
+        condition: service_healthy
+      init:
+        condition: service_completed_successfully
+
+  api:
+    <<: *app
+    command: ["python", "-m", "server.api.cli_serve_api", "--config", "config/api.yaml"]
+    healthcheck:
+      test: ["CMD-SHELL", "python -c \"import urllib.request as u; u.urlopen('http://localhost:8090/healthz')\""]
+      interval: 5s
+      timeout: 3s
+      retries: 12
+    depends_on:
+      postgres:
+        condition: service_healthy
+      init:
+        condition: service_completed_successfully
+
+  # The synthetic org. Same code, its own image (a different VITE_VIEWER_ID is baked in -- one
+  # that exists in the SYNTHETIC directory), and its own database. Deliberately no dependency on
+  # `init`: init builds the REAL schema, and econ_synth's schema is owned by its dump. Until
+  # utils/aws_synth_load.sh has run, econ_synth does not exist; the API process still serves
+  # /healthz (the engine connects lazily), and data screens error until the load.
+  api_synth:
+    <<: *app
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+      args:
+        VITE_VIEWER_ID: "${SYNTH_VIEWER_ID:-github:vp-eng}"
+    image: talium-aws-api-synth
+    environment:
+      TALIUM_DB_DSN: postgresql+psycopg://postgres:${POSTGRES_PASSWORD:?not set}@postgres:5432/econ_synth
+      TALIUM_DATA_DIR: /data
+    command: ["python", "-m", "server.api.cli_serve_api", "--config", "config/api.yaml"]
+    healthcheck:
+      test: ["CMD-SHELL", "python -c \"import urllib.request as u; u.urlopen('http://localhost:8090/healthz')\""]
+      interval: 5s
+      timeout: 3s
+      retries: 12
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  # Sweeps talium-uploadd's prefix in S3, normalizes, ships to ingest over msging. A batch pass
+  # looped by collect-loop.sh. Credentials: the instance role (boto3 default chain), none here.
+  collector:
+    <<: *app
+    entrypoint: ["bash", "/app/docker/collect-loop.sh"]
+    environment:
+      <<: *app-env
+      TALIUM_S3_BUCKET: "${TALIUM_S3_BUCKET:?not set}"
+      AWS_REGION: "${AWS_REGION:?not set}"
+      COLLECTOR_CONFIG: /app/docker-config/collector.aws.yaml
+      # Flat var, not nested ${A:+${A}/}: compose v2.13 cannot nest (see docker-compose.sync.yml).
+      COLLECT_SCOPE: "${TALIUM_S3_KEY_BASE?not set}uploads/"
+      COLLECT_INTERVAL_S: "${COLLECT_INTERVAL_S:-30}"
+    volumes:
+      - aws_data:/data
+      - ./collect-loop.sh:/app/docker/collect-loop.sh:ro
+      - ./config/collector.aws.yaml:/app/docker-config/collector.aws.yaml:ro
+    depends_on:
+      ingest:
+        condition: service_healthy
+
+volumes:
+  # Both databases. The one volume on this host that matters -- snapshot the EBS disk.
+  aws_pgdata:
+  # Org token, collector checkpoints, msging producer store. Rebuildable (a re-sweep).
+  aws_data:
+  caddy_data:
+  caddy_config:

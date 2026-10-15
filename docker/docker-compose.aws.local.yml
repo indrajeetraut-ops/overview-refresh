@@ -1,0 +1,20 @@
+# Laptop rehearsal overlay for docker/docker-compose.aws.yml: the SAME stack, reading the SAME
+# production bucket, so the only thing that differs on EC2 is where the S3 credentials come
+# from (your ~/.aws here, the instance role there).
+#
+#   DEMO_PASSWORD=... utils/aws_up.sh --local       # -p talium-aws-local, .env.aws-local
+#   utils/aws_down.sh --local [--wipe]
+#
+# Runs under its own project name, so its volumes never mix with talium-stack's or a real
+# talium-aws deployment's. Serves http://localhost:8088 (real) and http://localhost:8089
+# (synthetic); aws_up.sh --local sets the Caddy site addresses and ports.
+#
+# Read-only mount: boto3 only reads the shared config/credentials files. An SSO profile whose
+# cached token has expired needs `aws sso login` on the host first -- the container cannot
+# refresh it through a read-only mount.
+services:
+  collector:
+    environment:
+      AWS_PROFILE: "${AWS_PROFILE:-default}"
+    volumes:
+      - ${HOME}/.aws:/root/.aws:ro

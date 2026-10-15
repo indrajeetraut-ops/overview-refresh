@@ -1,0 +1,18 @@
+# Synthetic generator configuration. See src/forecast/synthetic/README.md.
+# The CLI requires a new --output directory and writes a stage report.
+schema_version: 1
+# Reuse saved users; select mutually exclusive Teams without replacement.
+roster:
+  # Relative to this YAML file, not the shell directory.
+  users_file: ../../artifacts/users/users.jsonl
+  # Independent membership-selection seed.
+  seed: 43
+  # Team names identify teams; saved internal IDs are generated consistently.
+  # Unselected users remain in the pool and do not generate series usage.
+  teams:
+  - team_name: team1
+    count: 10
+  - team_name: team2
+    count: 15
+  - team_name: team3
+    count: 25

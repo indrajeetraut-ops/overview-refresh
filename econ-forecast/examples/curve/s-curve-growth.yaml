@@ -1,0 +1,15 @@
+schema_version: 1
+name: s-curve-growth
+interp: pchip
+axis: {start: 1, end: 30}          # a finer axis for a smoother shape
+anchors:
+  - [1,  "1.0"]                     # flat, low start
+  - [10, "1.3"]                     # slow early growth (absolute)
+  - [16, "+3.0"]                    # -> 4.3  (steep middle)
+  - [22, "+2.5"]                    # -> 6.8
+  - [26, "7.4"]                     # flattening (absolute)
+  - [30, "7.6"]                     # high plateau
+preview:
+  days: 120
+  baseline_tokens: 500000
+description: "adoption S-curve: slow start, steep middle, high plateau"

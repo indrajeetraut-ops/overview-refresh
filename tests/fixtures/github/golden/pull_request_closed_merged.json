@@ -1,0 +1,74 @@
+{
+  "artifacts": [
+    {
+      "after_sha": null,
+      "artifact_id": "github:41213765:pr:1184",
+      "author_email": null,
+      "author_login": "akhuteta",
+      "base_branch": "main",
+      "before_sha": null,
+      "branch": "adapter-normaliser-impl",
+      "closed_at": "2026-07-26T15:41:22Z",
+      "commit_shas": null,
+      "created_at": "2026-07-24T09:12:04Z",
+      "files": null,
+      "info": {
+        "github.draft": false,
+        "github.merged_by": "akhuteta"
+      },
+      "integration_method": null,
+      "is_bot": false,
+      "kind": "pr",
+      "labels": [
+        "backend"
+      ],
+      "linked_issue": "github:41213765:issue:42",
+      "merge_commit_sha": "5b1e9c0f00000000000000000000000000000000",
+      "merged_at": "2026-07-26T15:41:22Z",
+      "milestone": null,
+      "number": 1184,
+      "org_id": "org_test",
+      "parent_artifact_id": null,
+      "repo_id": "github:41213765",
+      "reverts_sha": null,
+      "sha": "9f3c1ab7d2000000000000000000000000000000",
+      "state": "merged",
+      "stats": {
+        "additions": 412,
+        "changed_files": 7,
+        "commits": 4,
+        "deletions": 96
+      },
+      "title": "Adapter/normalizer: pair tool calls by record id",
+      "updated_at": "2026-07-26T15:41:22Z",
+      "user_id": null
+    }
+  ],
+  "bump_counters": [],
+  "installation": null,
+  "issue_links": [
+    {
+      "confidence": 0.5,
+      "issue_artifact_id": "github:41213765:issue:42",
+      "method": "body",
+      "number": 42,
+      "pr_artifact_id": "github:41213765:pr:1184",
+      "project_key": "41213765",
+      "tracker": "github"
+    }
+  ],
+  "mapped": true,
+  "merge_commit_sha": "5b1e9c0f00000000000000000000000000000000",
+  "pr_state_event": {
+    "action": "merged",
+    "artifact_id": "github:41213765:pr:1184",
+    "occurred_at": "2026-07-26T15:41:22Z",
+    "source_key": "github:41213765:pr:1184:merged:2026-07-26T15:41:22Z",
+    "to_state": "merged"
+  },
+  "push_after": null,
+  "push_before": null,
+  "push_commit_shas": null,
+  "push_integration_method": null,
+  "repos": []
+}

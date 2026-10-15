@@ -1,0 +1,37 @@
+# Collector config for the local sync stack (docker/docker-compose.sync.yml): the same as
+# collector.yaml except that it reads the Go uploader's bucket in MinIO instead of the Python
+# uploader's local staging dir -- the same topology the AWS demo runs (collector.demo.yaml),
+# with MinIO standing in for S3.
+#
+# The base prefix (TALIUM_S3_PREFIX) is not configured here: object keys are derived from each
+# manifest's own key, so only the sweep root changes, and collect-loop.sh takes that from
+# COLLECT_SCOPE (docker-compose.sync.yml sets it to "<prefix>/uploads/").
+#
+# MinIO credentials come from AWS_ACCESS_KEY_ID / AWS_SECRET_ACCESS_KEY in the container's
+# environment (boto3's default chain), never from this file.
+source_store:
+  backend: s3
+  s3:
+    bucket: talium-staging
+    region: us-east-1
+    endpoint_url: http://minio:9000
+
+checkpoint_store:
+  backend: file
+  file:
+    # The SAME file the `jsonl` collector uses, on purpose: logical keys are org/user/rel on
+    # both uploader generations, so switching paths must not reprocess what is already
+    # collected. utils/stack_up.sh --sync stops the jsonl collector so two never share it.
+    path: ${TALIUM_DATA_DIR}/collector_checkpoints.json
+
+msging:
+  client:
+    default_server: ingest
+    servers:
+      ingest:
+        base_path: http://ingest:8443
+        service_name: ingest
+    defaults:
+      base_dir: ${TALIUM_DATA_DIR}/collector_msging
+
+flush_timeout_s: 30.0

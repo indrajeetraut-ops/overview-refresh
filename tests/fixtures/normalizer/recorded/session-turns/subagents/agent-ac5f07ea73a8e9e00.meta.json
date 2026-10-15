@@ -1,0 +1,7 @@
+{
+  "agentType": "general-purpose",
+  "description": "Fix Task 7 deadline budget bug",
+  "toolUseId": "toolu_014CFPfJFgDyA3Sc1b82ASqc",
+  "spawnDepth": 1,
+  "model": "sonnet"
+}

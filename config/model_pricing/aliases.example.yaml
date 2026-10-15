@@ -1,0 +1,27 @@
+# config/model_pricing/aliases.example.yaml
+#
+# Example observed-string -> model_id overrides (design docs/modules/model-pricing.md
+# §5.3).
+#
+# The real file is `aliases.yaml`, OPTIONAL and absent by default -- if absent,
+# normalization uses only `norm`/`canon` matching (§5.1), which reads a model name out
+# of the observed string itself. Some observed strings carry no readable model name at
+# all (e.g. a Bedrock application inference-profile ARN); to use this file, copy it to
+# `aliases.yaml` (untracked) and add an entry mapping each such string straight to a
+# `model_id`.
+#
+# Each value must be a `model_id` that exists in the loaded catalog's model registry
+# (§5.2) -- check with `./utils/model_pricing.sh show --model <model_id>` before
+# adding an alias for it; an alias to an unpriced model_id is not itself an error, but
+# `resolve()` will only ever find rows for `model_id`s some catalog version actually
+# priced.
+#
+# Loaded by `common.model_pricing.config.load_aliases_config` (`AliasesConfig`).
+
+schema_version: 1
+
+aliases:
+  # A Bedrock application inference-profile ARN observed in usage data, mapped to the
+  # model_id it actually serves. `norm`/`canon` cannot read a model name out of this
+  # string at all, so it needs an explicit alias.
+  arn:aws:bedrock:us-east-1:123456789012:application-inference-profile/abcd1234: claude-sonnet-5

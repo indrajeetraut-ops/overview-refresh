@@ -1,0 +1,21 @@
+# The one front door talium-sync talks to on the local sync stack: /v1/* -> talium-uploadd,
+# /tus/* -> tusd. The routing is ../upload/deploy/Caddyfile.prod's; only the site address
+# differs. A bare ":port" (no hostname) means Caddy serves plain HTTP with no certificate,
+# which is what a laptop wants.
+
+:8444 {
+	# `handle`, not `handle_path`: tusd runs with -base-path /tus/ and needs the prefix kept.
+	handle /tus/* {
+		reverse_proxy tusd:1080
+	}
+
+	handle /v1/* {
+		reverse_proxy talium-uploadd:8080
+	}
+
+	handle /healthz {
+		reverse_proxy talium-uploadd:8080
+	}
+
+	respond 404
+}

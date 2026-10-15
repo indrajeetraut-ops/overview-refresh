@@ -1,0 +1,22 @@
+{
+  "event": "installation",
+  "action": "created",
+  "payload": {
+    "action": "created",
+    "installation": {
+      "id": 42,
+      "account": {
+        "login": "talium-ai",
+        "type": "Organization"
+      },
+      "repository_selection": "selected"
+    },
+    "repositories": [
+      {
+        "id": 41213765,
+        "full_name": "talium-ai/code-econ",
+        "private": true
+      }
+    ]
+  }
+}

@@ -1,0 +1,160 @@
+{
+  "generated_at": "2026-08-28T06:50:40.395229+00:00",
+  "source": "/Users/sumandra/projects/talium/traces/nrm_sess",
+  "target": "examples/causal_graph/graphs",
+  "total": 18,
+  "counts": {
+    "built": 17,
+    "skipped": 1,
+    "error": 0
+  },
+  "totals": {
+    "masters": 17,
+    "subagents": 72,
+    "nodes": 8425
+  },
+  "files": [
+    {
+      "input": "-Users-sumandra-projects-talium-Docs/0f312e45-2f16-47bd-81e6-7ec74976bb95.json",
+      "output": "-Users-sumandra-projects-talium-Docs/0f312e45-2f16-47bd-81e6-7ec74976bb95.json",
+      "status": "built",
+      "master": "0f312e45-2f16-47bd-81e6-7ec74976bb95",
+      "children": 0,
+      "nodes": 97
+    },
+    {
+      "input": "-Users-sumandra-projects-talium-Docs/c696712a-d141-45b2-9872-53b6756d9612.json",
+      "output": "-Users-sumandra-projects-talium-Docs/c696712a-d141-45b2-9872-53b6756d9612.json",
+      "status": "built",
+      "master": "c696712a-d141-45b2-9872-53b6756d9612",
+      "children": 0,
+      "nodes": 19
+    },
+    {
+      "input": "-Users-sumandra-projects-talium-code-econ/05c3d17f-3d62-4739-9355-0f03939c6003.json",
+      "output": "-Users-sumandra-projects-talium-code-econ/05c3d17f-3d62-4739-9355-0f03939c6003.json",
+      "status": "built",
+      "master": "05c3d17f-3d62-4739-9355-0f03939c6003",
+      "children": 0,
+      "nodes": 26
+    },
+    {
+      "input": "-Users-sumandra-projects-talium-code-econ/0954b870-8355-4cc8-800f-55891c5ee5b3.json",
+      "output": "-Users-sumandra-projects-talium-code-econ/0954b870-8355-4cc8-800f-55891c5ee5b3.json",
+      "status": "built",
+      "master": "0954b870-8355-4cc8-800f-55891c5ee5b3",
+      "children": 0,
+      "nodes": 3
+    },
+    {
+      "input": "-Users-sumandra-projects-talium-code-econ/0f5e45b9-ecc1-4773-913c-86cd341369d1.json",
+      "output": "-Users-sumandra-projects-talium-code-econ/0f5e45b9-ecc1-4773-913c-86cd341369d1.json",
+      "status": "built",
+      "master": "0f5e45b9-ecc1-4773-913c-86cd341369d1",
+      "children": 2,
+      "nodes": 185
+    },
+    {
+      "input": "-Users-sumandra-projects-talium-code-econ/1791a8da-9b5f-45c1-917b-d97d8cec9e28.json",
+      "output": "-Users-sumandra-projects-talium-code-econ/1791a8da-9b5f-45c1-917b-d97d8cec9e28.json",
+      "status": "built",
+      "master": "1791a8da-9b5f-45c1-917b-d97d8cec9e28",
+      "children": 0,
+      "nodes": 202
+    },
+    {
+      "input": "-Users-sumandra-projects-talium-code-econ/1cc0fed2-e532-4611-89cc-aa96d3af0e72.json",
+      "output": "-Users-sumandra-projects-talium-code-econ/1cc0fed2-e532-4611-89cc-aa96d3af0e72.json",
+      "status": "built",
+      "master": "1cc0fed2-e532-4611-89cc-aa96d3af0e72",
+      "children": 27,
+      "nodes": 1049
+    },
+    {
+      "input": "-Users-sumandra-projects-talium-code-econ/2f2d5e65-7972-4574-9d64-6e11fc3653a7.json",
+      "output": "-Users-sumandra-projects-talium-code-econ/2f2d5e65-7972-4574-9d64-6e11fc3653a7.json",
+      "status": "built",
+      "master": "2f2d5e65-7972-4574-9d64-6e11fc3653a7",
+      "children": 0,
+      "nodes": 96
+    },
+    {
+      "input": "-Users-sumandra-projects-talium-code-econ/6d193228-ea65-48cb-9d2b-e9050f11d3d3.json",
+      "output": "-Users-sumandra-projects-talium-code-econ/6d193228-ea65-48cb-9d2b-e9050f11d3d3.json",
+      "status": "built",
+      "master": "6d193228-ea65-48cb-9d2b-e9050f11d3d3",
+      "children": 0,
+      "nodes": 47
+    },
+    {
+      "input": "-Users-sumandra-projects-talium-code-econ/e8494a84-4922-44d9-a268-350e6daf876b.json",
+      "output": "-Users-sumandra-projects-talium-code-econ/e8494a84-4922-44d9-a268-350e6daf876b.json",
+      "status": "built",
+      "master": "e8494a84-4922-44d9-a268-350e6daf876b",
+      "children": 0,
+      "nodes": 185
+    },
+    {
+      "input": "-Users-sumandra-projects-talium-code-econ/e97d97f5-19a0-4ccb-921c-117cffd9ab82.json",
+      "output": "-Users-sumandra-projects-talium-code-econ/e97d97f5-19a0-4ccb-921c-117cffd9ab82.json",
+      "status": "built",
+      "master": "e97d97f5-19a0-4ccb-921c-117cffd9ab82",
+      "children": 33,
+      "nodes": 1888
+    },
+    {
+      "input": "-Users-sumandra-projects-talium-code-econ-docs-design/0e726a98-e2cd-4b76-9635-e46a716d7d9f.json",
+      "output": "-Users-sumandra-projects-talium-code-econ-docs-design/0e726a98-e2cd-4b76-9635-e46a716d7d9f.json",
+      "status": "built",
+      "master": "0e726a98-e2cd-4b76-9635-e46a716d7d9f",
+      "children": 0,
+      "nodes": 181
+    },
+    {
+      "input": "-Users-sumandra-projects-talium-code-econ-wrk-test-noskill-code-econ/0c170e61-af67-4992-a813-0eeb2a356d77.json",
+      "output": "-Users-sumandra-projects-talium-code-econ-wrk-test-noskill-code-econ/0c170e61-af67-4992-a813-0eeb2a356d77.json",
+      "status": "built",
+      "master": "0c170e61-af67-4992-a813-0eeb2a356d77",
+      "children": 0,
+      "nodes": 221
+    },
+    {
+      "input": "-Users-sumandra-projects-talium-code-econ-wrk-tracer-code-econ/46611195-e5cb-49ce-a718-3979b4f42af2.json",
+      "output": "-Users-sumandra-projects-talium-code-econ-wrk-tracer-code-econ/46611195-e5cb-49ce-a718-3979b4f42af2.json",
+      "status": "built",
+      "master": "46611195-e5cb-49ce-a718-3979b4f42af2",
+      "children": 7,
+      "nodes": 904
+    },
+    {
+      "input": "-Users-sumandra-projects-talium-code-econ-wrk-tracer-code-econ/67ec0239-78d6-43fb-8ba8-66184667eedc.json",
+      "output": "-Users-sumandra-projects-talium-code-econ-wrk-tracer-code-econ/67ec0239-78d6-43fb-8ba8-66184667eedc.json",
+      "status": "built",
+      "master": "67ec0239-78d6-43fb-8ba8-66184667eedc",
+      "children": 0,
+      "nodes": 44
+    },
+    {
+      "input": "-Users-sumandra-projects-talium-code-econ-wrk-tracer-code-econ/be15495e-c0b2-4849-abac-1dd69d7c1201.json",
+      "output": "-Users-sumandra-projects-talium-code-econ-wrk-tracer-code-econ/be15495e-c0b2-4849-abac-1dd69d7c1201.json",
+      "status": "built",
+      "master": "be15495e-c0b2-4849-abac-1dd69d7c1201",
+      "children": 0,
+      "nodes": 37
+    },
+    {
+      "input": "-Users-sumandra-projects-talium-code-econ-wrk-tracer-code-econ--claude-worktrees-normalizer-result-facts/10b1950e-8d35-43a7-801c-e15ba77f353e.json",
+      "output": "-Users-sumandra-projects-talium-code-econ-wrk-tracer-code-econ--claude-worktrees-normalizer-result-facts/10b1950e-8d35-43a7-801c-e15ba77f353e.json",
+      "status": "built",
+      "master": "10b1950e-8d35-43a7-801c-e15ba77f353e",
+      "children": 3,
+      "nodes": 3241
+    },
+    {
+      "input": "run_results.json",
+      "output": null,
+      "status": "skipped",
+      "message": "not a normalizer envelope"
+    }
+  ]
+}

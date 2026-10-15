@@ -1,0 +1,14 @@
+schema_version: 1
+name: growth-with-launch-spike
+interp: pchip
+axis: {start: 1, end: 20}          # 20 abstract units; stretched over a bound series' days
+anchors:                           # gentle ramp, a sharp mid-window launch spike, then settle
+  - [1,  "1.0"]                    # baseline (first anchor is absolute)
+  - [8,  "+0.5"]                   # -> 1.5   gentle ramp up to just before the launch
+  - [9,  "+3.5"]                   # -> 5.0   sharp launch-day spike
+  - [10, "-3.3"]                   # -> 1.7   settles back near where the ramp would be
+  - [20, "+0.8"]                   # -> 2.5   ramp continues gently to the end of the window
+preview:
+  days: 60
+  baseline_tokens: 1000000
+description: "gentle ramp with a sharp mid-window launch spike that settles back to the ramp"

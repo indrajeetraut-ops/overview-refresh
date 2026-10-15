@@ -1,0 +1,39 @@
+version: "1"
+status: approved
+precedence: [NOT, AND, OR]
+operators:
+  comparison:
+    tokens: ["==", "!=", ">", ">=", "<", "<="]
+    equality: "Strings are case-sensitive; a list-valued left operand uses membership semantics."
+    ordered_types: [number, timestamp]
+    null_ordering: false
+  membership:
+    token: IN
+    behavior: "True when equality succeeds against at least one literal."
+  string:
+    tokens: [STARTS_WITH, ENDS_WITH, CONTAINS, MATCHES]
+    case_sensitive: true
+    matches_engine: RE2
+  boolean:
+    tokens: [AND, OR, NOT]
+    short_circuit: left_to_right
+functions:
+  CASEFOLD:
+    input: string
+    output: string
+    behavior: Unicode_casefold
+  LENGTH:
+    input: [string, list, tuple, set, object]
+    output: integer
+missing_fields:
+  value: null
+  equality_with_null: true
+aggregates:
+  functions: [COUNT, SUM, AVG, MIN, MAX, MEDIAN]
+  null_rule: "All except COUNT ignore null values; COUNT counts selected nodes."
+ordering:
+  default: causal
+  stable: true
+  nulls: last
+limits:
+  source: ../../../../../config/causal_graph/query.yaml

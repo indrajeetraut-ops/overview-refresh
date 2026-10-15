@@ -1,0 +1,37 @@
+# Bulk historic PR reader (git-source.md §8.2): one round trip returns a page of PRs WITH their
+# stats, files, reviews and commits -- the whole artifact, ~25x-100x denser than the REST list
+# pass (§8.2's ~75x figure). Uses `search`, not `repository.pullRequests`, because only search
+# supports server-side date filtering ("updated:>=..."), which is what lets a resumed run skip
+# straight to unseen history instead of paging the whole repo from the beginning every time
+# (the per-repo cursor, git_repos.backfill_cursor, is embedded in $query by the caller).
+#
+# `rateLimit { cost remaining nodeCount resetAt }` is mandatory (git-source.md §7.4) -- the
+# client's throttle measures the real cost from this field rather than estimating it.
+query BackfillSearch($query: String!, $cursor: String) {
+  rateLimit { cost remaining nodeCount resetAt }
+  search(query: $query, type: ISSUE, first: 25, after: $cursor) {
+    issueCount
+    pageInfo { hasNextPage endCursor }
+    nodes {
+      ... on PullRequest {
+        number title body state merged isDraft
+        createdAt updatedAt closedAt mergedAt
+        additions deletions changedFiles
+        author { login }
+        mergedBy { login }
+        mergeCommit { oid }
+        headRefOid headRefName baseRefName
+        labels(first: 20) { nodes { name } }
+        milestone { title }
+        closingIssuesReferences(first: 10) { nodes { number } }
+        comments(first: 0) { totalCount }
+        reviews(first: 50) {
+          totalCount
+          nodes { databaseId state submittedAt commit { oid } author { login } }
+        }
+        commits(first: 100) { totalCount nodes { commit { oid message } } }
+        files(first: 100) { nodes { path additions deletions changeType } }
+      }
+    }
+  }
+}

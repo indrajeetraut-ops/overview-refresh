@@ -1,0 +1,72 @@
+{
+  "artifacts": [
+    {
+      "after_sha": null,
+      "artifact_id": "github:41213765:commit:5b1e9c0f00000000000000000000000000000000",
+      "author_email": "anil@example.com",
+      "author_login": "akhuteta",
+      "base_branch": null,
+      "before_sha": null,
+      "branch": "main",
+      "closed_at": null,
+      "commit_shas": null,
+      "created_at": "2026-07-26T15:41:22Z",
+      "files": [
+        {
+          "additions": null,
+          "deletions": null,
+          "op": "added",
+          "path": "src/collector/normalizer/claude_code.py"
+        },
+        {
+          "additions": null,
+          "deletions": null,
+          "op": "modified",
+          "path": "tests/collector/normalizer/test_tool_pairing.py"
+        }
+      ],
+      "info": {
+        "github.push_meta": {
+          "after_sha": "5b1e9c0f00000000000000000000000000000000",
+          "before_sha": "a0c2f5a000000000000000000000000000000000",
+          "commit_shas": [
+            "5b1e9c0f00000000000000000000000000000000"
+          ],
+          "integration_method": "squash"
+        }
+      },
+      "integration_method": null,
+      "is_bot": false,
+      "kind": "commit",
+      "labels": [],
+      "linked_issue": null,
+      "merge_commit_sha": null,
+      "merged_at": null,
+      "milestone": null,
+      "number": null,
+      "org_id": "org_test",
+      "parent_artifact_id": null,
+      "repo_id": "github:41213765",
+      "reverts_sha": null,
+      "sha": "5b1e9c0f00000000000000000000000000000000",
+      "state": "pushed",
+      "stats": {},
+      "title": null,
+      "updated_at": "2026-07-26T15:41:22Z",
+      "user_id": null
+    }
+  ],
+  "bump_counters": [],
+  "installation": null,
+  "issue_links": null,
+  "mapped": true,
+  "merge_commit_sha": null,
+  "pr_state_event": null,
+  "push_after": "5b1e9c0f00000000000000000000000000000000",
+  "push_before": "a0c2f5a000000000000000000000000000000000",
+  "push_commit_shas": [
+    "5b1e9c0f00000000000000000000000000000000"
+  ],
+  "push_integration_method": "squash",
+  "repos": []
+}

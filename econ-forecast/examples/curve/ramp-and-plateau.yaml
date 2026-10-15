@@ -1,0 +1,14 @@
+schema_version: 1
+name: ramp-and-plateau
+interp: pchip
+axis: {start: 1, end: 12}          # abstract integer axis (not calendar days)
+anchors:                            # [pos, "value"]; signed = delta, unsigned = absolute
+  - [1,  "1.0"]                     # baseline (first anchor is absolute)
+  - [4,  "+1.5"]                    # delta up  -> 2.5   (early ramp)
+  - [8,  "+1.0"]                    # delta up  -> 3.5
+  - [10, "3.6"]                     # absolute snap -> 3.6 (plateau)
+  - [12, "3.5"]                     # absolute  -> 3.5
+preview:
+  days: 90                          # stretch the shape onto ~a quarter for the preview
+  baseline_tokens: 1000000
+description: "slow ramp through the quarter, then a plateau"

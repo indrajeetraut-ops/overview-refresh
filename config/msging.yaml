@@ -1,0 +1,62 @@
+# config/msging.yaml (design §5.1, §5.2). Layering: defaults in code -> this
+# file -> environment variables.
+
+client:
+  default_server: ${TALIUM_SERVER:-ingest_prod}   # used when register() omits the alias
+  servers:
+    ingest_prod:
+      base_path:    "https://ingest.prod:8443"
+      service_name: ingest                        # defaults to the alias
+    ingest_dev:
+      base_path:    "https://ingest.dev:8443"
+      service_name: ingest
+      enabled:      false                         # declared but off
+      req_timeout_s: 30                           # per-server override
+  defaults:                  # applied to every server unless overridden above
+    req_timeout_s:   10      # per-POST deadline; expiry -> stored_timeout, stays PENDING
+    retry_num:       3       # cleaner-loop retries only, never inline in send()
+    max_pending:     10000   # slot limit: msgs allowed in the durable store
+    slot_wait_s:     1.0     # send() waits this long for a slot, then fails slot_full
+    max_in_flight:   64      # cap on SENT awaiting an outcome
+    sent_timeout_s:  300     # SENT older than this -> demoted to PENDING
+    close_timeout_s: 30      # close() drain deadline before returning status=timeout
+    msg_id_block:    1000    # ids reserved per fsync of msg_id.json (§3.1)
+    idle_heartbeats:  5      # idle-read timer = this x the server's heartbeat_s (§4.2)
+    idle_timeout_s:  45      # fallback only, when the server reports no heartbeat_s
+    sweep_interval_s: 5      # cleaner loop period (§4.4)
+    gzip_min_bytes:  1024    # below this, gzip costs more than it saves
+    base_dir: "~/.talium/msging"   # durable store root: <base_dir>/<alias>/<producer_id>/
+
+server:
+  queue_max:      10000      # queued-and-not-yet-picked-up cap; full -> 503 server_busy
+  workers:        4          # concurrent handler tasks; in-flight msgs sit outside queue_max
+  retry_after_s:  5          # Retry-After sent with a 503
+  heartbeat_s:    15         # SSE keepalive interval (§4.2)
+  max_msg_bytes:  33554432   # 32 MiB; larger -> 413 too_large
+  max_notice_bytes: 32768    # one notify_ev; must stay under the client's 64 KiB
+                             # frame cap or an oversized info bag wedges the link
+  notify_buffer:  100        # per-producer notifications held while SSE is down
+  notify_ttl_s:   60         # buffered notification expiry
+  auth_cache_max: 1024       # successful verify() results held in process, LRU + expiry
+                             # sweep; bounds memory at this x descriptor size. 0 = no cache
+  shutdown_drain_s: 5        # grace for a live /notify stream to flush its ring before
+                             # srv_shutdown() ends the streams (§6.2). 0 = end at once
+  shutdown_signals: true     # chain srv_shutdown() onto SIGINT/SIGTERM (§6.3). Without it
+                             # a server with a producer connected cannot be stopped.
+                             # false only when the host owns its own signal handling
+  registration:
+    mode: open               # open | enrollment_key  (§10.1)
+    key:  ${TALIUM_ENROLL_KEY}   # required when mode=enrollment_key
+    max_producers: 1000      # store rows this server will ever issue; 0 = unlimited.
+                             # Sized for the file backend: 1000 x 8 KiB descriptors is an
+                             # 8 MB file, rewritten whole on every upsert
+    rate_per_min:  60        # /register attempts per source per minute; 0 = unlimited
+
+producer_store:
+  backend: file                # file | postgres  (s3, ... = future adapter + stanza)
+  file:
+    path: ${TALIUM_DATA_DIR}/producers.json
+  postgres: {}
+    # no DSN/pool settings here — the postgres backend reuses the storage
+    # module's process-wide engine (config/storage.yaml, TALIUM_DB_DSN);
+    # this stanza is a placeholder for adapter-specific overrides only

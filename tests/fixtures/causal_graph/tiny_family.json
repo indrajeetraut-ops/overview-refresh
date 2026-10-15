@@ -1,0 +1,175 @@
+{
+  "meta_info": {
+    "normalizer_version": "1.0.0",
+    "master_session_id": "sess-master-0001"
+  },
+  "sessions": [
+    {
+      "vendor": "claude_code",
+      "session_id": "sess-master-0001",
+      "source": "jsonl",
+      "agent_version": "1.0.0",
+      "parent_session_id": null,
+      "events": [
+        {
+          "event_type": "session_start",
+          "record_id": "m-ss1",
+          "parent_id": null,
+          "event_ts": "2026-07-11T00:00:00.000Z",
+          "payload": {
+            "ai_title": "Master: explore then answer",
+            "cwd": "/repo",
+            "git_branch": "main",
+            "parent_session_id": null,
+            "repo_id": null,
+            "raw": {"type": "summary", "sessionId": "sess-master-0001"}
+          }
+        },
+        {
+          "event_type": "user_message",
+          "record_id": "m-u1",
+          "parent_id": "m-ss1",
+          "event_ts": "2026-07-11T00:00:01.000Z",
+          "payload": {
+            "text": "Explore the codebase with a subagent",
+            "char_count": 36,
+            "is_injected": false,
+            "plan_mode": null,
+            "slash_command": null,
+            "text_truncated": false,
+            "raw": {"type": "user", "promptId": "MP1", "uuid": "m-u1"}
+          }
+        },
+        {
+          "event_type": "assistant_message",
+          "record_id": "m-a1",
+          "parent_id": "m-u1",
+          "event_ts": "2026-07-11T00:00:02.000Z",
+          "payload": {
+            "message_id": "MM1",
+            "first_block_of_message": true,
+            "has_thinking": false,
+            "model": "claude-opus-4-8",
+            "input_tokens": 80,
+            "output_tokens": 40,
+            "cache_read_tokens": 8,
+            "cache_write_tokens": 4,
+            "block_types": ["text", "tool_use"],
+            "content_kind": "mixed",
+            "stop_reason": null,
+            "usage_scope": "message",
+            "raw": {"type": "assistant", "message": {"id": "MM1"}, "uuid": "m-a1"}
+          }
+        },
+        {
+          "event_type": "sub_agent_spawn",
+          "record_id": "m-sp1",
+          "parent_id": "m-a1",
+          "event_ts": "2026-07-11T00:00:03.000Z",
+          "payload": {
+            "agent_type": "Explore",
+            "child_session_id": "agent-child-001",
+            "description": "explore the codebase",
+            "duration_ms": 4000,
+            "message_id": "MM1",
+            "prompt_char_count": 90,
+            "requested_model": "claude-sonnet-4",
+            "resolved_model": "claude-sonnet-4",
+            "run_in_background": false,
+            "status": "completed",
+            "raw": {"type": "assistant", "message": {"id": "MM1"}, "uuid": "m-sp1"}
+          }
+        },
+        {
+          "event_type": "unknown",
+          "record_id": "m-td1",
+          "parent_id": "m-sp1",
+          "event_ts": "2026-07-11T00:00:04.000Z",
+          "payload": {
+            "raw": {
+              "type": "system",
+              "subtype": "turn_duration",
+              "durationMs": 4200,
+              "messageCount": 3,
+              "uuid": "m-td1"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "vendor": "claude_code",
+      "session_id": "agent-child-001",
+      "source": "jsonl",
+      "agent_version": "1.0.0",
+      "parent_session_id": "sess-master-0001",
+      "events": [
+        {
+          "event_type": "session_start",
+          "record_id": "c-ss1",
+          "parent_id": null,
+          "event_ts": "2026-07-11T00:00:03.100Z",
+          "payload": {
+            "ai_title": "Subagent: explore",
+            "cwd": "/repo",
+            "git_branch": "main",
+            "parent_session_id": "sess-master-0001",
+            "repo_id": null,
+            "raw": {"type": "summary", "sessionId": "agent-child-001"}
+          }
+        },
+        {
+          "event_type": "user_message",
+          "record_id": "c-u1",
+          "parent_id": "c-ss1",
+          "event_ts": "2026-07-11T00:00:03.200Z",
+          "payload": {
+            "text": "explore the codebase",
+            "char_count": 20,
+            "is_injected": false,
+            "plan_mode": null,
+            "slash_command": null,
+            "text_truncated": false,
+            "raw": {"type": "user", "promptId": "CP1", "uuid": "c-u1"}
+          }
+        },
+        {
+          "event_type": "assistant_message",
+          "record_id": "c-a1",
+          "parent_id": "c-u1",
+          "event_ts": "2026-07-11T00:00:03.800Z",
+          "payload": {
+            "message_id": "CM1",
+            "first_block_of_message": true,
+            "has_thinking": false,
+            "model": "claude-sonnet-4",
+            "input_tokens": 30,
+            "output_tokens": 15,
+            "cache_read_tokens": 3,
+            "cache_write_tokens": 1,
+            "block_types": ["text"],
+            "content_kind": "text",
+            "stop_reason": null,
+            "usage_scope": "message",
+            "raw": {"type": "assistant", "message": {"id": "CM1"}, "uuid": "c-a1"}
+          }
+        },
+        {
+          "event_type": "unknown",
+          "record_id": "c-td1",
+          "parent_id": "c-a1",
+          "event_ts": "2026-07-11T00:00:03.900Z",
+          "payload": {
+            "raw": {
+              "type": "system",
+              "subtype": "turn_duration",
+              "durationMs": 700,
+              "messageCount": 2,
+              "uuid": "c-td1"
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

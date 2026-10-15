@@ -1,0 +1,34 @@
+{
+  "artifacts": [],
+  "bump_counters": [],
+  "installation": {
+    "account_login": "talium-ai",
+    "account_type": "Organization",
+    "info": {},
+    "installation_id": 42,
+    "org_id": "org_test",
+    "repo_selection": "selected",
+    "state": "active"
+  },
+  "issue_links": null,
+  "mapped": true,
+  "merge_commit_sha": null,
+  "pr_state_event": null,
+  "push_after": null,
+  "push_before": null,
+  "push_commit_shas": null,
+  "push_integration_method": null,
+  "repos": [
+    {
+      "default_branch": "",
+      "full_name": "talium-ai/code-econ",
+      "info": {},
+      "installation_id": 42,
+      "org_id": "org_test",
+      "owner": "talium-ai",
+      "private": true,
+      "repo_id": "github:41213765",
+      "repo_num": 41213765
+    }
+  ]
+}

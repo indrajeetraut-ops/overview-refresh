@@ -1,0 +1,181 @@
+# TODO(retire-python-uploader-demo): superseded by the team stack (docker-compose.aws.yml,
+# utils/aws_up.sh; docs/deployment.md §0). Remove this file, utils/deploy_up.sh,
+# utils/deploy_down.sh, docker/remote-up.sh and docker/config/{collector,uploader}.demo.yaml
+# once the aws stack has run for the team.
+#
+# The AWS demo stack: the same pipeline as docker-compose.stack.yml, on the talium-dev-app
+# EC2 instance, behind TLS and basic auth.
+#
+#   utils/deploy_up.sh          # rsync this tree to the instance and bring the stack up
+#   utils/deploy_down.sh        # stop it (--wipe also drops the volumes)
+#
+# Three differences from the local stack, all of them consequences of it being a deployment
+# rather than a laptop:
+#
+#   1. No postgres service. The database is a separate EC2 instance (talium-dev-postgres,
+#      terraform/live/dev/postgres in talium-infra) with its own 100 GiB EBS volume and daily
+#      DLM snapshots. TALIUM_DB_DSN crosses the VPC to it. That separation is the point: this
+#      instance is disposable, the data is not.
+#   2. No published ports except Caddy's 80/443. Everything else talks over the compose
+#      network only -- notably ingest, whose msging registration is `mode: open`.
+#   3. The uploader and collector are unconditional rather than behind a `jsonl` profile.
+#      Pushing session files is a headline requirement of the demo, not an optional half.
+#
+# Requires an .env one level up (written by utils/deploy_up.sh, never committed):
+#   TALIUM_DB_DSN TALIUM_ORG_ID TALIUM_UPLOAD_BUCKET AWS_REGION
+#   DEMO_HOST DEMO_USER DEMO_PASS_HASH COLLECT_INTERVAL_S
+name: talium-demo
+
+x-logging: &logging
+  driver: json-file
+  options:
+    max-size: "20m"
+    max-file: "5"
+
+x-app: &app
+  build:
+    context: ..
+    dockerfile: docker/Dockerfile
+  environment: &app-env
+    # `:?` rather than a default: a silently-empty DSN fails much later and much more
+    # confusingly than a refusal to start.
+    TALIUM_DB_DSN: ${TALIUM_DB_DSN:?not set -- run utils/deploy_up.sh, which reads it from SSM}
+    TALIUM_DATA_DIR: /data
+  volumes:
+    - demo_data:/data
+  logging: *logging
+  restart: unless-stopped
+
+services:
+  # TLS termination, basic auth, and the routing split between the three back ends.
+  # See deploy/caddy/Caddyfile -- the /otlp exemption there is deliberate.
+  caddy:
+    image: caddy:2-alpine
+    container_name: talium_demo_caddy
+    ports:
+      - "80:80" # also serves the ACME http-01 challenge
+      - "443:443"
+    environment:
+      # Named one by one rather than pulled in with `env_file: ../.env`, which would also
+      # hand this container the database password it has no use for.
+      #
+      # DEMO_PASS_HASH must be written into .env with every `$` DOUBLED. Compose interpolates
+      # `$VAR` inside env files as well as inside this one, and an un-escaped bcrypt hash
+      # ("$2a$14$...") silently loses everything after the cost factor -- which fails open in
+      # the worst way, as a hash no password can ever match. utils/deploy_up.sh does the
+      # doubling; if you hand-edit .env, do it there too.
+      DEMO_HOST: "${DEMO_HOST:?not set}"
+      DEMO_USER: "${DEMO_USER:?not set}"
+      DEMO_PASS_HASH: "${DEMO_PASS_HASH:?not set}"
+    volumes:
+      - ../deploy/caddy/Caddyfile:/etc/caddy/Caddyfile:ro
+      # The issued certificate and the ACME account key live here. If this volume is lost,
+      # Caddy re-enrols from scratch on next boot and burns Let's Encrypt rate limit for
+      # nothing -- it is the one piece of state on this host worth keeping.
+      - caddy_data:/data
+      - caddy_config:/config
+    logging: *logging
+    restart: unless-stopped
+    depends_on:
+      api:
+        condition: service_healthy
+
+  # Schema + org token. Runs to completion; the services that touch the database wait for it.
+  init:
+    <<: *app
+    container_name: talium_demo_init
+    environment:
+      <<: *app-env
+      TALIUM_ORG_ID: "${TALIUM_ORG_ID:-talium-demo}"
+      TALIUM_INGEST_PORT: "443"
+    entrypoint: ["bash", "/app/docker/init-stack.sh"]
+    volumes:
+      - demo_data:/data
+      - ./init-stack.sh:/app/docker/init-stack.sh:ro
+    restart: "no"
+
+  # The one front door: msging srv for the JSONL path, /otlp/v1/* for the OTel one.
+  # Reachable from outside only through Caddy, and only at /otlp/*.
+  ingest:
+    <<: *app
+    container_name: talium_demo_ingest
+    command: ["python", "-m", "server.ingest.cli_serve", "--config", "config/ingest.yaml"]
+    healthcheck:
+      test: ["CMD-SHELL", "python -c \"import urllib.request as u; u.urlopen('http://localhost:8443/healthz')\""]
+      interval: 5s
+      timeout: 3s
+      retries: 12
+    depends_on:
+      init:
+        condition: service_completed_successfully
+
+  # Queue-driven rollup plus the timer-driven OTel true-up and prune. Nothing reaches
+  # session_info.otel without this running.
+  worker:
+    <<: *app
+    container_name: talium_demo_worker
+    command: ["python", "-m", "server.worker.cli_work", "--config", "config/worker.yaml"]
+    depends_on:
+      init:
+        condition: service_completed_successfully
+
+  # The read-only dashboard API and the React front-end (src/webui) it serves from the same
+  # process, built into the image by docker/Dockerfile's webui stage.
+  api:
+    <<: *app
+    container_name: talium_demo_api
+    command: ["python", "-m", "server.api.cli_serve_api", "--config", "config/api.yaml"]
+    healthcheck:
+      test: ["CMD-SHELL", "python -c \"import urllib.request as u; u.urlopen('http://localhost:8090/healthz')\""]
+      interval: 5s
+      timeout: 3s
+      retries: 12
+    depends_on:
+      init:
+        condition: service_completed_successfully
+
+  # Receives session tarballs and streams them to S3. Credentials come from the instance
+  # profile over IMDS -- none are set here or in the image.
+  uploader:
+    <<: *app
+    container_name: talium_demo_uploader
+    command: ["python", "-m", "server.uploader.cli_serve", "--config", "/app/docker-config/uploader.demo.yaml"]
+    environment:
+      <<: *app-env
+      TALIUM_UPLOAD_BUCKET: "${TALIUM_UPLOAD_BUCKET:?not set}"
+      AWS_REGION: "${AWS_REGION:?not set}"
+    volumes:
+      - demo_data:/data
+      - ./config/uploader.demo.yaml:/app/docker-config/uploader.demo.yaml:ro
+    healthcheck:
+      test: ["CMD-SHELL", "python -c \"import urllib.request as u; u.urlopen('http://localhost:8080/healthz')\""]
+      interval: 5s
+      timeout: 3s
+      retries: 12
+
+  # Sweeps the staging bucket, normalizes, and ships to ingest over msging. A batch pass
+  # that exits, looped by collect-loop.sh -- the loop stands in for a scheduler.
+  collector:
+    <<: *app
+    container_name: talium_demo_collector
+    entrypoint: ["bash", "/app/docker/collect-loop.sh"]
+    environment:
+      <<: *app-env
+      TALIUM_UPLOAD_BUCKET: "${TALIUM_UPLOAD_BUCKET:?not set}"
+      AWS_REGION: "${AWS_REGION:?not set}"
+      COLLECTOR_CONFIG: /app/docker-config/collector.demo.yaml
+      COLLECT_INTERVAL_S: "${COLLECT_INTERVAL_S:-30}"
+    volumes:
+      - demo_data:/data
+      - ./collect-loop.sh:/app/docker/collect-loop.sh:ro
+      - ./config/collector.demo.yaml:/app/docker-config/collector.demo.yaml:ro
+    depends_on:
+      ingest:
+        condition: service_healthy
+
+volumes:
+  # Small and rebuildable: org token, collector checkpoints, msging producer store. Lives on
+  # the instance's root volume. The data that matters is on the postgres instance.
+  demo_data:
+  caddy_data:
+  caddy_config:

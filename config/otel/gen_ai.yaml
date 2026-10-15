@@ -1,0 +1,49 @@
+# OTLP mapping for the OpenTelemetry GenAI semantic conventions, as a pseudo-vendor
+# (spec: docs/design/2026-08-04-otel-intake-design.md §4.6). Not an agent: any semconv-
+# compliant tool maps through this file with zero work, which is what makes the converging
+# standard free for us.
+#
+# Unlike claude_code.yaml this file was written against the specification, not a recorded
+# dump. Per §4.6 that means its rows fold with provenance `estimated` until it gets its own
+# JSONL-vs-OTel reconciliation spike -- the 36/36 exact-match validation is a claude_code
+# result only. Evaluated after claude_code.yaml (filename order), so a Claude Code payload
+# that also happens to carry gen_ai attributes is still claimed by its own mapping.
+vendor: gen_ai
+
+# TODO(otel-intake): detection here is the weakest part of this file and is unvalidated.
+# Semconv defines `gen_ai.provider.name` (and the deprecated `gen_ai.system`) as attributes
+# on spans and metric datapoints; whether a given SDK also promotes them to *resource*
+# attributes is emitter-dependent. If a real semconv dump lands and detection misses, widen
+# to datapoint-attribute or metric-name matching -- which needs a rule kind this loader does
+# not have yet. Until then a missed payload is stored `vendor=unknown`: metrics survive and
+# are prunable, events are dropped with an alarm (§4.1), so the failure is loud and lossless
+# for spend.
+detect:
+  resource_attr_present: ["gen_ai.provider.name", "gen_ai.system"]
+
+identity:
+  # Semconv has no session concept; a conversation is the nearest equivalent and is often
+  # absent, so gen_ai series are commonly session-less -- org-level spend truth only, which
+  # §8 accepts by design.
+  session_attr: "gen_ai.conversation.id"
+  user_attrs: ["user.id", "user.name"]
+
+events:
+  # TODO(otel-intake): empty on purpose. Checked against semconv as of 2026-08-04: the only
+  # request-shaped record is the `gen_ai.client.inference.operation.details` event, and it
+  # carries no request id, no cost, and no vendor-stable duration field -- nothing that
+  # populates otel_api_requests or joins to JSONL, which is the entire point of the event
+  # path (D-OT2). Unmapped and waiting on semconv: response id (`gen_ai.response.id`) as a
+  # join key candidate, and per-request token counts, which today exist only as histogram
+  # observations. Metrics below carry gen_ai spend on their own in the meantime.
+  accept: []
+  request_event: null
+  fields: {}
+
+measures:
+  # Histograms, not sums. v1 reads the datapoint's own sum and drops bucket detail (§8) --
+  # sufficient for totals, which is all the fold consumes.
+  tokens_input:   {metric: "gen_ai.client.token.usage", where: {gen_ai.token.type: "input"}}
+  tokens_output:  {metric: "gen_ai.client.token.usage", where: {gen_ai.token.type: "output"}}
+  # No cost measure: semconv defines none. Sessions folded from this mapping carry tokens
+  # with `cost: null` for the pricing engine to fill, never a hand-rolled price here.

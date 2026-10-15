@@ -1,0 +1,291 @@
+# Named queries for the dashboard read API (dashboard-api-implementation plan). Compiled by
+# QueryCatalog at load, same pattern as fold.yaml/ingest.yaml/otel.yaml.
+
+# Sessions overlapping a [from, to) window for one user, joined against their session_info row.
+# Stated once and reused everywhere a timeframe-overlap check is needed (A3/A4's own note: an
+# inconsistent window across widgets is a bug debugged twice).
+#
+# INNER JOIN is safe: PM.2's stub `sessions` row and its `session_info` row are written in the
+# same true-up transaction, and the JSONL path's `ensure_session` + `persist_session_info` are
+# written in the same fold transaction -- an external reader (this query, a new transaction)
+# only ever sees both committed or neither, never a partial pair.
+#
+# `parent_session_id` is selected (FEAS §4/R0) so callers can count *sessions* over roots only
+# -- a sub-agent gets its own full row here, same `user_id` as its parent (fold_handler.py:57)
+# -- while still *summing* every other figure (tokens, cost, tools, ...) over every row. Do not
+# add `AND s.parent_session_id IS NULL` to this WHERE clause: `tokens_total`/`models`/etc. are
+# own-session only, and filtering child rows out would silently drop their tokens and cost from
+# every Z1/Z2 figure. See R0's note in the implementation plan for the full reasoning.
+# TODO(single-user-slim-fetch, api-latency plan §8): still selects turns/files/subagents/otel/
+# models in full -- per-user row counts are smaller than an org-wide scan, but real otel is
+# still the biggest column. Only the promoted vendor-cost/recoverable columns are read here (so
+# `precedence`/`aggregate.recoverable` share one implementation with the manager surface);
+# everything else stays JSON, read directly by this module's own per-user helpers.
+sessions_in_range: |
+  SELECT s.session_id, s.user_id, s.agent, s.status, s.started_at, s.last_event_at, s.ended_at,
+         s.parent_session_id,
+         i.models, i.tools, i.files, i.skills, i.subagents, i.turns, i.turn_count,
+         i.long_turn_count, i.tokens_total, i.compaction_count, i.subagent_count,
+         i.error_count, i.info, i.otel, i.cost_effective_usd_micros, i.datasource,
+         i.jsonl_lag_s, i.repo_id, i.repo_id_provenance,
+         i.otel_vendor_cost_usd_micros, i.recoverable_resume_usd_micros,
+         i.recoverable_cache_bust_usd_micros, i.recoverable_interrupted_usd_micros
+  FROM sessions s
+  JOIN session_info i ON i.session_id = s.session_id
+  WHERE s.user_id = :user_id
+    AND s.started_at < :to
+    AND COALESCE(s.ended_at, s.last_event_at) >= :from
+  ORDER BY s.started_at;
+
+# ------------------------------------------------------------ sessions list (A4)
+
+# One named query per sort key, rather than building ORDER BY dynamically in Python: keeps
+# every query statically auditable (ground rule 2) and makes an unknown `sort` value a
+# service-layer KeyError against this fixed set, not a SQL-injection surface. `service.py`
+# maps the validated `sort` param to one of these names; a sort key with no entry here is
+# rejected before the catalog is ever consulted (BadRequestError, A4's own rule).
+#
+# `subagents`/`glyph`(`info.story`) aren't selected here on purpose -- the list row only needs
+# a *count* (subagent_count) for the badge and sort, and `info` for `story`/`title`/`repo`;
+# the full `subagents` map is deep-dive-only weight this endpoint doesn't need to carry.
+#
+# `AND s.parent_session_id IS NULL` on every query below (list-view only -- do NOT copy this
+# onto `sessions_in_range`/`activity_by_day`/`rhythm_modes_in_window`, which are correctly
+# root+child inclusive for aggregation, see the note above `sessions_in_range`). A sub-agent
+# spawned by a Task tool call is a full `sessions` row with the same `user_id` as its parent
+# (`fold_handler.py:57`) but is not a session a user browsing this list ever started themselves
+# -- without this filter every Task fan-out clutters the shelf with rows the user didn't create.
+# `session_detail` (single-session lookup by id) deliberately stays unfiltered so a sub-agent's
+# own detail page is still directly reachable.
+#
+# `AND NOT (s.status = 'otel_only' AND ... = 0 AND ... = 0)` on every query below: an OTel-only
+# stub (otel_trueup.py `_ensure_session_row`) whose only signal is an unmapped metric (e.g.
+# `claude_code.session.count` -- config/otel/claude_code.yaml names several metrics that are
+# stored but never folded into a measure) never resolves a real `datasource` and carries zero
+# cost/tokens/title forever -- it renders as an apparently-normal, permanently empty
+# "(untitled session)" row instead of the reduced/otel_only treatment a session with real
+# content would get. Filtered by cost+tokens, not by `otel_api_requests` presence: a
+# metrics-only fleet (`OTEL_LOGS_EXPORTER=none`) has real `otel_only` sessions with genuine cost
+# from mapped measures and *zero* request-ledger rows by design (otel_session_bounds's own
+# comment) -- filtering on request count alone would wrongly hide those too.
+sessions_list_by_recent: |
+  SELECT s.session_id, s.agent, s.status, s.started_at, s.last_event_at, s.ended_at,
+         i.tokens_total, i.compaction_count, i.subagent_count, i.error_count,
+         i.cost_effective_usd_micros, i.datasource, i.jsonl_lag_s, i.info
+  FROM sessions s
+  JOIN session_info i ON i.session_id = s.session_id
+  WHERE s.user_id = :user_id
+    AND s.parent_session_id IS NULL
+    AND NOT (s.status = 'otel_only' AND COALESCE(i.cost_effective_usd_micros, 0) = 0
+             AND COALESCE(i.tokens_total, 0) = 0)
+    AND s.started_at < :to
+    AND COALESCE(s.ended_at, s.last_event_at) >= :from
+    AND (CAST(:vendor AS text) IS NULL OR s.agent = :vendor)
+    AND (CAST(:repo_id AS text) IS NULL OR i.repo_id = :repo_id)
+  ORDER BY s.started_at DESC
+  LIMIT :limit OFFSET :offset;
+
+sessions_list_by_cost: |
+  SELECT s.session_id, s.agent, s.status, s.started_at, s.last_event_at, s.ended_at,
+         i.tokens_total, i.compaction_count, i.subagent_count, i.error_count,
+         i.cost_effective_usd_micros, i.datasource, i.jsonl_lag_s, i.info
+  FROM sessions s
+  JOIN session_info i ON i.session_id = s.session_id
+  WHERE s.user_id = :user_id
+    AND s.parent_session_id IS NULL
+    AND NOT (s.status = 'otel_only' AND COALESCE(i.cost_effective_usd_micros, 0) = 0
+             AND COALESCE(i.tokens_total, 0) = 0)
+    AND s.started_at < :to
+    AND COALESCE(s.ended_at, s.last_event_at) >= :from
+    AND (CAST(:vendor AS text) IS NULL OR s.agent = :vendor)
+    AND (CAST(:repo_id AS text) IS NULL OR i.repo_id = :repo_id)
+  ORDER BY i.cost_effective_usd_micros DESC NULLS LAST
+  LIMIT :limit OFFSET :offset;
+
+sessions_list_by_tokens: |
+  SELECT s.session_id, s.agent, s.status, s.started_at, s.last_event_at, s.ended_at,
+         i.tokens_total, i.compaction_count, i.subagent_count, i.error_count,
+         i.cost_effective_usd_micros, i.datasource, i.jsonl_lag_s, i.info
+  FROM sessions s
+  JOIN session_info i ON i.session_id = s.session_id
+  WHERE s.user_id = :user_id
+    AND s.parent_session_id IS NULL
+    AND NOT (s.status = 'otel_only' AND COALESCE(i.cost_effective_usd_micros, 0) = 0
+             AND COALESCE(i.tokens_total, 0) = 0)
+    AND s.started_at < :to
+    AND COALESCE(s.ended_at, s.last_event_at) >= :from
+    AND (CAST(:vendor AS text) IS NULL OR s.agent = :vendor)
+    AND (CAST(:repo_id AS text) IS NULL OR i.repo_id = :repo_id)
+  ORDER BY i.tokens_total DESC
+  LIMIT :limit OFFSET :offset;
+
+sessions_list_by_duration: |
+  SELECT s.session_id, s.agent, s.status, s.started_at, s.last_event_at, s.ended_at,
+         i.tokens_total, i.compaction_count, i.subagent_count, i.error_count,
+         i.cost_effective_usd_micros, i.datasource, i.jsonl_lag_s, i.info
+  FROM sessions s
+  JOIN session_info i ON i.session_id = s.session_id
+  WHERE s.user_id = :user_id
+    AND s.parent_session_id IS NULL
+    AND NOT (s.status = 'otel_only' AND COALESCE(i.cost_effective_usd_micros, 0) = 0
+             AND COALESCE(i.tokens_total, 0) = 0)
+    AND s.started_at < :to
+    AND COALESCE(s.ended_at, s.last_event_at) >= :from
+    AND (CAST(:vendor AS text) IS NULL OR s.agent = :vendor)
+    AND (CAST(:repo_id AS text) IS NULL OR i.repo_id = :repo_id)
+  ORDER BY COALESCE(s.ended_at, s.last_event_at) - s.started_at DESC
+  LIMIT :limit OFFSET :offset;
+
+sessions_list_by_compactions: |
+  SELECT s.session_id, s.agent, s.status, s.started_at, s.last_event_at, s.ended_at,
+         i.tokens_total, i.compaction_count, i.subagent_count, i.error_count,
+         i.cost_effective_usd_micros, i.datasource, i.jsonl_lag_s, i.info
+  FROM sessions s
+  JOIN session_info i ON i.session_id = s.session_id
+  WHERE s.user_id = :user_id
+    AND s.parent_session_id IS NULL
+    AND NOT (s.status = 'otel_only' AND COALESCE(i.cost_effective_usd_micros, 0) = 0
+             AND COALESCE(i.tokens_total, 0) = 0)
+    AND s.started_at < :to
+    AND COALESCE(s.ended_at, s.last_event_at) >= :from
+    AND (CAST(:vendor AS text) IS NULL OR s.agent = :vendor)
+    AND (CAST(:repo_id AS text) IS NULL OR i.repo_id = :repo_id)
+  ORDER BY i.compaction_count DESC
+  LIMIT :limit OFFSET :offset;
+
+sessions_list_by_subagents: |
+  SELECT s.session_id, s.agent, s.status, s.started_at, s.last_event_at, s.ended_at,
+         i.tokens_total, i.compaction_count, i.subagent_count, i.error_count,
+         i.cost_effective_usd_micros, i.datasource, i.jsonl_lag_s, i.info
+  FROM sessions s
+  JOIN session_info i ON i.session_id = s.session_id
+  WHERE s.user_id = :user_id
+    AND s.parent_session_id IS NULL
+    AND NOT (s.status = 'otel_only' AND COALESCE(i.cost_effective_usd_micros, 0) = 0
+             AND COALESCE(i.tokens_total, 0) = 0)
+    AND s.started_at < :to
+    AND COALESCE(s.ended_at, s.last_event_at) >= :from
+    AND (CAST(:vendor AS text) IS NULL OR s.agent = :vendor)
+    AND (CAST(:repo_id AS text) IS NULL OR i.repo_id = :repo_id)
+  ORDER BY i.subagent_count DESC
+  LIMIT :limit OFFSET :offset;
+
+sessions_list_by_errors: |
+  SELECT s.session_id, s.agent, s.status, s.started_at, s.last_event_at, s.ended_at,
+         i.tokens_total, i.compaction_count, i.subagent_count, i.error_count,
+         i.cost_effective_usd_micros, i.datasource, i.jsonl_lag_s, i.info
+  FROM sessions s
+  JOIN session_info i ON i.session_id = s.session_id
+  WHERE s.user_id = :user_id
+    AND s.parent_session_id IS NULL
+    AND NOT (s.status = 'otel_only' AND COALESCE(i.cost_effective_usd_micros, 0) = 0
+             AND COALESCE(i.tokens_total, 0) = 0)
+    AND s.started_at < :to
+    AND COALESCE(s.ended_at, s.last_event_at) >= :from
+    AND (CAST(:vendor AS text) IS NULL OR s.agent = :vendor)
+    AND (CAST(:repo_id AS text) IS NULL OR i.repo_id = :repo_id)
+  ORDER BY i.error_count DESC
+  LIMIT :limit OFFSET :offset;
+
+# One row per session for /v1/sessions/{id} -- same column set as sessions_in_range, scoped by
+# id instead of a timeframe.
+session_detail: |
+  SELECT s.session_id, s.user_id, s.agent, s.agent_version, s.status, s.started_at,
+         s.last_event_at, s.ended_at, i.models, i.tools, i.files, i.skills, i.subagents,
+         i.turns, i.turn_count, i.long_turn_count, i.tokens_total, i.compaction_count,
+         i.subagent_count, i.error_count, i.info, i.otel, i.cost_effective_usd_micros,
+         i.datasource, i.jsonl_lag_s
+  FROM sessions s
+  JOIN session_info i ON i.session_id = s.session_id
+  WHERE s.session_id = :session_id;
+
+# ------------------------------------------------------------ S1 rhythm zone (R1)
+
+# One row per calendar day that had a session, for one user, over a rolling window. Powers the
+# 52-week heatmap and the streak walk (service.py computes streaks/active-days in Python from
+# these rows -- no SQL window functions, FEAS §6).
+#
+# `sessions` counts roots only -- FEAS §4/R0's same asymmetry, same reason: a sub-agent shares
+# its parent's calendar day (so the *day* is identical either way) but would double the day's
+# *session count* if left in. `tokens` sums every row -- own-session tokens are never rolled
+# up into the parent anywhere in the system, same as `sessions_in_range`.
+#
+# Tokens must resolve in every mode (FEAS §7b): `i.tokens_total` is written only by the JSONL
+# fold and is 0 on every `otel_only` row, so summing it alone would render an empty heatmap for
+# an OTel-only deployment. The CASE below mirrors the *top* of `precedence.py`'s tokens chain
+# (otel_measures, then jsonl_models) in SQL, reading the four pre-summed `otel.tokens.*`
+# scalars rather than the per-request ledger. It deliberately **omits the `otel_ledger` rung**
+# -- reachable only by a ledger-only fleet with no metrics pipeline; document that omission
+# here rather than let it be discovered. If this ever drifts from `precedence.py`, the
+# two-mode fixture in the rhythm tests catches it.
+#
+# Availability is keyed on `i.otel->'measures'` being non-empty, **not** `i.otel->'tokens'`
+# existing -- that key is always present with zero defaults (`precedence.py`'s own documented
+# trap, `_otel_measures_tokens`). Values are plain decimal strings (`_fmt`,
+# otel_trueup.py:148), so they cast via `::numeric`, not `::bigint`.
+#
+# `:tz` is the user's IANA zone name (`users.timezone`, resolved by the caller via
+# `single_user/service.py::_resolve_tz` -- `'UTC'` when no preference is set, same day
+# boundary as before this column existed). `timezone(text, timestamptz)` -- the function form,
+# not the `AT TIME ZONE` operator -- because it takes its zone as an ordinary bind parameter.
+#
+# No index on `sessions.started_at` today -- the `user_id` index carries this scan at v1,
+# single-user scale (FEAS §6); a composite `(user_id, started_at)` is the fleet-scale follow-up.
+activity_by_day: |
+  SELECT timezone(:tz, s.started_at)::date AS day,
+         count(*) FILTER (WHERE s.parent_session_id IS NULL) AS sessions,
+         sum(
+           CASE
+             WHEN COALESCE(i.otel->'measures', '{}'::jsonb) <> '{}'::jsonb
+               THEN COALESCE((i.otel->'tokens'->>'tokens_input')::numeric, 0)
+                  + COALESCE((i.otel->'tokens'->>'tokens_output')::numeric, 0)
+                  + COALESCE((i.otel->'tokens'->>'tokens_cache_read')::numeric, 0)
+                  + COALESCE((i.otel->'tokens'->>'tokens_cache_creation')::numeric, 0)
+             ELSE i.tokens_total
+           END
+         ) AS tokens
+  FROM sessions s
+  JOIN session_info i ON i.session_id = s.session_id
+  WHERE s.user_id = :user_id
+    AND s.started_at >= :from
+  GROUP BY 1
+  ORDER BY 1;
+
+# `/rhythm`'s own mode block (envelope rule 1) -- kept as a second, separate query rather than
+# folded into `activity_by_day` above so that query stays exactly what its name says (one row
+# per day) and this one stays a trivial single-digit-row aggregate over the same window. Same
+# root-only counting as `sessions_in_range`/`activity_by_day` (FEAS §4/R0).
+rhythm_modes_in_window: |
+  SELECT i.datasource, count(*) FILTER (WHERE s.parent_session_id IS NULL) AS sessions
+  FROM sessions s
+  JOIN session_info i ON i.session_id = s.session_id
+  WHERE s.user_id = :user_id
+    AND s.started_at >= :from
+  GROUP BY i.datasource;
+
+# ------------------------------------------------------------------ TZ track: timezone preference
+
+get_user_timezone: |
+  SELECT timezone FROM users WHERE user_id = :user_id;
+
+# Upsert, not a bare UPDATE: the single-user surface's own `id` (today, always the literal
+# viewer placeholder `"me"` -- viewer.tsx's own comment, pending real auth) has no guarantee a
+# `users` row exists yet -- that row is normally created by telemetry ingest
+# (ingest.yaml's `upsert_user_*`) or directory sync, neither of which a demo/local single-user
+# deployment necessarily has for this id. Same insert-if-absent shape as `upsert_user_github_login`.
+set_user_timezone: |
+  INSERT INTO users (user_id, timezone, info, created_at)
+  VALUES (:user_id, :timezone, '{}'::jsonb, now())
+  ON CONFLICT (user_id) DO UPDATE SET timezone = EXCLUDED.timezone
+  RETURNING user_id, timezone;
+
+# ------------------------------------------------------------------ A8/R9: feedback (one of two
+# writes this module makes -- everything else in this file is read-only).
+
+session_exists: |
+  SELECT 1 FROM sessions WHERE session_id = :session_id;
+
+insert_feedback: |
+  INSERT INTO feedback (session_id, beat_ref, verdict, created_at)
+  VALUES (:session_id, :beat_ref, :verdict, now())
+  RETURNING id, created_at;

@@ -1,0 +1,49 @@
+# Forecast config for the "known-event spike" plotting example — a COMPLETE example that
+# forecasts every scope (organization, all teams, all projects). Reads flat baseline
+# synthetic data (flat: no curve, no seasonality), then declares a planned org-wide dated spike via
+# known_events. Unlike a one-off historical spike (which washes out of a forecast), a
+# declared known event is applied to the forecast paths and shows in BOTH the mean and the
+# band over its window (design §7). The org event applies to every series (teams/projects
+# inherit it by precedence fallback). Relative paths resolve against THIS file.
+schema_version: 1
+
+input:
+  dataset_dir: ../../dataset/synth-baseline      # generate from synthetic/baseline.yaml (not committed)
+
+default_org_id: talium.ai
+
+scopes:
+  - {type: organization}
+  - {type: team, name: team1}
+  - {type: team, name: team2}
+  - {type: team, name: team3}
+  - {type: project, name: payment_service_improvement}
+  - {type: project, name: auth_service_rewrite}
+  - {type: project, name: data_pipeline_upgrade}
+  - {type: project, name: search_service_improvement}
+  - {type: project, name: developer_tooling}
+
+history:
+  lookback_days: 90
+  minimum_days: 14
+  minimum_active_days: 4
+
+model:
+  method: ets
+  seasonal: auto
+  trend: auto
+
+allocation:
+  lookback_days: 28
+
+uncertainty:
+  paths: 1000
+  seed: 42
+  max_negative_correction_ratio: 0.05
+
+# A planned org-wide release: ~+40% over Sep 14-18, with judgment uncertainty (spread).
+known_events:
+  org: {start_date: '2026-09-14', end_date: '2026-09-18', multiplier: 1.4, spread: 0.15}
+
+runtime:
+  workers: 1

@@ -1,0 +1,26 @@
+{
+  "event": "pull_request_review",
+  "action": "submitted",
+  "payload": {
+    "action": "submitted",
+    "review": {
+      "id": 9001,
+      "user": {
+        "login": "reviewer1"
+      },
+      "state": "approved",
+      "commit_id": "9f3c1ab7d2000000000000000000000000000000",
+      "submitted_at": "2026-07-25T10:00:00Z"
+    },
+    "pull_request": {
+      "number": 1184
+    },
+    "repository": {
+      "id": 41213765,
+      "full_name": "talium-ai/code-econ"
+    },
+    "installation": {
+      "id": 42
+    }
+  }
+}

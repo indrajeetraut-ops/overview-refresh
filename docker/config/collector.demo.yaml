@@ -1,0 +1,36 @@
+# Collector config for the AWS demo stack. Differs from docker/config/collector.yaml in one
+# thing: the source store is the S3 staging bucket rather than a shared local volume.
+#
+# It must stay the read side of exactly what docker/config/uploader.demo.yaml writes -- same
+# bucket, same region. Keys are bucket-root-relative on both sides ("uploads/<upload_id>/...").
+#
+# base_path is a literal rather than an ${ENV} ref for the reason spelled out in
+# docker/config/collector.yaml: this loader has no ":-default" fallback. Inside the compose
+# network the ingest host is the service name.
+
+source_store:
+  backend: s3
+  s3:
+    bucket: "${TALIUM_UPLOAD_BUCKET}"
+    region: "${AWS_REGION}"
+    endpoint_url: null
+
+checkpoint_store:
+  backend: file
+  file:
+    # Lives on the app instance's root volume, which is disposable. Losing it costs a full
+    # re-sweep of the bucket, not data: re-shipping a session is a no-op downstream because
+    # the fold extends append-only prefixes rather than appending blindly.
+    path: ${TALIUM_DATA_DIR}/collector_checkpoints.json
+
+msging:
+  client:
+    default_server: ingest
+    servers:
+      ingest:
+        base_path: http://ingest:8443
+        service_name: ingest
+    defaults:
+      base_dir: ${TALIUM_DATA_DIR}/collector_msging
+
+flush_timeout_s: 30.0

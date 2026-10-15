@@ -1,0 +1,20 @@
+# growth example (cost module design §6.1-§6.2).
+#
+# Every one of team1's series grows 20% starting partway through the horizon
+# (tokens' *= 1 + (factor - 1) * k). Propagates to team1's Projects at k = 1 and
+# to the Organization at k = team1's attribution share of the Organization's
+# usage for each series' own model (design §6.3) -- unlike model_transfer and
+# agent_transfer, growth touches every model in the scope at once, so each one's
+# k at a parent scope is its own attribution share, not a single blanket value.
+#
+# Usage: ./econ-forecast/utils/cost.sh --forecast-run <run> \
+#          --scenario config/scenarios/team1-growth.yaml --output <output>
+schema: scenario/1.0
+name: team1-growth
+scope:
+  type: team
+  name: team1
+changes:
+  - growth:
+      factor: 1.2
+      effective_from: 2026-10-15

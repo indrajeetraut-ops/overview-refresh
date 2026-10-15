@@ -1,0 +1,52 @@
+# Synthetic-data API + UI, as a second window onto the same stack.
+#
+# An overlay on docker-compose.stack.yml: one extra `api_synth` service that serves the same
+# dashboard image against the `econ_synth` database instead of `econ`, on its own port. The
+# real stack is untouched -- same Postgres container, same network, same volumes -- so you can
+# keep one browser window on real data (8090) and one on synthetic (8091).
+#
+#   utils/synth_stack_up.sh          bring it up (rebuilds only if the image is stale)
+#   utils/synth_stack_down.sh        remove it, leaving the real stack running
+#
+# Always pass BOTH files, base first, so the project name, network and volumes resolve:
+#   docker compose -f docker/docker-compose.stack.yml -f docker/docker-compose.synth.yml ...
+#
+# `econ_synth` is NOT created or migrated here. It is owned by the synthetic loader
+# (utils/load_synthetic.sh, which runs the migrations itself), so this service deliberately
+# does not depend on the `init` container -- init builds the REAL database's schema, and
+# pointing it at a synthetic database is what breaks the stack (init exits 1 and every service
+# that waits on it never starts).
+#
+# There is no worker, ingest or uploader here on purpose. Synthetic rows are loaded directly
+# in their final shape and never came through ingest; a fold/refold pass over them is exactly
+# what the org README warns against.
+
+services:
+  api_synth:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+      args:
+        # Baked into the JS at build time (Vite), so the synthetic UI ships with a viewer that
+        # exists in the SYNTHETIC directory -- your real id is not a user over there, and
+        # every manager screen would 401. The loader prints the ids it created.
+        VITE_VIEWER_ID: "${SYNTH_VIEWER_ID:-github:vp-eng}"
+    image: talium-stack-api-synth
+    container_name: talium_synth_api
+    environment:
+      TALIUM_DB_DSN: postgresql+psycopg://postgres@postgres:5432/${SYNTH_DB_NAME:-econ_synth}
+      TALIUM_DATA_DIR: /data
+    volumes:
+      - stack_data:/data
+    restart: unless-stopped
+    command: ["python", "-m", "server.api.cli_serve_api", "--config", "config/api.yaml"]
+    ports:
+      - "${SYNTH_API_PORT:-8091}:8090"
+    healthcheck:
+      test: ["CMD-SHELL", "python -c \"import urllib.request as u; u.urlopen('http://localhost:8090/healthz')\""]
+      interval: 5s
+      timeout: 3s
+      retries: 12
+    depends_on:
+      postgres:
+        condition: service_healthy

@@ -1,0 +1,43 @@
+# Usage level of the Development team over the series: a release crunch at the start, a freeze
+# bump, a release crunch about 60% in, and quiet weeks before the end of the series.
+# Bound in ../series.yaml (`curve.teams`). The axis is abstract and is stretched over the whole
+# series: one step is about 2 days at `series.days: 120` (axis 1..61), so a one-week crunch
+# is a plateau of 3-4 anchors. Position p is about day (p-1)*2 of the series.
+#   p 1-5    level 1.8 (days 0-8)    opening crunch, shared with QA; ramps down to 1.0 by p 7. Visible
+#                                    history only, except for an end date late in a month, when it
+#                                    falls inside the forecaster's lookback
+#   p 21-23  level 1.3 (days 40-44)  release-freeze bump
+#   p 32-39  level 1.5 (days 62-76)  release crunch; sits inside the last 60 days of the series
+#                                    (what the dashboard's windows show) and ends about 5 weeks
+#                                    before the forecast origin of a series ending early in a month
+#   p 45-61  within +/-4% of 1.0     quiet: the last weeks set the level the forecast extrapolates
+# Why it exists: without a level that moves, every day is an independent draw around a fixed
+# level and the forecast's monthly band collapses to about +/-2% (plan F7). A crunch inside the
+# forecaster's 90-day lookback widens the band; one before it is visible history only.
+# After editing: rerun curve.sh (below) and update the `name:id` in ../series.yaml.
+#   econ-forecast/utils/curve.sh --config econ-forecast/config/synthetic/org/curves/development-phases.yaml \
+#     --output econ-forecast/config/synthetic/org/curves/artifacts
+schema_version: 1
+name: development-phases
+interp: pchip
+axis: {start: 1, end: 61}
+anchors:
+  - [1, "1.800"]
+  - [5, "1.800"]
+  - [7, "1.000"]
+  - [19, "1.000"]
+  - [21, "1.300"]
+  - [23, "1.300"]
+  - [25, "1.000"]
+  - [30, "1.000"]
+  - [32, "1.500"]
+  - [39, "1.500"]
+  - [41, "1.000"]
+  - [45, "0.960"]
+  - [51, "1.040"]
+  - [57, "1.000"]
+  - [61, "1.000"]
+preview:
+  days: 120
+  baseline_tokens: 1000000
+description: "Development team usage level: opening crunch, freeze bump, release crunch, quiet end"

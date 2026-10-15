@@ -1,0 +1,34 @@
+?start: or_expression
+?or_expression: and_expression (OR and_expression)*   -> or_expression
+?and_expression: not_expression (AND not_expression)* -> and_expression
+?not_expression: NOT not_expression                    -> not_expression
+               | predicate
+               | "(" or_expression ")"
+?predicate: operand COMP literal                        -> comparison
+          | operand IN "[" [literal ("," literal)*] "]" -> in_comparison
+          | operand STRING_OP string                    -> string_comparison
+?operand: field
+        | CASEFOLD "(" field ")"                      -> casefold
+        | LENGTH "(" field ")"                        -> length
+field: CNAME ("." CNAME)*                              -> field
+?literal: string | SIGNED_NUMBER -> number | TRUE -> true | FALSE -> false | NULL -> null
+string: ESCAPED_STRING | SINGLE_QUOTED_STRING
+
+AND.10: /(?i:AND)/
+OR.10: /(?i:OR)/
+NOT.10: /(?i:NOT)/
+IN.10: /(?i:IN)/
+CASEFOLD.10: /(?i:CASEFOLD)/
+LENGTH.10: /(?i:LENGTH)/
+STRING_OP.10: /(?i:STARTS_WITH|ENDS_WITH|CONTAINS|MATCHES)/
+TRUE.10: /(?i:true)/
+FALSE.10: /(?i:false)/
+NULL.10: /(?i:null)/
+COMP: "==" | "!=" | ">=" | ">" | "<=" | "<"
+SINGLE_QUOTED_STRING: /'([^'\\]|\\.)*'/
+
+%import common.CNAME
+%import common.ESCAPED_STRING
+%import common.SIGNED_NUMBER
+%import common.WS
+%ignore WS

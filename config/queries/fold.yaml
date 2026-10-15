@@ -1,0 +1,29 @@
+# Named queries for the rollup worker (ingest.md §5, §7). Compiled by QueryCatalog at load.
+# The primary fold happens inline in the ingest handler now (ingest.md §3.3); these serve the
+# deferred, cross-session rollup topic on queue_jobs. No event_queue drains remain (§14).
+
+claim_job: |
+  SELECT id, payload FROM queue_jobs
+  WHERE topic = :topic AND status = 'pending' AND run_after <= now()
+  ORDER BY id
+  FOR UPDATE SKIP LOCKED
+  LIMIT :k;
+
+mark_job_done: |
+  UPDATE queue_jobs SET status = 'done', claimed_at = now() WHERE id = :job_id;
+
+mark_job_failed: |
+  UPDATE queue_jobs
+  SET status = CASE WHEN attempts + 1 >= :max_attempts THEN 'failed' ELSE 'pending' END,
+      attempts = attempts + 1,
+      run_after = now() + (:backoff_s || ' seconds')::interval
+  WHERE id = :job_id;
+
+children_of: |
+  SELECT session_id FROM sessions WHERE parent_session_id = :session_id;
+
+session_info_of: |
+  SELECT session_id, cost_usd, models, tools, files, skills, subagents, pr_list,
+         turns, turn_count, long_turn_count, tokens_total, compaction_count,
+         subagent_count, error_count, info
+  FROM session_info WHERE session_id = ANY(:session_ids);

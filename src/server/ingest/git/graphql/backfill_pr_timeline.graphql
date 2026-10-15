@@ -1,0 +1,20 @@
+# Reopen-history reader (Track churn/reopen, backfill 4a): one PR's REOPENED_EVENT timeline.
+# `git_artifacts.state` is current-state-only, so a PR ingested before `git_artifact_events`
+# existed has no reopen count; this recovers it from GitHub's authoritative timeline. Filtered
+# server-side to REOPENED_EVENT so a chatty PR's timeline doesn't page needlessly.
+#
+# `rateLimit { cost remaining nodeCount resetAt }` is mandatory (git-source.md §7.4) -- the
+# client's throttle measures the real cost from this field rather than estimating it.
+query BackfillPrTimeline($owner: String!, $name: String!, $number: Int!, $cursor: String) {
+  rateLimit { cost remaining nodeCount resetAt }
+  repository(owner: $owner, name: $name) {
+    pullRequest(number: $number) {
+      timelineItems(itemTypes: [REOPENED_EVENT], first: 100, after: $cursor) {
+        pageInfo { hasNextPage endCursor }
+        nodes {
+          ... on ReopenedEvent { createdAt }
+        }
+      }
+    }
+  }
+}

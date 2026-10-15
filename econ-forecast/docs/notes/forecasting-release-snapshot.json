@@ -1,0 +1,27 @@
+{
+  "schema_version": 1,
+  "released": "2026-09-13",
+  "workdir": "/Users/sumandra/projects/talium/forecasting/code-econ",
+  "branch": "forecast",
+  "base_revision": "4318d0aec39baf6c8e0df79da4f6ac6c3e5c15e0",
+  "verify_command": "shasum -a 256 -c econ-forecast/docs/notes/forecasting-release-snapshot.sha256",
+  "files": {
+    "AGENTS.md": "f90d11a43a1974dc63c3d0f326691dec838cafdc7269bb0f1468239a9065c834",
+    "requirements.txt": "a9b3e0eade73f092a793432962f4e666d6609fab514a5ff26ff67900466a4459",
+    "pytest.ini": "3fcf7dd1a1857230f585a85e923db461a7904c2753f5964586fb18c4bb313207",
+    "econ-forecast/src/forecast/contracts.py": "b8fc093614dfadd2b68321fb5165def2531b2c79263abfda34e45190f080e5f6",
+    "econ-forecast/src/forecast/artifact_io.py": "6793cb13034c4ebc131f2de4f342f6e9cd02edbf8d884c3017dcfe74ac28fbef",
+    "econ-forecast/docs/design/forecasting.md": "d9d02edfe2a74b85bf85a54793e80a98390f407882b6d173f4f69f08be6755ae",
+    "econ-forecast/docs/design/forecasting-design.md": "05a958bb253c2c07055965a3459a770a350f16eabf4ea58a989f5920b57ba472",
+    "econ-forecast/docs/design/forecasting-release-contract.md": "57a79cb4d26786c4ee0a3d6a0bb1a0a7f1544d17fbcdf3772b06342df802b0d6",
+    "econ-forecast/docs/arch/module-architecture.md": "d65ab66a61b9be03a144e1fa2c4856d707ccac2f223799ba9646e943cf144c5e",
+    "econ-forecast/docs/notes/forecasting-design-decisions.md": "e8f5319e2627a66b465696b0fd0ffae8226c35bf7b00b775676d0a021cdd94c5",
+    "econ-forecast/docs/notes/forecasting-implementation-handoff.md": "24034c4c14c3d29ebe06923ee4fd9971ac657bae8ebd21ec975c2a832b3cab2e",
+    "econ-forecast/docs/notes/forecasting-acceptance-matrix.md": "8ea2248d9d7c44ce669a4bb7a258779b4124797b80fdde2d7715b4540980ee21",
+    "econ-forecast/docs/notes/forecast-numerical-preflight.md": "6636d6eda6639117d57f0ec1f7ddd9d8fb8ee733383704a5719fde5a66f63464",
+    "econ-forecast/config/forecasting/forecast.yaml": "30e730257773f74265ac7ec4a320b216be4515de4eeccdf8fd552ed71576071d",
+    "econ-forecast/src/forecast/forecasting/README.md": "f636f9cc9a672cd99b9e2625931fc3e8a07ce77a81a07585a42c3bf3cc770afc",
+    "econ-forecast/src/forecast/utils/README.md": "a0ed20cfb6249c506859dc0dcc71d8761f5a59c05a060de5ac120cd9bc56749a"
+  },
+  "note": "Verify before edits. Approved implementation README/config/status edits subsequently tracked as diffs; frozen contract text requires parent approval to change."
+}

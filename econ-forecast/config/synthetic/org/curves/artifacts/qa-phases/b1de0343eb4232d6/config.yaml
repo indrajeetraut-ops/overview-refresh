@@ -1,0 +1,40 @@
+anchors:
+- - 1
+  - '1.700'
+- - 5
+  - '1.700'
+- - 7
+  - '1.000'
+- - 18
+  - '1.000'
+- - 20
+  - '1.150'
+- - 22
+  - '1.150'
+- - 24
+  - '1.000'
+- - 39
+  - '1.000'
+- - 41
+  - '1.400'
+- - 44
+  - '1.400'
+- - 46
+  - '1.000'
+- - 47
+  - '1.040'
+- - 53
+  - '0.960'
+- - 61
+  - '1.000'
+axis:
+  end: 61
+  start: 1
+description: 'QA team usage level: test cycle at the start, bump, 1.4x test cycle,
+  quiet end'
+interp: pchip
+name: qa-phases
+preview:
+  baseline_tokens: 1000000.0
+  days: 120
+schema_version: 1

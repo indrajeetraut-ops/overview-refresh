@@ -1,0 +1,22 @@
+# Local dev/test Postgres for code-econ.
+# Up/down via utils/db_up.sh and utils/db_down.sh (or `docker compose -f docker/docker-compose.yml ...`).
+# Trust auth = local convenience only; real deployments pass full credentials in the DSN.
+services:
+  postgres:
+    image: postgres:16
+    container_name: econ_pg
+    environment:
+      POSTGRES_HOST_AUTH_METHOD: trust        # passwordless local access
+      POSTGRES_DB: ${POSTGRES_DB:-econ_test}
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - econ_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d ${POSTGRES_DB:-econ_test}"]
+      interval: 3s
+      timeout: 3s
+      retries: 20
+
+volumes:
+  econ_pgdata:

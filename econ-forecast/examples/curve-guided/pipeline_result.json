@@ -1,0 +1,4181 @@
+{
+  "elapsed_seconds": 64.22086945781484,
+  "schema_version": 1,
+  "stages": [
+    {
+      "commands": [
+        {
+          "argv": [
+            "utils/forecast.sh",
+            "--config",
+            "forecast/forecast.yaml",
+            "--output",
+            "forecast/run",
+            "--force",
+            "--unit",
+            "month",
+            "--offset",
+            "1",
+            "--periods",
+            "1"
+          ],
+          "elapsed_seconds": 22.222485749982297,
+          "exit_code": 0,
+          "status": "complete",
+          "stderr_tail": null,
+          "summary": {
+            "completed_scopes": 9,
+            "diagnostics": {
+              "known_events": [],
+              "not_applicable_models": [],
+              "runtime": {
+                "cpu_measurement": "parent delta plus observed child CPU; short-lived children may be missed",
+                "cpu_system_seconds": 0.008969097000000002,
+                "cpu_user_seconds": 0.060865918,
+                "measurement_limitations": [
+                  "resource timing excludes final diagnostics/report serialization and atomic manifest publication; output_bytes includes every manifest-listed artifact and excludes the manifest"
+                ],
+                "memory_measurement": "sampled sum of parent and live child RSS",
+                "memory_sample_count": 56,
+                "memory_sample_interval_seconds": 0.05,
+                "numerical_threads": 1,
+                "os_process_lifetime_peak_rss_bytes": 200097792,
+                "output_bytes": 9221372,
+                "peak_rss_bytes": 200089600,
+                "platform": "macOS-26.5.2-x86_64-i386-64bit-Mach-O",
+                "stage_measurement": "preparation and simulation are summed worker wall time; other stages are coordinator wall time",
+                "stage_seconds": {
+                  "artifact_staging": 0.030541500076651573,
+                  "config": 0.004631583113223314,
+                  "input": 0.708935874979943,
+                  "model_and_paths": 2.6245138752274215,
+                  "preparation": 2.2454928341321647,
+                  "simulation": 0.1183118736371398,
+                  "summaries": 0.10864316672086716
+                },
+                "versions": {
+                  "matplotlib": "3.11.2",
+                  "numpy": "2.4.6",
+                  "pandas": "3.0.5",
+                  "plotly": "7.0.0",
+                  "psutil": "7.2.2",
+                  "scipy": "1.17.1",
+                  "statsmodels": "0.15.0",
+                  "threadpoolctl": "3.6.0"
+                },
+                "wall_seconds": 3.8710314999334514,
+                "workers": 1,
+                "workload": {
+                  "internal_days": 32,
+                  "paths": 1000,
+                  "requested_days": 30,
+                  "series": 36
+                }
+              },
+              "schema_version": 1,
+              "series": [
+                {
+                  "active_day_average_tokens": 55773208.0,
+                  "assumptions": [
+                    "uncalibrated_model_estimate",
+                    "fixed_allocation_shares",
+                    "common_residual_window"
+                  ],
+                  "correction": {
+                    "corrected_tokens": 1777004572567.3188,
+                    "negative_count": 12,
+                    "negative_fraction": 0.0004,
+                    "passed": true,
+                    "ratio": 4.183369545656052e-05,
+                    "removed_tokens": 74338668.11369672,
+                    "tolerance": 0.05
+                  },
+                  "covered_days": 60,
+                  "fit_attempts": [
+                    {
+                      "converged": true,
+                      "damped_trend": true,
+                      "iterations": 24,
+                      "reason": null,
+                      "seasonal": "add",
+                      "trend": "add",
+                      "warnings": []
+                    }
+                  ],
+                  "history_end": "2026-08-29",
+                  "history_start": "2026-07-01",
+                  "last_active_date": "2026-08-29",
+                  "reasons": [],
+                  "recent_total": 1897277035.0,
+                  "sampling_days": 60,
+                  "sampling_end": "2026-08-29",
+                  "sampling_start": "2026-07-01",
+                  "series_id": "ef015d311a4f9a331cad21ffbd42e710944b53b5cf29ff0fd6b4373e03563d53",
+                  "startup_source": "observed",
+                  "startup_start": "2026-07-01"
+                },
+                {
+                  "active_day_average_tokens": 167385036.56666666,
+                  "assumptions": [
+                    "uncalibrated_model_estimate",
+                    "fixed_allocation_shares",
+                    "common_residual_window"
+                  ],
+                  "correction": {
+                    "corrected_tokens": 5301335281161.617,
+                    "negative_count": 11,
+                    "negative_fraction": 0.00036666666666666667,
+                    "passed": true,
+                    "ratio": 3.5140386118884755e-05,
+                    "removed_tokens": 186290968.72568572,
+                    "tolerance": 0.05
+                  },
+                  "covered_days": 60,
+                  "fit_attempts": [
+                    {
+                      "converged": true,
+                      "damped_trend": true,
+                      "iterations": 25,
+                      "reason": null,
+                      "seasonal": "add",
+                      "trend": "add",
+                      "warnings": []
+                    }
+                  ],
+                  "history_end": "2026-08-29",
+                  "history_start": "2026-07-01",
+                  "last_active_date": "2026-08-29",
+                  "reasons": [],
+                  "recent_total": 5689672444.0,
+                  "sampling_days": 60,
+                  "sampling_end": "2026-08-29",
+                  "sampling_start": "2026-07-01",
+                  "series_id": "110f5be02ea836d293e6634e1e2542075f272da5952be58f37e578150a68ace2",
+                  "startup_source": "observed",
+                  "startup_start": "2026-07-01"
+                },
+                {
+                  "active_day_average_tokens": 13651521.133333333,
+                  "assumptions": [
+                    "uncalibrated_model_estimate",
+                    "fixed_allocation_shares",
+                    "common_residual_window",
+                    "excess_negative_correction"
+                  ],
+                  "correction": {
+                    "corrected_tokens": 183041952734.0614,
+                    "negative_count": 5647,
+                    "negative_fraction": 0.18823333333333334,
+                    "passed": false,
+                    "ratio": 0.16992010893196824,
+                    "removed_tokens": 31102508547.691895,
+                    "tolerance": 0.05
+                  },
+                  "covered_days": 60,
+                  "fit_attempts": [
+                    {
+                      "converged": true,
+                      "damped_trend": true,
+                      "iterations": 28,
+                      "reason": null,
+                      "seasonal": "add",
+                      "trend": "add",
+                      "warnings": []
+                    }
+                  ],
+                  "history_end": "2026-08-29",
+                  "history_start": "2026-07-01",
+                  "last_active_date": "2026-08-29",
+                  "reasons": [],
+                  "recent_total": 193247263.0,
+                  "sampling_days": 60,
+                  "sampling_end": "2026-08-29",
+                  "sampling_start": "2026-07-01",
+                  "series_id": "684d2cc7c4799f0304981941220d66ecddc0e6ff5ea7ec76c8503e4ab947451a",
+                  "startup_source": "observed",
+                  "startup_start": "2026-07-01"
+                },
+                {
+                  "active_day_average_tokens": 40887917.4,
+                  "assumptions": [
+                    "uncalibrated_model_estimate",
+                    "fixed_allocation_shares",
+                    "common_residual_window",
+                    "excess_negative_correction"
+                  ],
+                  "correction": {
+                    "corrected_tokens": 588477477572.7203,
+                    "negative_count": 5228,
+                    "negative_fraction": 0.17426666666666665,
+                    "passed": false,
+                    "ratio": 0.13607764030626326,
+                    "removed_tokens": 80078626521.47775,
+                    "tolerance": 0.05
+                  },
+                  "covered_days": 60,
+                  "fit_attempts": [
+                    {
+                      "converged": true,
+                      "damped_trend": true,
+                      "iterations": 29,
+                      "reason": null,
+                      "seasonal": "add",
+                      "trend": "add",
+                      "warnings": []
+                    }
+                  ],
+                  "history_end": "2026-08-29",
+                  "history_start": "2026-07-01",
+                  "last_active_date": "2026-08-29",
+                  "reasons": [],
+                  "recent_total": 579058030.0,
+                  "sampling_days": 60,
+                  "sampling_end": "2026-08-29",
+                  "sampling_start": "2026-07-01",
+                  "series_id": "ef91802c368aa166b8597825b6cf7c475dcdadb23176e242ce4e1bd42066f8e3",
+                  "startup_source": "observed",
+                  "startup_start": "2026-07-01"
+                },
+                {
+                  "active_day_average_tokens": 6672948.05,
+                  "assumptions": [
+                    "uncalibrated_model_estimate",
+                    "fixed_allocation_shares",
+                    "common_residual_window"
+                  ],
+                  "correction": {
+                    "corrected_tokens": 186589734773.20227,
+                    "negative_count": 943,
+                    "negative_fraction": 0.031433333333333334,
+                    "passed": true,
+                    "ratio": 0.009379775943496104,
+                    "removed_tokens": 1750169905.529001,
+                    "tolerance": 0.05
+                  },
+                  "covered_days": 60,
+                  "fit_attempts": [
+                    {
+                      "converged": true,
+                      "damped_trend": true,
+                      "iterations": 36,
+                      "reason": null,
+                      "seasonal": "add",
+                      "trend": "add",
+                      "warnings": []
+                    }
+                  ],
+                  "history_end": "2026-08-29",
+                  "history_start": "2026-07-01",
+                  "last_active_date": "2026-08-29",
+                  "reasons": [],
+                  "recent_total": 248577632.0,
+                  "sampling_days": 60,
+                  "sampling_end": "2026-08-29",
+                  "sampling_start": "2026-07-01",
+                  "series_id": "88d1851cfa900cf6f72b543410d0fb9a3c674f95b8b51d3db6700fd0aa9b098e",
+                  "startup_source": "observed",
+                  "startup_start": "2026-07-01"
+                },
+                {
+                  "active_day_average_tokens": 20290629.8,
+                  "assumptions": [
+                    "uncalibrated_model_estimate",
+                    "fixed_allocation_shares",
+                    "common_residual_window"
+                  ],
+                  "correction": {
+                    "corrected_tokens": 576122091133.4945,
+                    "negative_count": 962,
+                    "negative_fraction": 0.03206666666666667,
+                    "passed": true,
+                    "ratio": 0.00926323755655591,
+                    "removed_tokens": 5336755791.749312,
+                    "tolerance": 0.05
+                  },
+                  "covered_days": 60,
+                  "fit_attempts": [
+                    {
+                      "converged": true,
+                      "damped_trend": true,
+                      "iterations": 46,
+                      "reason": null,
+                      "seasonal": "add",
+                      "trend": "add",
+                      "warnings": []
+                    }
+                  ],
+                  "history_end": "2026-08-29",
+                  "history_start": "2026-07-01",
+                  "last_active_date": "2026-08-29",
+                  "reasons": [],
+                  "recent_total": 758655902.0,
+                  "sampling_days": 60,
+                  "sampling_end": "2026-08-29",
+                  "sampling_start": "2026-07-01",
+                  "series_id": "dc8512d964f1ed70713f47f37cc8a821a98f13af1d2ad95553f603661b4858db",
+                  "startup_source": "observed",
+                  "startup_start": "2026-07-01"
+                },
+                {
+                  "active_day_average_tokens": 1475712.0166666666,
+                  "assumptions": [
+                    "uncalibrated_model_estimate",
+                    "fixed_allocation_shares",
+                    "common_residual_window",
+                    "excess_negative_correction"
+                  ],
+                  "correction": {
+                    "corrected_tokens": 22600794257.858788,
+                    "negative_count": 7661,
+                    "negative_fraction": 0.2553666666666667,
+                    "passed": false,
+                    "ratio": 0.25793604504390244,
+                    "removed_tokens": 5829559485.723036,
+                    "tolerance": 0.05
+                  },
+                  "covered_days": 60,
+                  "fit_attempts": [
+                    {
+                      "converged": true,
+                      "damped_trend": true,
+                      "iterations": 28,
+                      "reason": null,
+                      "seasonal": "add",
+                      "trend": "add",
+                      "warnings": []
+                    }
+                  ],
+                  "history_end": "2026-08-29",
+                  "history_start": "2026-07-01",
+                  "last_active_date": "2026-08-29",
+                  "reasons": [],
+                  "recent_total": 25503620.0,
+                  "sampling_days": 60,
+                  "sampling_end": "2026-08-29",
+                  "sampling_start": "2026-07-01",
+                  "series_id": "c45898a0a86d5d3e789f41f60632ea6354bd32551a909dba789ad2e1326320b3",
+                  "startup_source": "observed",
+                  "startup_start": "2026-07-01"
+                },
+                {
+                  "active_day_average_tokens": 4391375.3,
+                  "assumptions": [
+                    "uncalibrated_model_estimate",
+                    "fixed_allocation_shares",
+                    "common_residual_window",
+                    "excess_negative_correction"
+                  ],
+                  "correction": {
+                    "corrected_tokens": 66942757920.274956,
+                    "negative_count": 7333,
+                    "negative_fraction": 0.24443333333333334,
+                    "passed": false,
+                    "ratio": 0.24045251531830844,
+                    "removed_tokens": 16096554524.274727,
+                    "tolerance": 0.05
+                  },
+                  "covered_days": 60,
+                  "fit_attempts": [
+                    {
+                      "converged": true,
+                      "damped_trend": true,
+                      "iterations": 32,
+                      "reason": null,
+                      "seasonal": "add",
+                      "trend": "add",
+                      "warnings": []
+                    }
+                  ],
+                  "history_end": "2026-08-29",
+                  "history_start": "2026-07-01",
+                  "last_active_date": "2026-08-29",
+                  "reasons": [],
+                  "recent_total": 76516278.0,
+                  "sampling_days": 60,
+                  "sampling_end": "2026-08-29",
+                  "sampling_start": "2026-07-01",
+                  "series_id": "d984353864c9031a51b22010e68f8bc6fb9ef4ef79beb375fa6a88cb3d83da84",
+                  "startup_source": "observed",
+                  "startup_start": "2026-07-01"
+                },
+                {
+                  "active_day_average_tokens": 13183755.45,
+                  "assumptions": [
+                    "uncalibrated_model_estimate",
+                    "fixed_allocation_shares",
+                    "common_residual_window"
+                  ],
+                  "correction": {
+                    "corrected_tokens": 189496456676.1106,
+                    "negative_count": 701,
+                    "negative_fraction": 0.023366666666666668,
+                    "passed": true,
+                    "ratio": 0.005139238420021137,
+                    "removed_tokens": 973867470.6077384,
+                    "tolerance": 0.05
+                  },
+                  "covered_days": 60,
+                  "fit_attempts": [
+                    {
+                      "converged": true,
+                      "damped_trend": true,
+                      "iterations": 32,
+                      "reason": null,
+                      "seasonal": "add",
+                      "trend": "add",
+                      "warnings": []
+                    }
+                  ],
+                  "history_end": "2026-08-29",
+                  "history_start": "2026-07-01",
+                  "last_active_date": "2026-08-29",
+                  "reasons": [],
+                  "recent_total": 295860395.0,
+                  "sampling_days": 60,
+                  "sampling_end": "2026-08-29",
+                  "sampling_start": "2026-07-01",
+                  "series_id": "7902df79018690c053555bd5409a11e5f2e6f439787e208712a784e174acad37",
+                  "startup_source": "observed",
+                  "startup_start": "2026-07-01"
+                },
+                {
+                  "active_day_average_tokens": 39536301.8,
+                  "assumptions": [
+                    "uncalibrated_model_estimate",
+                    "fixed_allocation_shares",
+                    "common_residual_window"
+                  ],
+                  "correction": {
+                    "corrected_tokens": 576592237335.2029,
+                    "negative_count": 486,
+                    "negative_fraction": 0.0162,
+                    "passed": true,
+                    "ratio": 0.003073420841396299,
+                    "removed_tokens": 1772110599.2133336,
+                    "tolerance": 0.05
+                  },
+                  "covered_days": 60,
+                  "fit_attempts": [
+                    {
+                      "converged": true,
+                      "damped_trend": true,
+                      "iterations": 34,
+                      "reason": null,
+                      "seasonal": "add",
+                      "trend": "add",
+                      "warnings": []
+                    }
+                  ],
+                  "history_end": "2026-08-29",
+                  "history_start": "2026-07-01",
+                  "last_active_date": "2026-08-29",
+                  "reasons": [],
+                  "recent_total": 890792851.0,
+                  "sampling_days": 60,
+                  "sampling_end": "2026-08-29",
+                  "sampling_start": "2026-07-01",
+                  "series_id": "705e922e74cf71db97c83f820da79fbc097b775d32e0be532c83077efd48115b",
+                  "startup_source": "observed",
+                  "startup_start": "2026-07-01"
+                },
+                {
+                  "active_day_average_tokens": 4440266.766666667,
+                  "assumptions": [
+                    "uncalibrated_model_estimate",
+                    "fixed_allocation_shares",
+                    "common_residual_window",
+                    "excess_negative_correction"
+                  ],
+                  "correction": {
+                    "corrected_tokens": 6653013913.199047,
+                    "negative_count": 22807,
+                    "negative_fraction": 0.7602333333333333,
+                    "passed": false,
+                    "ratio": 6.655449961611263,
+                    "removed_tokens": 44278801193.19979,
+                    "tolerance": 0.05
+                  },
+                  "covered_days": 60,
+                  "fit_attempts": [
+                    {
+                      "converged": true,
+                      "damped_trend": true,
+                      "iterations": 30,
+                      "reason": null,
+                      "seasonal": "add",
+                      "trend": "add",
+                      "warnings": []
+                    }
+                  ],
+                  "history_end": "2026-08-29",
+                  "history_start": "2026-07-01",
+                  "last_active_date": "2026-08-29",
+                  "reasons": [],
+                  "recent_total": 31395213.0,
+                  "sampling_days": 60,
+                  "sampling_end": "2026-08-29",
+                  "sampling_start": "2026-07-01",
+                  "series_id": "b545e8a804c2881bff6a2543d850bcf7a23481e12aa670660055b47664838558",
+                  "startup_source": "observed",
+                  "startup_start": "2026-07-01"
+                },
+                {
+                  "active_day_average_tokens": 13363668.283333333,
+                  "assumptions": [
+                    "uncalibrated_model_estimate",
+                    "fixed_allocation_shares",
+                    "common_residual_window",
+                    "excess_negative_correction"
+                  ],
+                  "correction": {
+                    "corrected_tokens": 27642866881.22225,
+                    "negative_count": 20719,
+                    "negative_fraction": 0.6906333333333333,
+                    "passed": false,
+                    "ratio": 4.134571520576879,
+                    "removed_tokens": 114291410154.19933,
+                    "tolerance": 0.05
+                  },
+                  "covered_days": 60,
+                  "fit_attempts": [
+                    {
+                      "converged": true,
+                      "damped_trend": true,
+                      "iterations": 27,
+                      "reason": null,
+                      "seasonal": "add",
+                      "trend": "add",
+                      "warnings": []
+                    }
+                  ],
+                  "history_end": "2026-08-29",
+                  "history_start": "2026-07-01",
+                  "last_active_date": "2026-08-29",
+                  "reasons": [],
+                  "recent_total": 92794983.0,
+                  "sampling_days": 60,
+                  "sampling_end": "2026-08-29",
+                  "sampling_start": "2026-07-01",
+                  "series_id": "75e383ac30eecb1b9277cf14fc2dbb17df9cc91242c7c1b067258873a9c073e3",
+                  "startup_source": "observed",
+                  "startup_start": "2026-07-01"
+                },
+                {
+                  "active_day_average_tokens": 35916504.5,
+                  "assumptions": [
+                    "uncalibrated_model_estimate",
+                    "fixed_allocation_shares",
+                    "common_residual_window"
+                  ],
+                  "correction": {
+                    "corrected_tokens": 1439086469337.9846,
+                    "negative_count": 12,
+                    "negative_fraction": 0.0004,
+                    "passed": true,
+                    "ratio": 4.6410635359262006e-05,
+                    "removed_tokens": 66788917.37889299,
+                    "tolerance": 0.05
+                  },
+                  "covered_days": 60,
+                  "fit_attempts": [
+                    {
+                      "converged": true,
+                      "damped_trend": true,
+                      "iterations": 25,
+                      "reason": null,
+                      "seasonal": "add",
+                      "trend": "add",
+                      "warnings": []
+                    }
+                  ],
+                  "history_end": "2026-08-29",
+                  "history_start": "2026-07-01",
+                  "last_active_date": "2026-08-29",
+                  "reasons": [],
+                  "recent_total": 1352839008.0,
+                  "sampling_days": 60,
+                  "sampling_end": "2026-08-29",
+                  "sampling_start": "2026-07-01",
+                  "series_id": "d63df2dd6ee9bab228c75b09ab691eadbbd2c69afa02843297db7d1735572818",
+                  "startup_source": "observed",
+                  "startup_start": "2026-07-01"
+                },
+                {
+                  "active_day_average_tokens": 107558104.96666667,
+                  "assumptions": [
+                    "uncalibrated_model_estimate",
+                    "fixed_allocation_shares",
+                    "common_residual_window"
+                  ],
+                  "correction": {
+                    "corrected_tokens": 4253255702297.4585,
+                    "negative_count": 10,
+                    "negative_fraction": 0.0003333333333333333,
+                    "passed": true,
+                    "ratio": 2.792829965473402e-05,
+                    "removed_tokens": 118786199.76196961,
+                    "tolerance": 0.05
+                  },
+                  "covered_days": 60,
+                  "fit_attempts": [
+                    {
+                      "converged": true,
+                      "damped_trend": true,
+                      "iterations": 31,
+                      "reason": null,
+                      "seasonal": "add",
+                      "trend": "add",
+                      "warnings": []
+                    }
+                  ],
+                  "history_end": "2026-08-29",
+                  "history_start": "2026-07-01",
+                  "last_active_date": "2026-08-29",
+                  "reasons": [],
+                  "recent_total": 4040223691.0,
+                  "sampling_days": 60,
+                  "sampling_end": "2026-08-29",
+                  "sampling_start": "2026-07-01",
+                  "series_id": "2a36201dc7e95fb947d7453cff90811b3b2369a6719a29a08ef7687d70ca461f",
+                  "startup_source": "observed",
+                  "startup_start": "2026-07-01"
+                },
+                {
+                  "active_day_average_tokens": 7735542.35,
+                  "assumptions": [
+                    "uncalibrated_model_estimate",
+                    "fixed_allocation_shares",
+                    "common_residual_window",
+                    "excess_negative_correction"
+                  ],
+                  "correction": {
+                    "corrected_tokens": 161015644979.6159,
+                    "negative_count": 3020,
+                    "negative_fraction": 0.10066666666666667,
+                    "passed": false,
+                    "ratio": 0.056281441511273116,
+                    "removed_tokens": 9062192605.32017,
+                    "tolerance": 0.05
+                  },
+                  "covered_days": 60,
+                  "fit_attempts": [
+                    {
+                      "converged": true,
+                      "damped_trend": true,
+                      "iterations": 30,
+                      "reason": null,
+                      "seasonal": "add",
+                      "trend": "add",
+                      "warnings": []
+                    }
+                  ],
+                  "history_end": "2026-08-29",
+                  "history_start": "2026-07-01",
+                  "last_active_date": "2026-08-29",
+                  "reasons": [],
+                  "recent_total": 136348430.0,
+                  "sampling_days": 60,
+                  "sampling_end": "2026-08-29",
+                  "sampling_start": "2026-07-01",
+                  "series_id": "fad5731fc142be5854dbac3dce1646251249a6420fed0311e638e4a38facebd9",
+                  "startup_source": "observed",
+                  "startup_start": "2026-07-01"
+                },
+                {
+                  "active_day_average_tokens": 23132873.816666666,
+                  "assumptions": [
+                    "uncalibrated_model_estimate",
+                    "fixed_allocation_shares",
+                    "common_residual_window"
+                  ],
+                  "correction": {
+                    "corrected_tokens": 517069553923.3909,
+                    "negative_count": 2462,
+                    "negative_fraction": 0.08206666666666666,
+                    "passed": true,
+                    "ratio": 0.038991951050482074,
+                    "removed_tokens": 20161550736.27546,
+                    "tolerance": 0.05
+                  },
+                  "covered_days": 60,
+                  "fit_attempts": [
+                    {
+                      "converged": true,
+                      "damped_trend": true,
+                      "iterations": 22,
+                      "reason": null,
+                      "seasonal": "add",
+                      "trend": "add",
+                      "warnings": []
+                    }
+                  ],
+                  "history_end": "2026-08-29",
+                  "history_start": "2026-07-01",
+                  "last_active_date": "2026-08-29",
+                  "reasons": [],
+                  "recent_total": 409746769.0,
+                  "sampling_days": 60,
+                  "sampling_end": "2026-08-29",
+                  "sampling_start": "2026-07-01",
+                  "series_id": "17a8c89e3d3e8a74b63fdfe6da38fe67d8d1615fbfe145148245b1d42f50b762",
+                  "startup_source": "observed",
+                  "startup_start": "2026-07-01"
+                },
+                {
+                  "active_day_average_tokens": 4358655.466666667,
+                  "assumptions": [
+                    "uncalibrated_model_estimate",
+                    "fixed_allocation_shares",
+                    "common_residual_window"
+                  ],
+                  "correction": {
+                    "corrected_tokens": 188518308643.19022,
+                    "negative_count": 0,
+                    "negative_fraction": 0.0,
+                    "passed": true,
+                    "ratio": 0.0,
+                    "removed_tokens": 0.0,
+                    "tolerance": 0.05
+                  },
+                  "covered_days": 60,
+                  "fit_attempts": [
+                    {
+                      "converged": true,
+                      "damped_trend": true,
+                      "iterations": 77,
+                      "reason": null,
+                      "seasonal": "add",
+                      "trend": "add",
+                      "warnings": []
+                    }
+                  ],
+                  "history_end": "2026-08-29",
+                  "history_start": "2026-07-01",
+                  "last_active_date": "2026-08-29",
+                  "reasons": [],
+                  "recent_total": 155662237.0,
+                  "sampling_days": 60,
+                  "sampling_end": "2026-08-29",
+                  "sampling_start": "2026-07-01",
+                  "series_id": "0dd93559d894e87b64dfd5e88efa2aef3e34dc634d346f7ef3c4d42ff2620565",
+                  "startup_source": "observed",
+                  "startup_start": "2026-07-01"
+                },
+                {
+                  "active_day_average_tokens": 13279919.483333332,
+                  "assumptions": [
+                    "uncalibrated_model_estimate",
+                    "fixed_allocation_shares",
+                    "common_residual_window"
+                  ],
+                  "correction": {
+                    "corrected_tokens": 574433782614.1931,
+                    "negative_count": 0,
+                    "negative_fraction": 0.0,
+                    "passed": true,
+                    "ratio": 0.0,
+                    "removed_tokens": 0.0,
+                    "tolerance": 0.05
+                  },
+                  "covered_days": 60,
+                  "fit_attempts": [
+                    {
+                      "converged": true,
+                      "damped_trend": true,
+                      "iterations": 109,
+                      "reason": null,
+                      "seasonal": "add",
+                      "trend": "add",
+                      "warnings": []
+                    }
+                  ],
+                  "history_end": "2026-08-29",
+                  "history_start": "2026-07-01",
+                  "last_active_date": "2026-08-29",
+                  "reasons": [],
+                  "recent_total": 473386200.0,
+                  "sampling_days": 60,
+                  "sampling_end": "2026-08-29",
+                  "sampling_start": "2026-07-01",
+                  "series_id": "a9d47a8a36ba76317ce97296eb738a0fce21259a1833a537e213037d9c7b6d01",
+                  "startup_source": "observed",
+                  "startup_start": "2026-07-01"
+                },
+                {
+                  "active_day_average_tokens": 1030583.5833333334,
+                  "assumptions": [
+                    "uncalibrated_model_estimate",
+                    "fixed_allocation_shares",
+                    "common_residual_window",
+                    "excess_negative_correction"
+                  ],
+                  "correction": {
+                    "corrected_tokens": 17679746872.401356,
+                    "negative_count": 8314,
+                    "negative_fraction": 0.27713333333333334,
+                    "passed": false,
+                    "ratio": 0.2228489418034337,
+                    "removed_tokens": 3939912881.867209,
+                    "tolerance": 0.05
+                  },
+                  "covered_days": 60,
+                  "fit_attempts": [
+                    {
+                      "converged": true,
+                      "damped_trend": true,
+                      "iterations": 39,
+                      "reason": null,
+                      "seasonal": "add",
+                      "trend": "add",
+                      "warnings": []
+                    }
+                  ],
+                  "history_end": "2026-08-29",
+                  "history_start": "2026-07-01",
+                  "last_active_date": "2026-08-29",
+                  "reasons": [],
+                  "recent_total": 16102425.0,
+                  "sampling_days": 60,
+                  "sampling_end": "2026-08-29",
+                  "sampling_start": "2026-07-01",
+                  "series_id": "75b24efd36585ce5e98723e0c078ea6c7a933836aa3f05117bd3411923962770",
+                  "startup_source": "observed",
+                  "startup_start": "2026-07-01"
+                },
+                {
+                  "active_day_average_tokens": 3063320.6666666665,
+                  "assumptions": [
+                    "uncalibrated_model_estimate",
+                    "fixed_allocation_shares",
+                    "common_residual_window",
+                    "excess_negative_correction"
+                  ],
+                  "correction": {
+                    "corrected_tokens": 52670246229.800224,
+                    "negative_count": 8045,
+                    "negative_fraction": 0.26816666666666666,
+                    "passed": false,
+                    "ratio": 0.20326677514704536,
+                    "removed_tokens": 10706111097.332315,
+                    "tolerance": 0.05
+                  },
+                  "covered_days": 60,
+                  "fit_attempts": [
+                    {
+                      "converged": true,
+                      "damped_trend": true,
+                      "iterations": 37,
+                      "reason": null,
+                      "seasonal": "add",
+                      "trend": "add",
+                      "warnings": []
+                    }
+                  ],
+                  "history_end": "2026-08-29",
+                  "history_start": "2026-07-01",
+                  "last_active_date": "2026-08-29",
+                  "reasons": [],
+                  "recent_total": 48293831.0,
+                  "sampling_days": 60,
+                  "sampling_end": "2026-08-29",
+                  "sampling_start": "2026-07-01",
+                  "series_id": "d4b6501d295111d162768680fe7fa7b86ae849c8707c7347cf2b9e9316d34d4a",
+                  "startup_source": "observed",
+                  "startup_start": "2026-07-01"
+                },
+                {
+                  "active_day_average_tokens": 2436097.456140351,
+                  "assumptions": [
+                    "uncalibrated_model_estimate",
+                    "fixed_allocation_shares",
+                    "common_residual_window"
+                  ],
+                  "correction": {
+                    "corrected_tokens": 111107191435.86374,
+                    "negative_count": 758,
+                    "negative_fraction": 0.025266666666666666,
+                    "passed": true,
+                    "ratio": 0.0023223440980619505,
+                    "removed_tokens": 258029130.28331745,
+                    "tolerance": 0.05
+                  },
+                  "covered_days": 60,
+                  "fit_attempts": [
+                    {
+                      "converged": true,
+                      "damped_trend": true,
+                      "iterations": 66,
+                      "reason": null,
+                      "seasonal": "add",
+                      "trend": "add",
+                      "warnings": []
+                    }
+                  ],
+                  "history_end": "2026-08-29",
+                  "history_start": "2026-07-01",
+                  "last_active_date": "2026-08-29",
+                  "reasons": [],
+                  "recent_total": 92915395.0,
+                  "sampling_days": 60,
+                  "sampling_end": "2026-08-29",
+                  "sampling_start": "2026-07-01",
+                  "series_id": "5adcc4a17a2b118322e8ba2cb22ad964790f5633e20a49c9ecd9ec5988591fc1",
+                  "startup_source": "observed",
+                  "startup_start": "2026-07-01"
+                },
+                {
+                  "active_day_average_tokens": 7379695.070175438,
+                  "assumptions": [
+                    "uncalibrated_model_estimate",
+                    "fixed_allocation_shares",
+                    "common_residual_window"
+                  ],
+                  "correction": {
+                    "corrected_tokens": 341885294526.38043,
+                    "negative_count": 662,
+                    "negative_fraction": 0.022066666666666665,
+                    "passed": true,
+                    "ratio": 0.001701588304830295,
+                    "removed_tokens": 581748018.7595499,
+                    "tolerance": 0.05
+                  },
+                  "covered_days": 60,
+                  "fit_attempts": [
+                    {
+                      "converged": true,
+                      "damped_trend": true,
+                      "iterations": 81,
+                      "reason": null,
+                      "seasonal": "add",
+                      "trend": "add",
+                      "warnings": []
+                    }
+                  ],
+                  "history_end": "2026-08-29",
+                  "history_start": "2026-07-01",
+                  "last_active_date": "2026-08-29",
+                  "reasons": [],
+                  "recent_total": 285269702.0,
+                  "sampling_days": 60,
+                  "sampling_end": "2026-08-29",
+                  "sampling_start": "2026-07-01",
+                  "series_id": "dedccb33ccd251e40475e190a1ca19cf7cdd838915ff5c0933ab2f13d7c94049",
+                  "startup_source": "observed",
+                  "startup_start": "2026-07-01"
+                },
+                {
+                  "active_day_average_tokens": 468556.2456140351,
+                  "assumptions": [
+                    "uncalibrated_model_estimate",
+                    "fixed_allocation_shares",
+                    "common_residual_window",
+                    "excess_negative_correction"
+                  ],
+                  "correction": {
+                    "corrected_tokens": 9967239706.477299,
+                    "negative_count": 10299,
+                    "negative_fraction": 0.3433,
+                    "passed": false,
+                    "ratio": 0.31469794726117223,
+                    "removed_tokens": 3136669875.488455,
+                    "tolerance": 0.05
+                  },
+                  "covered_days": 60,
+                  "fit_attempts": [
+                    {
+                      "converged": true,
+                      "damped_trend": true,
+                      "iterations": 64,
+                      "reason": null,
+                      "seasonal": "add",
+                      "trend": "add",
+                      "warnings": []
+                    }
+                  ],
+                  "history_end": "2026-08-29",
+                  "history_start": "2026-07-01",
+                  "last_active_date": "2026-08-29",
+                  "reasons": [],
+                  "recent_total": 9401195.0,
+                  "sampling_days": 60,
+                  "sampling_end": "2026-08-29",
+                  "sampling_start": "2026-07-01",
+                  "series_id": "3dadc26f4e0a0582918a83b883fa8cc366fd2d2e45b1576bf014ce65cd3b345e",
+                  "startup_source": "observed",
+                  "startup_start": "2026-07-01"
+                },
+                {
+                  "active_day_average_tokens": 1397952.245614035,
+                  "assumptions": [
+                    "uncalibrated_model_estimate",
+                    "fixed_allocation_shares",
+                    "common_residual_window",
+                    "excess_negative_correction"
+                  ],
+                  "correction": {
+                    "corrected_tokens": 29957360685.903137,
+                    "negative_count": 10310,
+                    "negative_fraction": 0.3436666666666667,
+                    "passed": false,
+                    "ratio": 0.32117186689194366,
+                    "removed_tokens": 9621461458.646828,
+                    "tolerance": 0.05
+                  },
+                  "covered_days": 60,
+                  "fit_attempts": [
+                    {
+                      "converged": true,
+                      "damped_trend": true,
+                      "iterations": 64,
+                      "reason": null,
+                      "seasonal": "add",
+                      "trend": "add",
+                      "warnings": []
+                    }
+                  ],
+                  "history_end": "2026-08-29",
+                  "history_start": "2026-07-01",
+                  "last_active_date": "2026-08-29",
+                  "reasons": [],
+                  "recent_total": 28222447.0,
+                  "sampling_days": 60,
+                  "sampling_end": "2026-08-29",
+                  "sampling_start": "2026-07-01",
+                  "series_id": "01846b498ee1ae70551f31d07db795a6eafc321a9185a36663cef81a5c0ac6b4",
+                  "startup_source": "observed",
+                  "startup_start": "2026-07-01"
+                },
+                {
+                  "active_day_average_tokens": 7802582.466666667,
+                  "assumptions": [
+                    "uncalibrated_model_estimate",
+                    "fixed_allocation_shares",
+                    "common_residual_window",
+                    "excess_negative_correction"
+                  ],
+                  "correction": {
+                    "corrected_tokens": 115060002572.73676,
+                    "negative_count": 4435,
+                    "negative_fraction": 0.14783333333333334,
+                    "passed": false,
+                    "ratio": 0.07050454315311254,
+                    "removed_tokens": 8112252916.586758,
+                    "tolerance": 0.05
+                  },
+                  "covered_days": 60,
+                  "fit_attempts": [
+                    {
+                      "converged": true,
+                      "damped_trend": true,
+                      "iterations": 84,
+                      "reason": null,
+                      "seasonal": "add",
+                      "trend": "add",
+                      "warnings": []
+                    }
+                  ],
+                  "history_end": "2026-08-29",
+                  "history_start": "2026-07-01",
+                  "last_active_date": "2026-08-29",
+                  "reasons": [],
+                  "recent_total": 192700315.0,
+                  "sampling_days": 60,
+                  "sampling_end": "2026-08-29",
+                  "sampling_start": "2026-07-01",
+                  "series_id": "45bb07ae3eb1eda1a371216e43c69adb77e0f01e78f9e38cb3495d80150166f2",
+                  "startup_source": "observed",
+                  "startup_start": "2026-07-01"
+                },
+                {
+                  "active_day_average_tokens": 23370141.25,
+                  "assumptions": [
+                    "uncalibrated_model_estimate",
+                    "fixed_allocation_shares",
+                    "common_residual_window",
+                    "excess_negative_correction"
+                  ],
+                  "correction": {
+                    "corrected_tokens": 325462404672.79645,
+                    "negative_count": 5044,
+                    "negative_fraction": 0.16813333333333333,
+                    "passed": false,
+                    "ratio": 0.0897084595693212,
+                    "removed_tokens": 29196730970.92362,
+                    "tolerance": 0.05
+                  },
+                  "covered_days": 60,
+                  "fit_attempts": [
+                    {
+                      "converged": true,
+                      "damped_trend": true,
+                      "iterations": 54,
+                      "reason": null,
+                      "seasonal": "add",
+                      "trend": "add",
+                      "warnings": []
+                    }
+                  ],
+                  "history_end": "2026-08-29",
+                  "history_start": "2026-07-01",
+                  "last_active_date": "2026-08-29",
+                  "reasons": [],
+                  "recent_total": 578663315.0,
+                  "sampling_days": 60,
+                  "sampling_end": "2026-08-29",
+                  "sampling_start": "2026-07-01",
+                  "series_id": "98649af21dc1b1dcdf807170452fbc4f0d486101fb4f0f486c7a6d2266e9caf9",
+                  "startup_source": "observed",
+                  "startup_start": "2026-07-01"
+                },
+                {
+                  "active_day_average_tokens": 2520782.8,
+                  "assumptions": [
+                    "uncalibrated_model_estimate",
+                    "fixed_allocation_shares",
+                    "common_residual_window",
+                    "excess_negative_correction"
+                  ],
+                  "correction": {
+                    "corrected_tokens": 8861844708.899519,
+                    "negative_count": 17919,
+                    "negative_fraction": 0.5973,
+                    "passed": false,
+                    "ratio": 1.470251732046739,
+                    "removed_tokens": 13029142532.388746,
+                    "tolerance": 0.05
+                  },
+                  "covered_days": 60,
+                  "fit_attempts": [
+                    {
+                      "converged": true,
+                      "damped_trend": true,
+                      "iterations": 94,
+                      "reason": null,
+                      "seasonal": "add",
+                      "trend": "add",
+                      "warnings": []
+                    }
+                  ],
+                  "history_end": "2026-08-29",
+                  "history_start": "2026-07-01",
+                  "last_active_date": "2026-08-29",
+                  "reasons": [],
+                  "recent_total": 21038030.0,
+                  "sampling_days": 60,
+                  "sampling_end": "2026-08-29",
+                  "sampling_start": "2026-07-01",
+                  "series_id": "ed54850dc3e2ce0e58d8e39e0f189dd92d860dfbae311a478a5b86caf3a3d9ea",
+                  "startup_source": "observed",
+                  "startup_start": "2026-07-01"
+                },
+                {
+                  "active_day_average_tokens": 7609220.166666667,
+                  "assumptions": [
+                    "uncalibrated_model_estimate",
+                    "fixed_allocation_shares",
+                    "common_residual_window",
+                    "excess_negative_correction"
+                  ],
+                  "correction": {
+                    "corrected_tokens": 30226031800.73921,
+                    "negative_count": 17282,
+                    "negative_fraction": 0.5760666666666666,
+                    "passed": false,
+                    "ratio": 1.284106045560995,
+                    "removed_tokens": 38813430168.6481,
+                    "tolerance": 0.05
+                  },
+                  "covered_days": 60,
+                  "fit_attempts": [
+                    {
+                      "converged": true,
+                      "damped_trend": true,
+                      "iterations": 69,
+                      "reason": null,
+                      "seasonal": "add",
+                      "trend": "add",
+                      "warnings": []
+                    }
+                  ],
+                  "history_end": "2026-08-29",
+                  "history_start": "2026-07-01",
+                  "last_active_date": "2026-08-29",
+                  "reasons": [],
+                  "recent_total": 61881754.0,
+                  "sampling_days": 60,
+                  "sampling_end": "2026-08-29",
+                  "sampling_start": "2026-07-01",
+                  "series_id": "c2df276e8bf9555a2d696c3540ce7077aba4abcfca01668384d42aa4852bd587",
+                  "startup_source": "observed",
+                  "startup_start": "2026-07-01"
+                },
+                {
+                  "active_day_average_tokens": 5381172.983333333,
+                  "assumptions": [
+                    "uncalibrated_model_estimate",
+                    "fixed_allocation_shares",
+                    "common_residual_window"
+                  ],
+                  "correction": {
+                    "corrected_tokens": 107699429363.94405,
+                    "negative_count": 3959,
+                    "negative_fraction": 0.13196666666666668,
+                    "passed": true,
+                    "ratio": 0.04996196155768829,
+                    "removed_tokens": 5380874749.666338,
+                    "tolerance": 0.05
+                  },
+                  "covered_days": 60,
+                  "fit_attempts": [
+                    {
+                      "converged": true,
+                      "damped_trend": true,
+                      "iterations": 40,
+                      "reason": null,
+                      "seasonal": "add",
+                      "trend": "add",
+                      "warnings": []
+                    }
+                  ],
+                  "history_end": "2026-08-29",
+                  "history_start": "2026-07-01",
+                  "last_active_date": "2026-08-29",
+                  "reasons": [],
+                  "recent_total": 103160080.0,
+                  "sampling_days": 60,
+                  "sampling_end": "2026-08-29",
+                  "sampling_start": "2026-07-01",
+                  "series_id": "40f4b9aa686a931849624c66947ef1799673f3a111208a461445b53061da1640",
+                  "startup_source": "observed",
+                  "startup_start": "2026-07-01"
+                },
+                {
+                  "active_day_average_tokens": 16166160.55,
+                  "assumptions": [
+                    "uncalibrated_model_estimate",
+                    "fixed_allocation_shares",
+                    "common_residual_window"
+                  ],
+                  "correction": {
+                    "corrected_tokens": 283430026369.9443,
+                    "negative_count": 3983,
+                    "negative_fraction": 0.13276666666666667,
+                    "passed": true,
+                    "ratio": 0.0475562615713033,
+                    "removed_tokens": 13478872471.21046,
+                    "tolerance": 0.05
+                  },
+                  "covered_days": 60,
+                  "fit_attempts": [
+                    {
+                      "converged": true,
+                      "damped_trend": true,
+                      "iterations": 71,
+                      "reason": null,
+                      "seasonal": "add",
+                      "trend": "add",
+                      "warnings": []
+                    }
+                  ],
+                  "history_end": "2026-08-29",
+                  "history_start": "2026-07-01",
+                  "last_active_date": "2026-08-29",
+                  "reasons": [],
+                  "recent_total": 312129536.0,
+                  "sampling_days": 60,
+                  "sampling_end": "2026-08-29",
+                  "sampling_start": "2026-07-01",
+                  "series_id": "abd651fa9fbfd8106c07362ed35bb1a1bd1506eb0ed5e9b49190622106949bee",
+                  "startup_source": "observed",
+                  "startup_start": "2026-07-01"
+                },
+                {
+                  "active_day_average_tokens": 1919483.9666666666,
+                  "assumptions": [
+                    "uncalibrated_model_estimate",
+                    "fixed_allocation_shares",
+                    "common_residual_window",
+                    "excess_negative_correction"
+                  ],
+                  "correction": {
+                    "corrected_tokens": 24712137873.25686,
+                    "negative_count": 14905,
+                    "negative_fraction": 0.49683333333333335,
+                    "passed": false,
+                    "ratio": 0.9936293407633147,
+                    "removed_tokens": 24554705263.856354,
+                    "tolerance": 0.05
+                  },
+                  "covered_days": 60,
+                  "fit_attempts": [
+                    {
+                      "converged": true,
+                      "damped_trend": true,
+                      "iterations": 28,
+                      "reason": null,
+                      "seasonal": "add",
+                      "trend": "add",
+                      "warnings": []
+                    }
+                  ],
+                  "history_end": "2026-08-29",
+                  "history_start": "2026-07-01",
+                  "last_active_date": "2026-08-29",
+                  "reasons": [],
+                  "recent_total": 10357183.0,
+                  "sampling_days": 60,
+                  "sampling_end": "2026-08-29",
+                  "sampling_start": "2026-07-01",
+                  "series_id": "3959452f918ce93368073b58cd2920e3ede78a41841cf38827395b829f180dc7",
+                  "startup_source": "observed",
+                  "startup_start": "2026-07-01"
+                },
+                {
+                  "active_day_average_tokens": 5754448.116666666,
+                  "assumptions": [
+                    "uncalibrated_model_estimate",
+                    "fixed_allocation_shares",
+                    "common_residual_window",
+                    "excess_negative_correction"
+                  ],
+                  "correction": {
+                    "corrected_tokens": 77301127789.25864,
+                    "negative_count": 14842,
+                    "negative_fraction": 0.49473333333333336,
+                    "passed": false,
+                    "ratio": 0.9746941517716716,
+                    "removed_tokens": 75344957181.54504,
+                    "tolerance": 0.05
+                  },
+                  "covered_days": 60,
+                  "fit_attempts": [
+                    {
+                      "converged": true,
+                      "damped_trend": true,
+                      "iterations": 31,
+                      "reason": null,
+                      "seasonal": "add",
+                      "trend": "add",
+                      "warnings": []
+                    }
+                  ],
+                  "history_end": "2026-08-29",
+                  "history_start": "2026-07-01",
+                  "last_active_date": "2026-08-29",
+                  "reasons": [],
+                  "recent_total": 30913229.0,
+                  "sampling_days": 60,
+                  "sampling_end": "2026-08-29",
+                  "sampling_start": "2026-07-01",
+                  "series_id": "54a0d4c4caeb3b39fb0903530555badb111194c77049ee5d5a2c12120bef2f3c",
+                  "startup_source": "observed",
+                  "startup_start": "2026-07-01"
+                },
+                {
+                  "active_day_average_tokens": 35916504.5,
+                  "assumptions": [
+                    "uncalibrated_model_estimate",
+                    "fixed_allocation_shares",
+                    "common_residual_window"
+                  ],
+                  "correction": {
+                    "corrected_tokens": 1453890047434.1885,
+                    "negative_count": 14,
+                    "negative_fraction": 0.00046666666666666666,
+                    "passed": true,
+                    "ratio": 5.008015960439432e-05,
+                    "removed_tokens": 72811045.62274459,
+                    "tolerance": 0.05
+                  },
+                  "covered_days": 60,
+                  "fit_attempts": [
+                    {
+                      "converged": true,
+                      "damped_trend": true,
+                      "iterations": 25,
+                      "reason": null,
+                      "seasonal": "add",
+                      "trend": "add",
+                      "warnings": []
+                    }
+                  ],
+                  "history_end": "2026-08-29",
+                  "history_start": "2026-07-01",
+                  "last_active_date": "2026-08-29",
+                  "reasons": [],
+                  "recent_total": 1352839008.0,
+                  "sampling_days": 60,
+                  "sampling_end": "2026-08-29",
+                  "sampling_start": "2026-07-01",
+                  "series_id": "e13157a98bb9f7513f3f537519e5659fd6eb0537e341324d55870f18b9c2912b",
+                  "startup_source": "observed",
+                  "startup_start": "2026-07-01"
+                },
+                {
+                  "active_day_average_tokens": 107558104.96666667,
+                  "assumptions": [
+                    "uncalibrated_model_estimate",
+                    "fixed_allocation_shares",
+                    "common_residual_window"
+                  ],
+                  "correction": {
+                    "corrected_tokens": 4288311759405.5693,
+                    "negative_count": 12,
+                    "negative_fraction": 0.0004,
+                    "passed": true,
+                    "ratio": 3.868990139485917e-05,
+                    "removed_tokens": 165914359.12181652,
+                    "tolerance": 0.05
+                  },
+                  "covered_days": 60,
+                  "fit_attempts": [
+                    {
+                      "converged": true,
+                      "damped_trend": true,
+                      "iterations": 31,
+                      "reason": null,
+                      "seasonal": "add",
+                      "trend": "add",
+                      "warnings": []
+                    }
+                  ],
+                  "history_end": "2026-08-29",
+                  "history_start": "2026-07-01",
+                  "last_active_date": "2026-08-29",
+                  "reasons": [],
+                  "recent_total": 4040223691.0,
+                  "sampling_days": 60,
+                  "sampling_end": "2026-08-29",
+                  "sampling_start": "2026-07-01",
+                  "series_id": "824183ddd9342971206aa4fa29877993c6cd739d4de7445cf796ba6fe18ad9b0",
+                  "startup_source": "observed",
+                  "startup_start": "2026-07-01"
+                },
+                {
+                  "active_day_average_tokens": 7735542.35,
+                  "assumptions": [
+                    "uncalibrated_model_estimate",
+                    "fixed_allocation_shares",
+                    "common_residual_window"
+                  ],
+                  "correction": {
+                    "corrected_tokens": 167048119712.60504,
+                    "negative_count": 2700,
+                    "negative_fraction": 0.09,
+                    "passed": true,
+                    "ratio": 0.046478322799801665,
+                    "removed_tokens": 7764116431.102369,
+                    "tolerance": 0.05
+                  },
+                  "covered_days": 60,
+                  "fit_attempts": [
+                    {
+                      "converged": true,
+                      "damped_trend": true,
+                      "iterations": 30,
+                      "reason": null,
+                      "seasonal": "add",
+                      "trend": "add",
+                      "warnings": []
+                    }
+                  ],
+                  "history_end": "2026-08-29",
+                  "history_start": "2026-07-01",
+                  "last_active_date": "2026-08-29",
+                  "reasons": [],
+                  "recent_total": 136348430.0,
+                  "sampling_days": 60,
+                  "sampling_end": "2026-08-29",
+                  "sampling_start": "2026-07-01",
+                  "series_id": "6aeef8822bc7b34c03a926bb530872775d10e281eeeeb5a365607bdcfc8497c6",
+                  "startup_source": "observed",
+                  "startup_start": "2026-07-01"
+                },
+                {
+                  "active_day_average_tokens": 23132873.816666666,
+                  "assumptions": [
+                    "uncalibrated_model_estimate",
+                    "fixed_allocation_shares",
+                    "common_residual_window"
+                  ],
+                  "correction": {
+                    "corrected_tokens": 526481442259.85046,
+                    "negative_count": 2164,
+                    "negative_fraction": 0.07213333333333333,
+                    "passed": true,
+                    "ratio": 0.03218352606242892,
+                    "removed_tokens": 16944029218.355062,
+                    "tolerance": 0.05
+                  },
+                  "covered_days": 60,
+                  "fit_attempts": [
+                    {
+                      "converged": true,
+                      "damped_trend": true,
+                      "iterations": 22,
+                      "reason": null,
+                      "seasonal": "add",
+                      "trend": "add",
+                      "warnings": []
+                    }
+                  ],
+                  "history_end": "2026-08-29",
+                  "history_start": "2026-07-01",
+                  "last_active_date": "2026-08-29",
+                  "reasons": [],
+                  "recent_total": 409746769.0,
+                  "sampling_days": 60,
+                  "sampling_end": "2026-08-29",
+                  "sampling_start": "2026-07-01",
+                  "series_id": "c1724057d7c501b630d15bcd59da8430ce9d054c78df0f84ccb301cd1c446650",
+                  "startup_source": "observed",
+                  "startup_start": "2026-07-01"
+                }
+              ]
+            },
+            "exit_code": 0,
+            "origin": "2026-08-29",
+            "output_dir": "/Users/anil/workspace/Talium/code-econ-67-calib/econ-forecast/examples/curve-guided/forecast/run",
+            "rejected_scopes": 0,
+            "report_path": "/Users/anil/workspace/Talium/code-econ-67-calib/econ-forecast/examples/curve-guided/forecast/run/report.md",
+            "requested_scopes": 9,
+            "status": "complete"
+          }
+        }
+      ],
+      "stage": "forecast",
+      "status": "complete"
+    },
+    {
+      "commands": [
+        {
+          "argv": [
+            "utils/cost.sh",
+            "--forecast-run",
+            "forecast/run",
+            "--output",
+            "cost/baseline",
+            "--force"
+          ],
+          "elapsed_seconds": 2.2052190829999745,
+          "exit_code": 0,
+          "status": "complete",
+          "stderr_tail": null,
+          "summary": {
+            "exit_code": 0,
+            "output_dir": "cost/baseline",
+            "scenario": "baseline",
+            "scopes": [
+              {
+                "expected_usd": {
+                  "calendar": 7083.77096541549,
+                  "requested": 7083.77096541549
+                },
+                "scope_name": "talium.ai",
+                "scope_type": "organization",
+                "status": "complete"
+              },
+              {
+                "expected_usd": {
+                  "calendar": 766.42436699152,
+                  "requested": 766.42436699152
+                },
+                "scope_name": "team1",
+                "scope_type": "team",
+                "status": "complete"
+              },
+              {
+                "expected_usd": {
+                  "calendar": 724.1855671081757,
+                  "requested": 724.1855671081757
+                },
+                "scope_name": "team2",
+                "scope_type": "team",
+                "status": "complete"
+              },
+              {
+                "expected_usd": {
+                  "calendar": 5749.251318620859,
+                  "requested": 5749.251318620859
+                },
+                "scope_name": "team3",
+                "scope_type": "team",
+                "status": "complete"
+              },
+              {
+                "expected_usd": {
+                  "calendar": 759.0526459417271,
+                  "requested": 759.0526459417271
+                },
+                "scope_name": "payment_service_improvement",
+                "scope_type": "project",
+                "status": "complete"
+              },
+              {
+                "expected_usd": {
+                  "calendar": 438.60313094739155,
+                  "requested": 438.60313094739155
+                },
+                "scope_name": "auth_service_rewrite",
+                "scope_type": "project",
+                "status": "complete"
+              },
+              {
+                "expected_usd": {
+                  "calendar": 441.5121768279077,
+                  "requested": 441.5121768279077
+                },
+                "scope_name": "data_pipeline_upgrade",
+                "scope_type": "project",
+                "status": "complete"
+              },
+              {
+                "expected_usd": {
+                  "calendar": 443.25727630706933,
+                  "requested": 443.25727630706933
+                },
+                "scope_name": "search_service_improvement",
+                "scope_type": "project",
+                "status": "complete"
+              },
+              {
+                "expected_usd": {
+                  "calendar": 5810.474100337222,
+                  "requested": 5810.474100337222
+                },
+                "scope_name": "developer_tooling",
+                "scope_type": "project",
+                "status": "complete"
+              }
+            ],
+            "status": "complete",
+            "unpriced_models": []
+          }
+        },
+        {
+          "argv": [
+            "utils/cost.sh",
+            "--forecast-run",
+            "forecast/run",
+            "--scenario",
+            "cost/scenarios/org-cheaper-models.yaml",
+            "--output",
+            "cost/org-cheaper-models",
+            "--force"
+          ],
+          "elapsed_seconds": 2.3710881671868265,
+          "exit_code": 0,
+          "status": "complete",
+          "stderr_tail": null,
+          "summary": {
+            "exit_code": 0,
+            "output_dir": "cost/org-cheaper-models",
+            "scenario": "org-cheaper-models",
+            "scopes": [
+              {
+                "expected_usd": {
+                  "calendar": 6161.420062645538,
+                  "requested": 6161.420062645538
+                },
+                "scope_name": "talium.ai",
+                "scope_type": "organization",
+                "status": "complete"
+              },
+              {
+                "expected_usd": {
+                  "calendar": 670.3603744628359,
+                  "requested": 670.3603744628359
+                },
+                "scope_name": "team1",
+                "scope_type": "team",
+                "status": "complete"
+              },
+              {
+                "expected_usd": {
+                  "calendar": 626.2566040918281,
+                  "requested": 626.2566040918281
+                },
+                "scope_name": "team2",
+                "scope_type": "team",
+                "status": "complete"
+              },
+              {
+                "expected_usd": {
+                  "calendar": 5002.016606437201,
+                  "requested": 5002.016606437201
+                },
+                "scope_name": "team3",
+                "scope_type": "team",
+                "status": "complete"
+              },
+              {
+                "expected_usd": {
+                  "calendar": 666.7613144639417,
+                  "requested": 666.7613144639417
+                },
+                "scope_name": "payment_service_improvement",
+                "scope_type": "project",
+                "status": "complete"
+              },
+              {
+                "expected_usd": {
+                  "calendar": 378.9688141302225,
+                  "requested": 378.9688141302225
+                },
+                "scope_name": "auth_service_rewrite",
+                "scope_type": "project",
+                "status": "complete"
+              },
+              {
+                "expected_usd": {
+                  "calendar": 380.31570734143344,
+                  "requested": 380.31570734143344
+                },
+                "scope_name": "data_pipeline_upgrade",
+                "scope_type": "project",
+                "status": "complete"
+              },
+              {
+                "expected_usd": {
+                  "calendar": 382.7427268076105,
+                  "requested": 382.7427268076105
+                },
+                "scope_name": "search_service_improvement",
+                "scope_type": "project",
+                "status": "complete"
+              },
+              {
+                "expected_usd": {
+                  "calendar": 5054.378751863416,
+                  "requested": 5054.378751863416
+                },
+                "scope_name": "developer_tooling",
+                "scope_type": "project",
+                "status": "complete"
+              }
+            ],
+            "status": "complete",
+            "unpriced_models": []
+          }
+        },
+        {
+          "argv": [
+            "utils/cost.sh",
+            "--forecast-run",
+            "forecast/run",
+            "--scenario",
+            "cost/scenarios/org-growth.yaml",
+            "--output",
+            "cost/org-growth",
+            "--force"
+          ],
+          "elapsed_seconds": 2.0921988328918815,
+          "exit_code": 0,
+          "status": "complete",
+          "stderr_tail": null,
+          "summary": {
+            "exit_code": 0,
+            "output_dir": "cost/org-growth",
+            "scenario": "org-growth",
+            "scopes": [
+              {
+                "expected_usd": {
+                  "calendar": 8016.333289187489,
+                  "requested": 8016.333289187489
+                },
+                "scope_name": "talium.ai",
+                "scope_type": "organization",
+                "status": "complete"
+              },
+              {
+                "expected_usd": {
+                  "calendar": 856.8261111238918,
+                  "requested": 856.8261111238918
+                },
+                "scope_name": "team1",
+                "scope_type": "team",
+                "status": "complete"
+              },
+              {
+                "expected_usd": {
+                  "calendar": 815.519680396544,
+                  "requested": 815.519680396544
+                },
+                "scope_name": "team2",
+                "scope_type": "team",
+                "status": "complete"
+              },
+              {
+                "expected_usd": {
+                  "calendar": 6520.794936584805,
+                  "requested": 6520.794936584805
+                },
+                "scope_name": "team3",
+                "scope_type": "team",
+                "status": "complete"
+              },
+              {
+                "expected_usd": {
+                  "calendar": 862.9072525702428,
+                  "requested": 862.9072525702428
+                },
+                "scope_name": "payment_service_improvement",
+                "scope_type": "project",
+                "status": "complete"
+              },
+              {
+                "expected_usd": {
+                  "calendar": 497.099594219191,
+                  "requested": 497.099594219191
+                },
+                "scope_name": "auth_service_rewrite",
+                "scope_type": "project",
+                "status": "complete"
+              },
+              {
+                "expected_usd": {
+                  "calendar": 500.14108549258754,
+                  "requested": 500.14108549258754
+                },
+                "scope_name": "data_pipeline_upgrade",
+                "scope_type": "project",
+                "status": "complete"
+              },
+              {
+                "expected_usd": {
+                  "calendar": 501.658351105269,
+                  "requested": 501.658351105269
+                },
+                "scope_name": "search_service_improvement",
+                "scope_type": "project",
+                "status": "complete"
+              },
+              {
+                "expected_usd": {
+                  "calendar": 6593.937051556922,
+                  "requested": 6593.937051556922
+                },
+                "scope_name": "developer_tooling",
+                "scope_type": "project",
+                "status": "complete"
+              }
+            ],
+            "status": "complete",
+            "unpriced_models": []
+          }
+        },
+        {
+          "argv": [
+            "utils/cost.sh",
+            "--forecast-run",
+            "forecast/run",
+            "--scenario",
+            "cost/scenarios/team3-cheaper-models.yaml",
+            "--output",
+            "cost/team3-cheaper-models",
+            "--force"
+          ],
+          "elapsed_seconds": 2.2472348329611123,
+          "exit_code": 0,
+          "status": "complete",
+          "stderr_tail": null,
+          "summary": {
+            "exit_code": 0,
+            "output_dir": "cost/team3-cheaper-models",
+            "scenario": "team3-cheaper-models",
+            "scopes": [
+              {
+                "expected_usd": {
+                  "calendar": 6441.594010775456,
+                  "requested": 6441.594010775456
+                },
+                "scope_name": "talium.ai",
+                "scope_type": "organization",
+                "status": "complete"
+              },
+              {
+                "expected_usd": {
+                  "calendar": 766.42436699152,
+                  "requested": 766.42436699152
+                },
+                "scope_name": "team1",
+                "scope_type": "team",
+                "status": "complete"
+              },
+              {
+                "expected_usd": {
+                  "calendar": 724.1855671081757,
+                  "requested": 724.1855671081757
+                },
+                "scope_name": "team2",
+                "scope_type": "team",
+                "status": "complete"
+              },
+              {
+                "expected_usd": {
+                  "calendar": 5002.016606437201,
+                  "requested": 5002.016606437201
+                },
+                "scope_name": "team3",
+                "scope_type": "team",
+                "status": "complete"
+              },
+              {
+                "expected_usd": {
+                  "calendar": 759.0526459417271,
+                  "requested": 759.0526459417271
+                },
+                "scope_name": "payment_service_improvement",
+                "scope_type": "project",
+                "status": "complete"
+              },
+              {
+                "expected_usd": {
+                  "calendar": 438.60313094739155,
+                  "requested": 438.60313094739155
+                },
+                "scope_name": "auth_service_rewrite",
+                "scope_type": "project",
+                "status": "complete"
+              },
+              {
+                "expected_usd": {
+                  "calendar": 441.5121768279077,
+                  "requested": 441.5121768279077
+                },
+                "scope_name": "data_pipeline_upgrade",
+                "scope_type": "project",
+                "status": "complete"
+              },
+              {
+                "expected_usd": {
+                  "calendar": 443.25727630706933,
+                  "requested": 443.25727630706933
+                },
+                "scope_name": "search_service_improvement",
+                "scope_type": "project",
+                "status": "complete"
+              },
+              {
+                "expected_usd": {
+                  "calendar": 5054.378751863416,
+                  "requested": 5054.378751863416
+                },
+                "scope_name": "developer_tooling",
+                "scope_type": "project",
+                "status": "complete"
+              }
+            ],
+            "status": "complete",
+            "unpriced_models": []
+          }
+        }
+      ],
+      "stage": "cost",
+      "status": "complete"
+    },
+    {
+      "commands": [
+        {
+          "argv": [
+            "utils/plot_forecast.sh",
+            "--artifact",
+            "forecast/run",
+            "--config",
+            "plot.yaml",
+            "--force"
+          ],
+          "elapsed_seconds": 11.115566041786224,
+          "exit_code": 0,
+          "status": "complete",
+          "stderr_tail": null,
+          "summary": {
+            "artifact": "..",
+            "counts": {
+              "failed": 0,
+              "requested": 9,
+              "succeeded": 9
+            },
+            "created_at": "2026-10-06T16:51:20.118334+00:00",
+            "elapsed_seconds": 10.035725416149944,
+            "forecast_data": {
+              "dataset": "../../../../dataset/synth-curve-guided",
+              "source": "auto"
+            },
+            "operation": "plot",
+            "plots": [
+              {
+                "actuals_overlaid": true,
+                "band": [
+                  10,
+                  90
+                ],
+                "error": null,
+                "format": "both",
+                "measure": "tokens",
+                "model": null,
+                "models": null,
+                "outputs": {
+                  "html": "organization-talium-ai__models__tokens.html",
+                  "png": "organization-talium-ai__models__tokens.png"
+                },
+                "plotted_models": [
+                  "claude-opus-5",
+                  "claude-sonnet-5",
+                  "gpt-5.6-sol",
+                  "gpt-5.6-terra"
+                ],
+                "samples": 8,
+                "scope_name": null,
+                "scope_type": "organization",
+                "status": "complete",
+                "stem": "organization-talium-ai__models__tokens",
+                "unavailable_models": [],
+                "view": "models"
+              },
+              {
+                "actuals_overlaid": true,
+                "band": [
+                  10,
+                  90
+                ],
+                "error": null,
+                "format": "both",
+                "measure": "tokens",
+                "model": null,
+                "models": null,
+                "outputs": {
+                  "html": "team-team1__models__tokens.html",
+                  "png": "team-team1__models__tokens.png"
+                },
+                "plotted_models": [
+                  "claude-opus-5",
+                  "claude-sonnet-5",
+                  "gpt-5.6-sol",
+                  "gpt-5.6-terra"
+                ],
+                "samples": 8,
+                "scope_name": "team1",
+                "scope_type": "team",
+                "status": "complete",
+                "stem": "team-team1__models__tokens",
+                "unavailable_models": [],
+                "view": "models"
+              },
+              {
+                "actuals_overlaid": true,
+                "band": [
+                  10,
+                  90
+                ],
+                "error": null,
+                "format": "both",
+                "measure": "tokens",
+                "model": null,
+                "models": null,
+                "outputs": {
+                  "html": "team-team2__models__tokens.html",
+                  "png": "team-team2__models__tokens.png"
+                },
+                "plotted_models": [
+                  "claude-opus-5",
+                  "claude-sonnet-5",
+                  "gpt-5.6-sol",
+                  "gpt-5.6-terra"
+                ],
+                "samples": 8,
+                "scope_name": "team2",
+                "scope_type": "team",
+                "status": "complete",
+                "stem": "team-team2__models__tokens",
+                "unavailable_models": [],
+                "view": "models"
+              },
+              {
+                "actuals_overlaid": true,
+                "band": [
+                  10,
+                  90
+                ],
+                "error": null,
+                "format": "both",
+                "measure": "tokens",
+                "model": null,
+                "models": null,
+                "outputs": {
+                  "html": "team-team3__models__tokens.html",
+                  "png": "team-team3__models__tokens.png"
+                },
+                "plotted_models": [
+                  "claude-opus-5",
+                  "claude-sonnet-5",
+                  "gpt-5.6-sol",
+                  "gpt-5.6-terra"
+                ],
+                "samples": 8,
+                "scope_name": "team3",
+                "scope_type": "team",
+                "status": "complete",
+                "stem": "team-team3__models__tokens",
+                "unavailable_models": [],
+                "view": "models"
+              },
+              {
+                "actuals_overlaid": true,
+                "band": [
+                  10,
+                  90
+                ],
+                "error": null,
+                "format": "both",
+                "measure": "tokens",
+                "model": null,
+                "models": null,
+                "outputs": {
+                  "html": "project-auth-service-rewrite__models__tokens.html",
+                  "png": "project-auth-service-rewrite__models__tokens.png"
+                },
+                "plotted_models": [
+                  "claude-opus-5",
+                  "claude-sonnet-5",
+                  "gpt-5.6-sol",
+                  "gpt-5.6-terra"
+                ],
+                "samples": 8,
+                "scope_name": "auth_service_rewrite",
+                "scope_type": "project",
+                "status": "complete",
+                "stem": "project-auth-service-rewrite__models__tokens",
+                "unavailable_models": [],
+                "view": "models"
+              },
+              {
+                "actuals_overlaid": true,
+                "band": [
+                  10,
+                  90
+                ],
+                "error": null,
+                "format": "both",
+                "measure": "tokens",
+                "model": null,
+                "models": null,
+                "outputs": {
+                  "html": "project-data-pipeline-upgrade__models__tokens.html",
+                  "png": "project-data-pipeline-upgrade__models__tokens.png"
+                },
+                "plotted_models": [
+                  "claude-opus-5",
+                  "claude-sonnet-5",
+                  "gpt-5.6-sol",
+                  "gpt-5.6-terra"
+                ],
+                "samples": 8,
+                "scope_name": "data_pipeline_upgrade",
+                "scope_type": "project",
+                "status": "complete",
+                "stem": "project-data-pipeline-upgrade__models__tokens",
+                "unavailable_models": [],
+                "view": "models"
+              },
+              {
+                "actuals_overlaid": true,
+                "band": [
+                  10,
+                  90
+                ],
+                "error": null,
+                "format": "both",
+                "measure": "tokens",
+                "model": null,
+                "models": null,
+                "outputs": {
+                  "html": "project-developer-tooling__models__tokens.html",
+                  "png": "project-developer-tooling__models__tokens.png"
+                },
+                "plotted_models": [
+                  "claude-opus-5",
+                  "claude-sonnet-5",
+                  "gpt-5.6-sol",
+                  "gpt-5.6-terra"
+                ],
+                "samples": 8,
+                "scope_name": "developer_tooling",
+                "scope_type": "project",
+                "status": "complete",
+                "stem": "project-developer-tooling__models__tokens",
+                "unavailable_models": [],
+                "view": "models"
+              },
+              {
+                "actuals_overlaid": true,
+                "band": [
+                  10,
+                  90
+                ],
+                "error": null,
+                "format": "both",
+                "measure": "tokens",
+                "model": null,
+                "models": null,
+                "outputs": {
+                  "html": "project-payment-service-improvement__models__tokens.html",
+                  "png": "project-payment-service-improvement__models__tokens.png"
+                },
+                "plotted_models": [
+                  "claude-opus-5",
+                  "claude-sonnet-5",
+                  "gpt-5.6-sol",
+                  "gpt-5.6-terra"
+                ],
+                "samples": 8,
+                "scope_name": "payment_service_improvement",
+                "scope_type": "project",
+                "status": "complete",
+                "stem": "project-payment-service-improvement__models__tokens",
+                "unavailable_models": [],
+                "view": "models"
+              },
+              {
+                "actuals_overlaid": true,
+                "band": [
+                  10,
+                  90
+                ],
+                "error": null,
+                "format": "both",
+                "measure": "tokens",
+                "model": null,
+                "models": null,
+                "outputs": {
+                  "html": "project-search-service-improvement__models__tokens.html",
+                  "png": "project-search-service-improvement__models__tokens.png"
+                },
+                "plotted_models": [
+                  "claude-opus-5",
+                  "claude-sonnet-5",
+                  "gpt-5.6-sol",
+                  "gpt-5.6-terra"
+                ],
+                "samples": 8,
+                "scope_name": "search_service_improvement",
+                "scope_type": "project",
+                "status": "complete",
+                "stem": "project-search-service-improvement__models__tokens",
+                "unavailable_models": [],
+                "view": "models"
+              }
+            ],
+            "schema_version": 1,
+            "status": "complete",
+            "versions": {
+              "matplotlib": "3.11.2",
+              "numpy": "2.4.6",
+              "plotly": "7.0.0"
+            }
+          }
+        },
+        {
+          "argv": [
+            "utils/plot_cost.sh",
+            "--cost-run",
+            "cost/baseline",
+            "--config",
+            "plot.yaml",
+            "--force"
+          ],
+          "elapsed_seconds": 5.53068537497893,
+          "exit_code": 0,
+          "status": "complete",
+          "stderr_tail": null,
+          "summary": {
+            "artifact": "..",
+            "counts": {
+              "failed": 0,
+              "requested": 22,
+              "succeeded": 22
+            },
+            "created_at": "2026-10-06T16:51:25.701177+00:00",
+            "elapsed_seconds": 4.452153916936368,
+            "operation": "plot",
+            "plots": [
+              {
+                "band": [
+                  10,
+                  90
+                ],
+                "error": null,
+                "format": "both",
+                "measure": "cost",
+                "model": null,
+                "outputs": {
+                  "html": "organization-talium-ai__total__cost.html",
+                  "png": "organization-talium-ai__total__cost.png"
+                },
+                "samples": 8,
+                "scope_name": "talium.ai",
+                "scope_type": "organization",
+                "status": "complete",
+                "stem": "organization-talium-ai__total__cost",
+                "view": "total"
+              },
+              {
+                "band": [
+                  10,
+                  90
+                ],
+                "error": null,
+                "format": "both",
+                "measure": "cost",
+                "model": null,
+                "outputs": {
+                  "html": "organization-talium-ai__breakdown__cost.html",
+                  "png": "organization-talium-ai__breakdown__cost.png"
+                },
+                "samples": 8,
+                "scope_name": "talium.ai",
+                "scope_type": "organization",
+                "status": "complete",
+                "stem": "organization-talium-ai__breakdown__cost",
+                "view": "breakdown"
+              },
+              {
+                "band": [
+                  10,
+                  90
+                ],
+                "error": null,
+                "format": "both",
+                "measure": "cost",
+                "model": "claude-opus-5",
+                "outputs": {
+                  "html": "organization-talium-ai__claude-opus-5__cost.html",
+                  "png": "organization-talium-ai__claude-opus-5__cost.png"
+                },
+                "samples": 8,
+                "scope_name": "talium.ai",
+                "scope_type": "organization",
+                "status": "qualified",
+                "stem": "organization-talium-ai__claude-opus-5__cost",
+                "view": "claude-opus-5"
+              },
+              {
+                "band": [
+                  10,
+                  90
+                ],
+                "error": null,
+                "format": "both",
+                "measure": "cost",
+                "model": "claude-sonnet-5",
+                "outputs": {
+                  "html": "organization-talium-ai__claude-sonnet-5__cost.html",
+                  "png": "organization-talium-ai__claude-sonnet-5__cost.png"
+                },
+                "samples": 8,
+                "scope_name": "talium.ai",
+                "scope_type": "organization",
+                "status": "qualified",
+                "stem": "organization-talium-ai__claude-sonnet-5__cost",
+                "view": "claude-sonnet-5"
+              },
+              {
+                "band": [
+                  10,
+                  90
+                ],
+                "error": null,
+                "format": "both",
+                "measure": "cost",
+                "model": "gpt-5.6-sol",
+                "outputs": {
+                  "html": "organization-talium-ai__gpt-5-6-sol__cost.html",
+                  "png": "organization-talium-ai__gpt-5-6-sol__cost.png"
+                },
+                "samples": 8,
+                "scope_name": "talium.ai",
+                "scope_type": "organization",
+                "status": "qualified",
+                "stem": "organization-talium-ai__gpt-5-6-sol__cost",
+                "view": "gpt-5.6-sol"
+              },
+              {
+                "band": [
+                  10,
+                  90
+                ],
+                "error": null,
+                "format": "both",
+                "measure": "cost",
+                "model": "gpt-5.6-terra",
+                "outputs": {
+                  "html": "organization-talium-ai__gpt-5-6-terra__cost.html",
+                  "png": "organization-talium-ai__gpt-5-6-terra__cost.png"
+                },
+                "samples": 8,
+                "scope_name": "talium.ai",
+                "scope_type": "organization",
+                "status": "qualified",
+                "stem": "organization-talium-ai__gpt-5-6-terra__cost",
+                "view": "gpt-5.6-terra"
+              },
+              {
+                "band": [
+                  10,
+                  90
+                ],
+                "error": null,
+                "format": "both",
+                "measure": "cost",
+                "model": null,
+                "outputs": {
+                  "html": "team-team1__total__cost.html",
+                  "png": "team-team1__total__cost.png"
+                },
+                "samples": 8,
+                "scope_name": "team1",
+                "scope_type": "team",
+                "status": "complete",
+                "stem": "team-team1__total__cost",
+                "view": "total"
+              },
+              {
+                "band": [
+                  10,
+                  90
+                ],
+                "error": null,
+                "format": "both",
+                "measure": "cost",
+                "model": null,
+                "outputs": {
+                  "html": "team-team1__breakdown__cost.html",
+                  "png": "team-team1__breakdown__cost.png"
+                },
+                "samples": 8,
+                "scope_name": "team1",
+                "scope_type": "team",
+                "status": "complete",
+                "stem": "team-team1__breakdown__cost",
+                "view": "breakdown"
+              },
+              {
+                "band": [
+                  10,
+                  90
+                ],
+                "error": null,
+                "format": "both",
+                "measure": "cost",
+                "model": null,
+                "outputs": {
+                  "html": "team-team2__total__cost.html",
+                  "png": "team-team2__total__cost.png"
+                },
+                "samples": 8,
+                "scope_name": "team2",
+                "scope_type": "team",
+                "status": "complete",
+                "stem": "team-team2__total__cost",
+                "view": "total"
+              },
+              {
+                "band": [
+                  10,
+                  90
+                ],
+                "error": null,
+                "format": "both",
+                "measure": "cost",
+                "model": null,
+                "outputs": {
+                  "html": "team-team2__breakdown__cost.html",
+                  "png": "team-team2__breakdown__cost.png"
+                },
+                "samples": 8,
+                "scope_name": "team2",
+                "scope_type": "team",
+                "status": "complete",
+                "stem": "team-team2__breakdown__cost",
+                "view": "breakdown"
+              },
+              {
+                "band": [
+                  10,
+                  90
+                ],
+                "error": null,
+                "format": "both",
+                "measure": "cost",
+                "model": null,
+                "outputs": {
+                  "html": "team-team3__total__cost.html",
+                  "png": "team-team3__total__cost.png"
+                },
+                "samples": 8,
+                "scope_name": "team3",
+                "scope_type": "team",
+                "status": "complete",
+                "stem": "team-team3__total__cost",
+                "view": "total"
+              },
+              {
+                "band": [
+                  10,
+                  90
+                ],
+                "error": null,
+                "format": "both",
+                "measure": "cost",
+                "model": null,
+                "outputs": {
+                  "html": "team-team3__breakdown__cost.html",
+                  "png": "team-team3__breakdown__cost.png"
+                },
+                "samples": 8,
+                "scope_name": "team3",
+                "scope_type": "team",
+                "status": "complete",
+                "stem": "team-team3__breakdown__cost",
+                "view": "breakdown"
+              },
+              {
+                "band": [
+                  10,
+                  90
+                ],
+                "error": null,
+                "format": "both",
+                "measure": "cost",
+                "model": null,
+                "outputs": {
+                  "html": "project-auth-service-rewrite__total__cost.html",
+                  "png": "project-auth-service-rewrite__total__cost.png"
+                },
+                "samples": 8,
+                "scope_name": "auth_service_rewrite",
+                "scope_type": "project",
+                "status": "complete",
+                "stem": "project-auth-service-rewrite__total__cost",
+                "view": "total"
+              },
+              {
+                "band": [
+                  10,
+                  90
+                ],
+                "error": null,
+                "format": "both",
+                "measure": "cost",
+                "model": null,
+                "outputs": {
+                  "html": "project-auth-service-rewrite__breakdown__cost.html",
+                  "png": "project-auth-service-rewrite__breakdown__cost.png"
+                },
+                "samples": 8,
+                "scope_name": "auth_service_rewrite",
+                "scope_type": "project",
+                "status": "complete",
+                "stem": "project-auth-service-rewrite__breakdown__cost",
+                "view": "breakdown"
+              },
+              {
+                "band": [
+                  10,
+                  90
+                ],
+                "error": null,
+                "format": "both",
+                "measure": "cost",
+                "model": null,
+                "outputs": {
+                  "html": "project-data-pipeline-upgrade__total__cost.html",
+                  "png": "project-data-pipeline-upgrade__total__cost.png"
+                },
+                "samples": 8,
+                "scope_name": "data_pipeline_upgrade",
+                "scope_type": "project",
+                "status": "complete",
+                "stem": "project-data-pipeline-upgrade__total__cost",
+                "view": "total"
+              },
+              {
+                "band": [
+                  10,
+                  90
+                ],
+                "error": null,
+                "format": "both",
+                "measure": "cost",
+                "model": null,
+                "outputs": {
+                  "html": "project-data-pipeline-upgrade__breakdown__cost.html",
+                  "png": "project-data-pipeline-upgrade__breakdown__cost.png"
+                },
+                "samples": 8,
+                "scope_name": "data_pipeline_upgrade",
+                "scope_type": "project",
+                "status": "complete",
+                "stem": "project-data-pipeline-upgrade__breakdown__cost",
+                "view": "breakdown"
+              },
+              {
+                "band": [
+                  10,
+                  90
+                ],
+                "error": null,
+                "format": "both",
+                "measure": "cost",
+                "model": null,
+                "outputs": {
+                  "html": "project-developer-tooling__total__cost.html",
+                  "png": "project-developer-tooling__total__cost.png"
+                },
+                "samples": 8,
+                "scope_name": "developer_tooling",
+                "scope_type": "project",
+                "status": "complete",
+                "stem": "project-developer-tooling__total__cost",
+                "view": "total"
+              },
+              {
+                "band": [
+                  10,
+                  90
+                ],
+                "error": null,
+                "format": "both",
+                "measure": "cost",
+                "model": null,
+                "outputs": {
+                  "html": "project-developer-tooling__breakdown__cost.html",
+                  "png": "project-developer-tooling__breakdown__cost.png"
+                },
+                "samples": 8,
+                "scope_name": "developer_tooling",
+                "scope_type": "project",
+                "status": "complete",
+                "stem": "project-developer-tooling__breakdown__cost",
+                "view": "breakdown"
+              },
+              {
+                "band": [
+                  10,
+                  90
+                ],
+                "error": null,
+                "format": "both",
+                "measure": "cost",
+                "model": null,
+                "outputs": {
+                  "html": "project-payment-service-improvement__total__cost.html",
+                  "png": "project-payment-service-improvement__total__cost.png"
+                },
+                "samples": 8,
+                "scope_name": "payment_service_improvement",
+                "scope_type": "project",
+                "status": "complete",
+                "stem": "project-payment-service-improvement__total__cost",
+                "view": "total"
+              },
+              {
+                "band": [
+                  10,
+                  90
+                ],
+                "error": null,
+                "format": "both",
+                "measure": "cost",
+                "model": null,
+                "outputs": {
+                  "html": "project-payment-service-improvement__breakdown__cost.html",
+                  "png": "project-payment-service-improvement__breakdown__cost.png"
+                },
+                "samples": 8,
+                "scope_name": "payment_service_improvement",
+                "scope_type": "project",
+                "status": "complete",
+                "stem": "project-payment-service-improvement__breakdown__cost",
+                "view": "breakdown"
+              },
+              {
+                "band": [
+                  10,
+                  90
+                ],
+                "error": null,
+                "format": "both",
+                "measure": "cost",
+                "model": null,
+                "outputs": {
+                  "html": "project-search-service-improvement__total__cost.html",
+                  "png": "project-search-service-improvement__total__cost.png"
+                },
+                "samples": 8,
+                "scope_name": "search_service_improvement",
+                "scope_type": "project",
+                "status": "complete",
+                "stem": "project-search-service-improvement__total__cost",
+                "view": "total"
+              },
+              {
+                "band": [
+                  10,
+                  90
+                ],
+                "error": null,
+                "format": "both",
+                "measure": "cost",
+                "model": null,
+                "outputs": {
+                  "html": "project-search-service-improvement__breakdown__cost.html",
+                  "png": "project-search-service-improvement__breakdown__cost.png"
+                },
+                "samples": 8,
+                "scope_name": "search_service_improvement",
+                "scope_type": "project",
+                "status": "complete",
+                "stem": "project-search-service-improvement__breakdown__cost",
+                "view": "breakdown"
+              }
+            ],
+            "schema_version": 1,
+            "status": "complete",
+            "versions": {
+              "matplotlib": "3.11.2",
+              "numpy": "2.4.6",
+              "plotly": "7.0.0"
+            }
+          }
+        },
+        {
+          "argv": [
+            "utils/plot_cost.sh",
+            "--cost-run",
+            "cost/org-cheaper-models",
+            "--config",
+            "plot.yaml",
+            "--force"
+          ],
+          "elapsed_seconds": 5.517017541918904,
+          "exit_code": 0,
+          "status": "complete",
+          "stderr_tail": null,
+          "summary": {
+            "artifact": "..",
+            "counts": {
+              "failed": 0,
+              "requested": 22,
+              "succeeded": 22
+            },
+            "created_at": "2026-10-06T16:51:31.204839+00:00",
+            "elapsed_seconds": 4.530225208029151,
+            "operation": "plot",
+            "plots": [
+              {
+                "band": [
+                  10,
+                  90
+                ],
+                "error": null,
+                "format": "both",
+                "measure": "cost",
+                "model": null,
+                "outputs": {
+                  "html": "organization-talium-ai__total__cost.html",
+                  "png": "organization-talium-ai__total__cost.png"
+                },
+                "samples": 8,
+                "scope_name": "talium.ai",
+                "scope_type": "organization",
+                "status": "complete",
+                "stem": "organization-talium-ai__total__cost",
+                "view": "total"
+              },
+              {
+                "band": [
+                  10,
+                  90
+                ],
+                "error": null,
+                "format": "both",
+                "measure": "cost",
+                "model": null,
+                "outputs": {
+                  "html": "organization-talium-ai__breakdown__cost.html",
+                  "png": "organization-talium-ai__breakdown__cost.png"
+                },
+                "samples": 8,
+                "scope_name": "talium.ai",
+                "scope_type": "organization",
+                "status": "complete",
+                "stem": "organization-talium-ai__breakdown__cost",
+                "view": "breakdown"
+              },
+              {
+                "band": [
+                  10,
+                  90
+                ],
+                "error": null,
+                "format": "both",
+                "measure": "cost",
+                "model": "claude-opus-5",
+                "outputs": {
+                  "html": "organization-talium-ai__claude-opus-5__cost.html",
+                  "png": "organization-talium-ai__claude-opus-5__cost.png"
+                },
+                "samples": 8,
+                "scope_name": "talium.ai",
+                "scope_type": "organization",
+                "status": "qualified",
+                "stem": "organization-talium-ai__claude-opus-5__cost",
+                "view": "claude-opus-5"
+              },
+              {
+                "band": [
+                  10,
+                  90
+                ],
+                "error": null,
+                "format": "both",
+                "measure": "cost",
+                "model": "claude-sonnet-5",
+                "outputs": {
+                  "html": "organization-talium-ai__claude-sonnet-5__cost.html",
+                  "png": "organization-talium-ai__claude-sonnet-5__cost.png"
+                },
+                "samples": 8,
+                "scope_name": "talium.ai",
+                "scope_type": "organization",
+                "status": "qualified",
+                "stem": "organization-talium-ai__claude-sonnet-5__cost",
+                "view": "claude-sonnet-5"
+              },
+              {
+                "band": [
+                  10,
+                  90
+                ],
+                "error": null,
+                "format": "both",
+                "measure": "cost",
+                "model": "gpt-5.6-sol",
+                "outputs": {
+                  "html": "organization-talium-ai__gpt-5-6-sol__cost.html",
+                  "png": "organization-talium-ai__gpt-5-6-sol__cost.png"
+                },
+                "samples": 8,
+                "scope_name": "talium.ai",
+                "scope_type": "organization",
+                "status": "qualified",
+                "stem": "organization-talium-ai__gpt-5-6-sol__cost",
+                "view": "gpt-5.6-sol"
+              },
+              {
+                "band": [
+                  10,
+                  90
+                ],
+                "error": null,
+                "format": "both",
+                "measure": "cost",
+                "model": "gpt-5.6-terra",
+                "outputs": {
+                  "html": "organization-talium-ai__gpt-5-6-terra__cost.html",
+                  "png": "organization-talium-ai__gpt-5-6-terra__cost.png"
+                },
+                "samples": 8,
+                "scope_name": "talium.ai",
+                "scope_type": "organization",
+                "status": "qualified",
+                "stem": "organization-talium-ai__gpt-5-6-terra__cost",
+                "view": "gpt-5.6-terra"
+              },
+              {
+                "band": [
+                  10,
+                  90
+                ],
+                "error": null,
+                "format": "both",
+                "measure": "cost",
+                "model": null,
+                "outputs": {
+                  "html": "team-team1__total__cost.html",
+                  "png": "team-team1__total__cost.png"
+                },
+                "samples": 8,
+                "scope_name": "team1",
+                "scope_type": "team",
+                "status": "complete",
+                "stem": "team-team1__total__cost",
+                "view": "total"
+              },
+              {
+                "band": [
+                  10,
+                  90
+                ],
+                "error": null,
+                "format": "both",
+                "measure": "cost",
+                "model": null,
+                "outputs": {
+                  "html": "team-team1__breakdown__cost.html",
+                  "png": "team-team1__breakdown__cost.png"
+                },
+                "samples": 8,
+                "scope_name": "team1",
+                "scope_type": "team",
+                "status": "complete",
+                "stem": "team-team1__breakdown__cost",
+                "view": "breakdown"
+              },
+              {
+                "band": [
+                  10,
+                  90
+                ],
+                "error": null,
+                "format": "both",
+                "measure": "cost",
+                "model": null,
+                "outputs": {
+                  "html": "team-team2__total__cost.html",
+                  "png": "team-team2__total__cost.png"
+                },
+                "samples": 8,
+                "scope_name": "team2",
+                "scope_type": "team",
+                "status": "complete",
+                "stem": "team-team2__total__cost",
+                "view": "total"
+              },
+              {
+                "band": [
+                  10,
+                  90
+                ],
+                "error": null,
+                "format": "both",
+                "measure": "cost",
+                "model": null,
+                "outputs": {
+                  "html": "team-team2__breakdown__cost.html",
+                  "png": "team-team2__breakdown__cost.png"
+                },
+                "samples": 8,
+                "scope_name": "team2",
+                "scope_type": "team",
+                "status": "complete",
+                "stem": "team-team2__breakdown__cost",
+                "view": "breakdown"
+              },
+              {
+                "band": [
+                  10,
+                  90
+                ],
+                "error": null,
+                "format": "both",
+                "measure": "cost",
+                "model": null,
+                "outputs": {
+                  "html": "team-team3__total__cost.html",
+                  "png": "team-team3__total__cost.png"
+                },
+                "samples": 8,
+                "scope_name": "team3",
+                "scope_type": "team",
+                "status": "complete",
+                "stem": "team-team3__total__cost",
+                "view": "total"
+              },
+              {
+                "band": [
+                  10,
+                  90
+                ],
+                "error": null,
+                "format": "both",
+                "measure": "cost",
+                "model": null,
+                "outputs": {
+                  "html": "team-team3__breakdown__cost.html",
+                  "png": "team-team3__breakdown__cost.png"
+                },
+                "samples": 8,
+                "scope_name": "team3",
+                "scope_type": "team",
+                "status": "complete",
+                "stem": "team-team3__breakdown__cost",
+                "view": "breakdown"
+              },
+              {
+                "band": [
+                  10,
+                  90
+                ],
+                "error": null,
+                "format": "both",
+                "measure": "cost",
+                "model": null,
+                "outputs": {
+                  "html": "project-auth-service-rewrite__total__cost.html",
+                  "png": "project-auth-service-rewrite__total__cost.png"
+                },
+                "samples": 8,
+                "scope_name": "auth_service_rewrite",
+                "scope_type": "project",
+                "status": "complete",
+                "stem": "project-auth-service-rewrite__total__cost",
+                "view": "total"
+              },
+              {
+                "band": [
+                  10,
+                  90
+                ],
+                "error": null,
+                "format": "both",
+                "measure": "cost",
+                "model": null,
+                "outputs": {
+                  "html": "project-auth-service-rewrite__breakdown__cost.html",
+                  "png": "project-auth-service-rewrite__breakdown__cost.png"
+                },
+                "samples": 8,
+                "scope_name": "auth_service_rewrite",
+                "scope_type": "project",
+                "status": "complete",
+                "stem": "project-auth-service-rewrite__breakdown__cost",
+                "view": "breakdown"
+              },
+              {
+                "band": [
+                  10,
+                  90
+                ],
+                "error": null,
+                "format": "both",
+                "measure": "cost",
+                "model": null,
+                "outputs": {
+                  "html": "project-data-pipeline-upgrade__total__cost.html",
+                  "png": "project-data-pipeline-upgrade__total__cost.png"
+                },
+                "samples": 8,
+                "scope_name": "data_pipeline_upgrade",
+                "scope_type": "project",
+                "status": "complete",
+                "stem": "project-data-pipeline-upgrade__total__cost",
+                "view": "total"
+              },
+              {
+                "band": [
+                  10,
+                  90
+                ],
+                "error": null,
+                "format": "both",
+                "measure": "cost",
+                "model": null,
+                "outputs": {
+                  "html": "project-data-pipeline-upgrade__breakdown__cost.html",
+                  "png": "project-data-pipeline-upgrade__breakdown__cost.png"
+                },
+                "samples": 8,
+                "scope_name": "data_pipeline_upgrade",
+                "scope_type": "project",
+                "status": "complete",
+                "stem": "project-data-pipeline-upgrade__breakdown__cost",
+                "view": "breakdown"
+              },
+              {
+                "band": [
+                  10,
+                  90
+                ],
+                "error": null,
+                "format": "both",
+                "measure": "cost",
+                "model": null,
+                "outputs": {
+                  "html": "project-developer-tooling__total__cost.html",
+                  "png": "project-developer-tooling__total__cost.png"
+                },
+                "samples": 8,
+                "scope_name": "developer_tooling",
+                "scope_type": "project",
+                "status": "complete",
+                "stem": "project-developer-tooling__total__cost",
+                "view": "total"
+              },
+              {
+                "band": [
+                  10,
+                  90
+                ],
+                "error": null,
+                "format": "both",
+                "measure": "cost",
+                "model": null,
+                "outputs": {
+                  "html": "project-developer-tooling__breakdown__cost.html",
+                  "png": "project-developer-tooling__breakdown__cost.png"
+                },
+                "samples": 8,
+                "scope_name": "developer_tooling",
+                "scope_type": "project",
+                "status": "complete",
+                "stem": "project-developer-tooling__breakdown__cost",
+                "view": "breakdown"
+              },
+              {
+                "band": [
+                  10,
+                  90
+                ],
+                "error": null,
+                "format": "both",
+                "measure": "cost",
+                "model": null,
+                "outputs": {
+                  "html": "project-payment-service-improvement__total__cost.html",
+                  "png": "project-payment-service-improvement__total__cost.png"
+                },
+                "samples": 8,
+                "scope_name": "payment_service_improvement",
+                "scope_type": "project",
+                "status": "complete",
+                "stem": "project-payment-service-improvement__total__cost",
+                "view": "total"
+              },
+              {
+                "band": [
+                  10,
+                  90
+                ],
+                "error": null,
+                "format": "both",
+                "measure": "cost",
+                "model": null,
+                "outputs": {
+                  "html": "project-payment-service-improvement__breakdown__cost.html",
+                  "png": "project-payment-service-improvement__breakdown__cost.png"
+                },
+                "samples": 8,
+                "scope_name": "payment_service_improvement",
+                "scope_type": "project",
+                "status": "complete",
+                "stem": "project-payment-service-improvement__breakdown__cost",
+                "view": "breakdown"
+              },
+              {
+                "band": [
+                  10,
+                  90
+                ],
+                "error": null,
+                "format": "both",
+                "measure": "cost",
+                "model": null,
+                "outputs": {
+                  "html": "project-search-service-improvement__total__cost.html",
+                  "png": "project-search-service-improvement__total__cost.png"
+                },
+                "samples": 8,
+                "scope_name": "search_service_improvement",
+                "scope_type": "project",
+                "status": "complete",
+                "stem": "project-search-service-improvement__total__cost",
+                "view": "total"
+              },
+              {
+                "band": [
+                  10,
+                  90
+                ],
+                "error": null,
+                "format": "both",
+                "measure": "cost",
+                "model": null,
+                "outputs": {
+                  "html": "project-search-service-improvement__breakdown__cost.html",
+                  "png": "project-search-service-improvement__breakdown__cost.png"
+                },
+                "samples": 8,
+                "scope_name": "search_service_improvement",
+                "scope_type": "project",
+                "status": "complete",
+                "stem": "project-search-service-improvement__breakdown__cost",
+                "view": "breakdown"
+              }
+            ],
+            "schema_version": 1,
+            "status": "complete",
+            "versions": {
+              "matplotlib": "3.11.2",
+              "numpy": "2.4.6",
+              "plotly": "7.0.0"
+            }
+          }
+        },
+        {
+          "argv": [
+            "utils/plot_cost.sh",
+            "--cost-run",
+            "cost/org-growth",
+            "--config",
+            "plot.yaml",
+            "--force"
+          ],
+          "elapsed_seconds": 5.410170250106603,
+          "exit_code": 0,
+          "status": "complete",
+          "stderr_tail": null,
+          "summary": {
+            "artifact": "..",
+            "counts": {
+              "failed": 0,
+              "requested": 22,
+              "succeeded": 22
+            },
+            "created_at": "2026-10-06T16:51:36.643722+00:00",
+            "elapsed_seconds": 4.452887666877359,
+            "operation": "plot",
+            "plots": [
+              {
+                "band": [
+                  10,
+                  90
+                ],
+                "error": null,
+                "format": "both",
+                "measure": "cost",
+                "model": null,
+                "outputs": {
+                  "html": "organization-talium-ai__total__cost.html",
+                  "png": "organization-talium-ai__total__cost.png"
+                },
+                "samples": 8,
+                "scope_name": "talium.ai",
+                "scope_type": "organization",
+                "status": "complete",
+                "stem": "organization-talium-ai__total__cost",
+                "view": "total"
+              },
+              {
+                "band": [
+                  10,
+                  90
+                ],
+                "error": null,
+                "format": "both",
+                "measure": "cost",
+                "model": null,
+                "outputs": {
+                  "html": "organization-talium-ai__breakdown__cost.html",
+                  "png": "organization-talium-ai__breakdown__cost.png"
+                },
+                "samples": 8,
+                "scope_name": "talium.ai",
+                "scope_type": "organization",
+                "status": "complete",
+                "stem": "organization-talium-ai__breakdown__cost",
+                "view": "breakdown"
+              },
+              {
+                "band": [
+                  10,
+                  90
+                ],
+                "error": null,
+                "format": "both",
+                "measure": "cost",
+                "model": "claude-opus-5",
+                "outputs": {
+                  "html": "organization-talium-ai__claude-opus-5__cost.html",
+                  "png": "organization-talium-ai__claude-opus-5__cost.png"
+                },
+                "samples": 8,
+                "scope_name": "talium.ai",
+                "scope_type": "organization",
+                "status": "qualified",
+                "stem": "organization-talium-ai__claude-opus-5__cost",
+                "view": "claude-opus-5"
+              },
+              {
+                "band": [
+                  10,
+                  90
+                ],
+                "error": null,
+                "format": "both",
+                "measure": "cost",
+                "model": "claude-sonnet-5",
+                "outputs": {
+                  "html": "organization-talium-ai__claude-sonnet-5__cost.html",
+                  "png": "organization-talium-ai__claude-sonnet-5__cost.png"
+                },
+                "samples": 8,
+                "scope_name": "talium.ai",
+                "scope_type": "organization",
+                "status": "qualified",
+                "stem": "organization-talium-ai__claude-sonnet-5__cost",
+                "view": "claude-sonnet-5"
+              },
+              {
+                "band": [
+                  10,
+                  90
+                ],
+                "error": null,
+                "format": "both",
+                "measure": "cost",
+                "model": "gpt-5.6-sol",
+                "outputs": {
+                  "html": "organization-talium-ai__gpt-5-6-sol__cost.html",
+                  "png": "organization-talium-ai__gpt-5-6-sol__cost.png"
+                },
+                "samples": 8,
+                "scope_name": "talium.ai",
+                "scope_type": "organization",
+                "status": "qualified",
+                "stem": "organization-talium-ai__gpt-5-6-sol__cost",
+                "view": "gpt-5.6-sol"
+              },
+              {
+                "band": [
+                  10,
+                  90
+                ],
+                "error": null,
+                "format": "both",
+                "measure": "cost",
+                "model": "gpt-5.6-terra",
+                "outputs": {
+                  "html": "organization-talium-ai__gpt-5-6-terra__cost.html",
+                  "png": "organization-talium-ai__gpt-5-6-terra__cost.png"
+                },
+                "samples": 8,
+                "scope_name": "talium.ai",
+                "scope_type": "organization",
+                "status": "qualified",
+                "stem": "organization-talium-ai__gpt-5-6-terra__cost",
+                "view": "gpt-5.6-terra"
+              },
+              {
+                "band": [
+                  10,
+                  90
+                ],
+                "error": null,
+                "format": "both",
+                "measure": "cost",
+                "model": null,
+                "outputs": {
+                  "html": "team-team1__total__cost.html",
+                  "png": "team-team1__total__cost.png"
+                },
+                "samples": 8,
+                "scope_name": "team1",
+                "scope_type": "team",
+                "status": "complete",
+                "stem": "team-team1__total__cost",
+                "view": "total"
+              },
+              {
+                "band": [
+                  10,
+                  90
+                ],
+                "error": null,
+                "format": "both",
+                "measure": "cost",
+                "model": null,
+                "outputs": {
+                  "html": "team-team1__breakdown__cost.html",
+                  "png": "team-team1__breakdown__cost.png"
+                },
+                "samples": 8,
+                "scope_name": "team1",
+                "scope_type": "team",
+                "status": "complete",
+                "stem": "team-team1__breakdown__cost",
+                "view": "breakdown"
+              },
+              {
+                "band": [
+                  10,
+                  90
+                ],
+                "error": null,
+                "format": "both",
+                "measure": "cost",
+                "model": null,
+                "outputs": {
+                  "html": "team-team2__total__cost.html",
+                  "png": "team-team2__total__cost.png"
+                },
+                "samples": 8,
+                "scope_name": "team2",
+                "scope_type": "team",
+                "status": "complete",
+                "stem": "team-team2__total__cost",
+                "view": "total"
+              },
+              {
+                "band": [
+                  10,
+                  90
+                ],
+                "error": null,
+                "format": "both",
+                "measure": "cost",
+                "model": null,
+                "outputs": {
+                  "html": "team-team2__breakdown__cost.html",
+                  "png": "team-team2__breakdown__cost.png"
+                },
+                "samples": 8,
+                "scope_name": "team2",
+                "scope_type": "team",
+                "status": "complete",
+                "stem": "team-team2__breakdown__cost",
+                "view": "breakdown"
+              },
+              {
+                "band": [
+                  10,
+                  90
+                ],
+                "error": null,
+                "format": "both",
+                "measure": "cost",
+                "model": null,
+                "outputs": {
+                  "html": "team-team3__total__cost.html",
+                  "png": "team-team3__total__cost.png"
+                },
+                "samples": 8,
+                "scope_name": "team3",
+                "scope_type": "team",
+                "status": "complete",
+                "stem": "team-team3__total__cost",
+                "view": "total"
+              },
+              {
+                "band": [
+                  10,
+                  90
+                ],
+                "error": null,
+                "format": "both",
+                "measure": "cost",
+                "model": null,
+                "outputs": {
+                  "html": "team-team3__breakdown__cost.html",
+                  "png": "team-team3__breakdown__cost.png"
+                },
+                "samples": 8,
+                "scope_name": "team3",
+                "scope_type": "team",
+                "status": "complete",
+                "stem": "team-team3__breakdown__cost",
+                "view": "breakdown"
+              },
+              {
+                "band": [
+                  10,
+                  90
+                ],
+                "error": null,
+                "format": "both",
+                "measure": "cost",
+                "model": null,
+                "outputs": {
+                  "html": "project-auth-service-rewrite__total__cost.html",
+                  "png": "project-auth-service-rewrite__total__cost.png"
+                },
+                "samples": 8,
+                "scope_name": "auth_service_rewrite",
+                "scope_type": "project",
+                "status": "complete",
+                "stem": "project-auth-service-rewrite__total__cost",
+                "view": "total"
+              },
+              {
+                "band": [
+                  10,
+                  90
+                ],
+                "error": null,
+                "format": "both",
+                "measure": "cost",
+                "model": null,
+                "outputs": {
+                  "html": "project-auth-service-rewrite__breakdown__cost.html",
+                  "png": "project-auth-service-rewrite__breakdown__cost.png"
+                },
+                "samples": 8,
+                "scope_name": "auth_service_rewrite",
+                "scope_type": "project",
+                "status": "complete",
+                "stem": "project-auth-service-rewrite__breakdown__cost",
+                "view": "breakdown"
+              },
+              {
+                "band": [
+                  10,
+                  90
+                ],
+                "error": null,
+                "format": "both",
+                "measure": "cost",
+                "model": null,
+                "outputs": {
+                  "html": "project-data-pipeline-upgrade__total__cost.html",
+                  "png": "project-data-pipeline-upgrade__total__cost.png"
+                },
+                "samples": 8,
+                "scope_name": "data_pipeline_upgrade",
+                "scope_type": "project",
+                "status": "complete",
+                "stem": "project-data-pipeline-upgrade__total__cost",
+                "view": "total"
+              },
+              {
+                "band": [
+                  10,
+                  90
+                ],
+                "error": null,
+                "format": "both",
+                "measure": "cost",
+                "model": null,
+                "outputs": {
+                  "html": "project-data-pipeline-upgrade__breakdown__cost.html",
+                  "png": "project-data-pipeline-upgrade__breakdown__cost.png"
+                },
+                "samples": 8,
+                "scope_name": "data_pipeline_upgrade",
+                "scope_type": "project",
+                "status": "complete",
+                "stem": "project-data-pipeline-upgrade__breakdown__cost",
+                "view": "breakdown"
+              },
+              {
+                "band": [
+                  10,
+                  90
+                ],
+                "error": null,
+                "format": "both",
+                "measure": "cost",
+                "model": null,
+                "outputs": {
+                  "html": "project-developer-tooling__total__cost.html",
+                  "png": "project-developer-tooling__total__cost.png"
+                },
+                "samples": 8,
+                "scope_name": "developer_tooling",
+                "scope_type": "project",
+                "status": "complete",
+                "stem": "project-developer-tooling__total__cost",
+                "view": "total"
+              },
+              {
+                "band": [
+                  10,
+                  90
+                ],
+                "error": null,
+                "format": "both",
+                "measure": "cost",
+                "model": null,
+                "outputs": {
+                  "html": "project-developer-tooling__breakdown__cost.html",
+                  "png": "project-developer-tooling__breakdown__cost.png"
+                },
+                "samples": 8,
+                "scope_name": "developer_tooling",
+                "scope_type": "project",
+                "status": "complete",
+                "stem": "project-developer-tooling__breakdown__cost",
+                "view": "breakdown"
+              },
+              {
+                "band": [
+                  10,
+                  90
+                ],
+                "error": null,
+                "format": "both",
+                "measure": "cost",
+                "model": null,
+                "outputs": {
+                  "html": "project-payment-service-improvement__total__cost.html",
+                  "png": "project-payment-service-improvement__total__cost.png"
+                },
+                "samples": 8,
+                "scope_name": "payment_service_improvement",
+                "scope_type": "project",
+                "status": "complete",
+                "stem": "project-payment-service-improvement__total__cost",
+                "view": "total"
+              },
+              {
+                "band": [
+                  10,
+                  90
+                ],
+                "error": null,
+                "format": "both",
+                "measure": "cost",
+                "model": null,
+                "outputs": {
+                  "html": "project-payment-service-improvement__breakdown__cost.html",
+                  "png": "project-payment-service-improvement__breakdown__cost.png"
+                },
+                "samples": 8,
+                "scope_name": "payment_service_improvement",
+                "scope_type": "project",
+                "status": "complete",
+                "stem": "project-payment-service-improvement__breakdown__cost",
+                "view": "breakdown"
+              },
+              {
+                "band": [
+                  10,
+                  90
+                ],
+                "error": null,
+                "format": "both",
+                "measure": "cost",
+                "model": null,
+                "outputs": {
+                  "html": "project-search-service-improvement__total__cost.html",
+                  "png": "project-search-service-improvement__total__cost.png"
+                },
+                "samples": 8,
+                "scope_name": "search_service_improvement",
+                "scope_type": "project",
+                "status": "complete",
+                "stem": "project-search-service-improvement__total__cost",
+                "view": "total"
+              },
+              {
+                "band": [
+                  10,
+                  90
+                ],
+                "error": null,
+                "format": "both",
+                "measure": "cost",
+                "model": null,
+                "outputs": {
+                  "html": "project-search-service-improvement__breakdown__cost.html",
+                  "png": "project-search-service-improvement__breakdown__cost.png"
+                },
+                "samples": 8,
+                "scope_name": "search_service_improvement",
+                "scope_type": "project",
+                "status": "complete",
+                "stem": "project-search-service-improvement__breakdown__cost",
+                "view": "breakdown"
+              }
+            ],
+            "schema_version": 1,
+            "status": "complete",
+            "versions": {
+              "matplotlib": "3.11.2",
+              "numpy": "2.4.6",
+              "plotly": "7.0.0"
+            }
+          }
+        },
+        {
+          "argv": [
+            "utils/plot_cost.sh",
+            "--cost-run",
+            "cost/team3-cheaper-models",
+            "--config",
+            "plot.yaml",
+            "--force"
+          ],
+          "elapsed_seconds": 5.496493624988943,
+          "exit_code": 0,
+          "status": "complete",
+          "stderr_tail": null,
+          "summary": {
+            "artifact": "..",
+            "counts": {
+              "failed": 0,
+              "requested": 22,
+              "succeeded": 22
+            },
+            "created_at": "2026-10-06T16:51:42.124242+00:00",
+            "elapsed_seconds": 4.516752082854509,
+            "operation": "plot",
+            "plots": [
+              {
+                "band": [
+                  10,
+                  90
+                ],
+                "error": null,
+                "format": "both",
+                "measure": "cost",
+                "model": null,
+                "outputs": {
+                  "html": "organization-talium-ai__total__cost.html",
+                  "png": "organization-talium-ai__total__cost.png"
+                },
+                "samples": 8,
+                "scope_name": "talium.ai",
+                "scope_type": "organization",
+                "status": "complete",
+                "stem": "organization-talium-ai__total__cost",
+                "view": "total"
+              },
+              {
+                "band": [
+                  10,
+                  90
+                ],
+                "error": null,
+                "format": "both",
+                "measure": "cost",
+                "model": null,
+                "outputs": {
+                  "html": "organization-talium-ai__breakdown__cost.html",
+                  "png": "organization-talium-ai__breakdown__cost.png"
+                },
+                "samples": 8,
+                "scope_name": "talium.ai",
+                "scope_type": "organization",
+                "status": "complete",
+                "stem": "organization-talium-ai__breakdown__cost",
+                "view": "breakdown"
+              },
+              {
+                "band": [
+                  10,
+                  90
+                ],
+                "error": null,
+                "format": "both",
+                "measure": "cost",
+                "model": "claude-opus-5",
+                "outputs": {
+                  "html": "organization-talium-ai__claude-opus-5__cost.html",
+                  "png": "organization-talium-ai__claude-opus-5__cost.png"
+                },
+                "samples": 8,
+                "scope_name": "talium.ai",
+                "scope_type": "organization",
+                "status": "qualified",
+                "stem": "organization-talium-ai__claude-opus-5__cost",
+                "view": "claude-opus-5"
+              },
+              {
+                "band": [
+                  10,
+                  90
+                ],
+                "error": null,
+                "format": "both",
+                "measure": "cost",
+                "model": "claude-sonnet-5",
+                "outputs": {
+                  "html": "organization-talium-ai__claude-sonnet-5__cost.html",
+                  "png": "organization-talium-ai__claude-sonnet-5__cost.png"
+                },
+                "samples": 8,
+                "scope_name": "talium.ai",
+                "scope_type": "organization",
+                "status": "qualified",
+                "stem": "organization-talium-ai__claude-sonnet-5__cost",
+                "view": "claude-sonnet-5"
+              },
+              {
+                "band": [
+                  10,
+                  90
+                ],
+                "error": null,
+                "format": "both",
+                "measure": "cost",
+                "model": "gpt-5.6-sol",
+                "outputs": {
+                  "html": "organization-talium-ai__gpt-5-6-sol__cost.html",
+                  "png": "organization-talium-ai__gpt-5-6-sol__cost.png"
+                },
+                "samples": 8,
+                "scope_name": "talium.ai",
+                "scope_type": "organization",
+                "status": "qualified",
+                "stem": "organization-talium-ai__gpt-5-6-sol__cost",
+                "view": "gpt-5.6-sol"
+              },
+              {
+                "band": [
+                  10,
+                  90
+                ],
+                "error": null,
+                "format": "both",
+                "measure": "cost",
+                "model": "gpt-5.6-terra",
+                "outputs": {
+                  "html": "organization-talium-ai__gpt-5-6-terra__cost.html",
+                  "png": "organization-talium-ai__gpt-5-6-terra__cost.png"
+                },
+                "samples": 8,
+                "scope_name": "talium.ai",
+                "scope_type": "organization",
+                "status": "qualified",
+                "stem": "organization-talium-ai__gpt-5-6-terra__cost",
+                "view": "gpt-5.6-terra"
+              },
+              {
+                "band": [
+                  10,
+                  90
+                ],
+                "error": null,
+                "format": "both",
+                "measure": "cost",
+                "model": null,
+                "outputs": {
+                  "html": "team-team1__total__cost.html",
+                  "png": "team-team1__total__cost.png"
+                },
+                "samples": 8,
+                "scope_name": "team1",
+                "scope_type": "team",
+                "status": "complete",
+                "stem": "team-team1__total__cost",
+                "view": "total"
+              },
+              {
+                "band": [
+                  10,
+                  90
+                ],
+                "error": null,
+                "format": "both",
+                "measure": "cost",
+                "model": null,
+                "outputs": {
+                  "html": "team-team1__breakdown__cost.html",
+                  "png": "team-team1__breakdown__cost.png"
+                },
+                "samples": 8,
+                "scope_name": "team1",
+                "scope_type": "team",
+                "status": "complete",
+                "stem": "team-team1__breakdown__cost",
+                "view": "breakdown"
+              },
+              {
+                "band": [
+                  10,
+                  90
+                ],
+                "error": null,
+                "format": "both",
+                "measure": "cost",
+                "model": null,
+                "outputs": {
+                  "html": "team-team2__total__cost.html",
+                  "png": "team-team2__total__cost.png"
+                },
+                "samples": 8,
+                "scope_name": "team2",
+                "scope_type": "team",
+                "status": "complete",
+                "stem": "team-team2__total__cost",
+                "view": "total"
+              },
+              {
+                "band": [
+                  10,
+                  90
+                ],
+                "error": null,
+                "format": "both",
+                "measure": "cost",
+                "model": null,
+                "outputs": {
+                  "html": "team-team2__breakdown__cost.html",
+                  "png": "team-team2__breakdown__cost.png"
+                },
+                "samples": 8,
+                "scope_name": "team2",
+                "scope_type": "team",
+                "status": "complete",
+                "stem": "team-team2__breakdown__cost",
+                "view": "breakdown"
+              },
+              {
+                "band": [
+                  10,
+                  90
+                ],
+                "error": null,
+                "format": "both",
+                "measure": "cost",
+                "model": null,
+                "outputs": {
+                  "html": "team-team3__total__cost.html",
+                  "png": "team-team3__total__cost.png"
+                },
+                "samples": 8,
+                "scope_name": "team3",
+                "scope_type": "team",
+                "status": "complete",
+                "stem": "team-team3__total__cost",
+                "view": "total"
+              },
+              {
+                "band": [
+                  10,
+                  90
+                ],
+                "error": null,
+                "format": "both",
+                "measure": "cost",
+                "model": null,
+                "outputs": {
+                  "html": "team-team3__breakdown__cost.html",
+                  "png": "team-team3__breakdown__cost.png"
+                },
+                "samples": 8,
+                "scope_name": "team3",
+                "scope_type": "team",
+                "status": "complete",
+                "stem": "team-team3__breakdown__cost",
+                "view": "breakdown"
+              },
+              {
+                "band": [
+                  10,
+                  90
+                ],
+                "error": null,
+                "format": "both",
+                "measure": "cost",
+                "model": null,
+                "outputs": {
+                  "html": "project-auth-service-rewrite__total__cost.html",
+                  "png": "project-auth-service-rewrite__total__cost.png"
+                },
+                "samples": 8,
+                "scope_name": "auth_service_rewrite",
+                "scope_type": "project",
+                "status": "complete",
+                "stem": "project-auth-service-rewrite__total__cost",
+                "view": "total"
+              },
+              {
+                "band": [
+                  10,
+                  90
+                ],
+                "error": null,
+                "format": "both",
+                "measure": "cost",
+                "model": null,
+                "outputs": {
+                  "html": "project-auth-service-rewrite__breakdown__cost.html",
+                  "png": "project-auth-service-rewrite__breakdown__cost.png"
+                },
+                "samples": 8,
+                "scope_name": "auth_service_rewrite",
+                "scope_type": "project",
+                "status": "complete",
+                "stem": "project-auth-service-rewrite__breakdown__cost",
+                "view": "breakdown"
+              },
+              {
+                "band": [
+                  10,
+                  90
+                ],
+                "error": null,
+                "format": "both",
+                "measure": "cost",
+                "model": null,
+                "outputs": {
+                  "html": "project-data-pipeline-upgrade__total__cost.html",
+                  "png": "project-data-pipeline-upgrade__total__cost.png"
+                },
+                "samples": 8,
+                "scope_name": "data_pipeline_upgrade",
+                "scope_type": "project",
+                "status": "complete",
+                "stem": "project-data-pipeline-upgrade__total__cost",
+                "view": "total"
+              },
+              {
+                "band": [
+                  10,
+                  90
+                ],
+                "error": null,
+                "format": "both",
+                "measure": "cost",
+                "model": null,
+                "outputs": {
+                  "html": "project-data-pipeline-upgrade__breakdown__cost.html",
+                  "png": "project-data-pipeline-upgrade__breakdown__cost.png"
+                },
+                "samples": 8,
+                "scope_name": "data_pipeline_upgrade",
+                "scope_type": "project",
+                "status": "complete",
+                "stem": "project-data-pipeline-upgrade__breakdown__cost",
+                "view": "breakdown"
+              },
+              {
+                "band": [
+                  10,
+                  90
+                ],
+                "error": null,
+                "format": "both",
+                "measure": "cost",
+                "model": null,
+                "outputs": {
+                  "html": "project-developer-tooling__total__cost.html",
+                  "png": "project-developer-tooling__total__cost.png"
+                },
+                "samples": 8,
+                "scope_name": "developer_tooling",
+                "scope_type": "project",
+                "status": "complete",
+                "stem": "project-developer-tooling__total__cost",
+                "view": "total"
+              },
+              {
+                "band": [
+                  10,
+                  90
+                ],
+                "error": null,
+                "format": "both",
+                "measure": "cost",
+                "model": null,
+                "outputs": {
+                  "html": "project-developer-tooling__breakdown__cost.html",
+                  "png": "project-developer-tooling__breakdown__cost.png"
+                },
+                "samples": 8,
+                "scope_name": "developer_tooling",
+                "scope_type": "project",
+                "status": "complete",
+                "stem": "project-developer-tooling__breakdown__cost",
+                "view": "breakdown"
+              },
+              {
+                "band": [
+                  10,
+                  90
+                ],
+                "error": null,
+                "format": "both",
+                "measure": "cost",
+                "model": null,
+                "outputs": {
+                  "html": "project-payment-service-improvement__total__cost.html",
+                  "png": "project-payment-service-improvement__total__cost.png"
+                },
+                "samples": 8,
+                "scope_name": "payment_service_improvement",
+                "scope_type": "project",
+                "status": "complete",
+                "stem": "project-payment-service-improvement__total__cost",
+                "view": "total"
+              },
+              {
+                "band": [
+                  10,
+                  90
+                ],
+                "error": null,
+                "format": "both",
+                "measure": "cost",
+                "model": null,
+                "outputs": {
+                  "html": "project-payment-service-improvement__breakdown__cost.html",
+                  "png": "project-payment-service-improvement__breakdown__cost.png"
+                },
+                "samples": 8,
+                "scope_name": "payment_service_improvement",
+                "scope_type": "project",
+                "status": "complete",
+                "stem": "project-payment-service-improvement__breakdown__cost",
+                "view": "breakdown"
+              },
+              {
+                "band": [
+                  10,
+                  90
+                ],
+                "error": null,
+                "format": "both",
+                "measure": "cost",
+                "model": null,
+                "outputs": {
+                  "html": "project-search-service-improvement__total__cost.html",
+                  "png": "project-search-service-improvement__total__cost.png"
+                },
+                "samples": 8,
+                "scope_name": "search_service_improvement",
+                "scope_type": "project",
+                "status": "complete",
+                "stem": "project-search-service-improvement__total__cost",
+                "view": "total"
+              },
+              {
+                "band": [
+                  10,
+                  90
+                ],
+                "error": null,
+                "format": "both",
+                "measure": "cost",
+                "model": null,
+                "outputs": {
+                  "html": "project-search-service-improvement__breakdown__cost.html",
+                  "png": "project-search-service-improvement__breakdown__cost.png"
+                },
+                "samples": 8,
+                "scope_name": "search_service_improvement",
+                "scope_type": "project",
+                "status": "complete",
+                "stem": "project-search-service-improvement__breakdown__cost",
+                "view": "breakdown"
+              }
+            ],
+            "schema_version": 1,
+            "status": "complete",
+            "versions": {
+              "matplotlib": "3.11.2",
+              "numpy": "2.4.6",
+              "plotly": "7.0.0"
+            }
+          }
+        }
+      ],
+      "stage": "plot",
+      "status": "complete"
+    }
+  ],
+  "started_at": "2026-10-06T16:50:38.100881+00:00",
+  "status": "complete"
+}

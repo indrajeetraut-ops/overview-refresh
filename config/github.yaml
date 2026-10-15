@@ -1,0 +1,37 @@
+# git-source acquisition module config (git-source.md §11). Mounted as a host route on the
+# real ingest app (src/server/ingest/app.py, config/ingest.yaml's github_config). Secrets are
+# ${VAR} references only -- never values (CLAUDE.md secret hygiene). Set these in your .env /
+# shell before running:
+#   TALIUM_GITHUB_APP_ID, TALIUM_GITHUB_CLIENT_ID,
+#   TALIUM_GITHUB_PRIVATE_KEY_PATH, TALIUM_GITHUB_WEBHOOK_SECRET, TALIUM_GITHUB_STATE_SECRET
+github:
+  app_id: "${TALIUM_GITHUB_APP_ID}"
+  client_id: "${TALIUM_GITHUB_CLIENT_ID}"
+
+  # GHES-ready from day one; override these for an Enterprise Server host (git-source.md Q5).
+  api_base: "https://api.github.com"
+  graphql_url: "https://api.github.com/graphql"
+  api_version: "2026-03-10"
+
+  private_key_path: "${TALIUM_GITHUB_PRIVATE_KEY_PATH}"
+  webhook_secret: "${TALIUM_GITHUB_WEBHOOK_SECRET}"
+  # Signs the tenant-binding `state` token (§6.1 mechanism 1, implementation plan A7) --
+  # deliberately its own secret, distinct from webhook_secret (state_token.py's docstring).
+  state_secret: "${TALIUM_GITHUB_STATE_SECRET}"
+
+  webhook_path: "/talium/git/v1/webhook/github"
+  max_body_bytes: 26214400          # 25 MiB, GitHub's own delivery cap
+
+  # The "Connect GitHub" redirect target (§6.1 mechanism 1). Not needed until self-serve
+  # install is wired into the product's own UI; the operator-mapping (`cli_installations map`)
+  # and reconcile (`cli_installations reconcile`) fallbacks work without it.
+  setup_path: "/talium/git/v1/setup/github"
+  state_ttl_s: 900
+
+  subscribed_events:
+    - pull_request
+    - pull_request_review
+    - push
+    - check_suite
+    - installation
+    - installation_repositories

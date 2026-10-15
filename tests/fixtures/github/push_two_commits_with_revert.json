@@ -1,0 +1,48 @@
+{
+  "event": "push",
+  "action": null,
+  "payload": {
+    "ref": "refs/heads/main",
+    "before": "1111111111000000000000000000000000000000",
+    "after": "3333333333000000000000000000000000000000",
+    "repository": {
+      "id": 41213765,
+      "full_name": "talium-ai/code-econ"
+    },
+    "installation": {
+      "id": 42
+    },
+    "commits": [
+      {
+        "id": "2222222222000000000000000000000000000000",
+        "message": "Add flaky retry",
+        "timestamp": "2026-08-01T10:00:00Z",
+        "author": {
+          "name": "A",
+          "email": "a@example.com",
+          "username": "akhuteta"
+        },
+        "added": [
+          "src/x.py"
+        ],
+        "removed": [],
+        "modified": []
+      },
+      {
+        "id": "3333333333000000000000000000000000000000",
+        "message": "Revert \"Add flaky retry\"\n\nThis reverts commit 2222222222000000000000000000000000000000.",
+        "timestamp": "2026-08-01T11:00:00Z",
+        "author": {
+          "name": "A",
+          "email": "a@example.com",
+          "username": "akhuteta"
+        },
+        "added": [],
+        "removed": [
+          "src/x.py"
+        ],
+        "modified": []
+      }
+    ]
+  }
+}

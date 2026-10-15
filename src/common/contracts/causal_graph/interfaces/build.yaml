@@ -1,0 +1,22 @@
+version: "1"
+status: approved
+callable:
+  name: build_graph
+  signature: "build_graph(normalized_session, config=None, *, query_config=None)"
+  description: "Transforms one normalized sessions[] dictionary into a storage-neutral graph dictionary without performing I/O."
+input:
+  normalized_session:
+    type: object
+    contract: ../../../events/normalized_schema.json
+    selection: "one sessions[] member"
+    ownership: caller
+output:
+  type: object
+  contract: ../schemas/graph.schema.json
+  description: "A plain JSON-compatible graph dictionary suitable for a file, database, object store, message, or GraphContext."
+io:
+  reads: none
+  writes: none
+errors:
+  graph_build_failed: "The normalized session is malformed or cannot be transformed under the graph contract."
+internal_model_rule: "Internal Family construction uses the Graph-producing builder directly and must not serialize and reparse the public dictionary."

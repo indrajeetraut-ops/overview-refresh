@@ -1,0 +1,27 @@
+# Lean dependency set for the econ-forecast utils (synthetic, forecasting, curve, plot,
+# and the test framework). A single shared venv built from this file supports every
+# econ-forecast/utils/*.sh wrapper. Pins mirror the root requirements.txt.
+#
+# This is the union of every third-party package imported under econ-forecast/src and
+# econ-forecast/tests -- deliberately excluding the wider monorepo deps (fastapi, boto3,
+# psycopg, sqlalchemy, tree-sitter, ...) that the forecast utils do not use.
+pydantic>=2.7
+PyYAML>=6.0
+structlog>=24.1
+Faker==40.38.0
+pytest>=8.0
+
+# Numerical runtime, interpolation, plotting, diagnostics.
+numpy==2.4.6
+scipy==1.17.1
+pandas==3.0.5
+statsmodels==0.15.0
+matplotlib==3.11.2
+plotly==7.0.0
+psutil==7.2.2
+threadpoolctl==3.6.0
+
+# Optional: only the offline browser tests (utils/test_plot_forecast_browser.py, run via
+# test_forecast.sh --include-browser) import this. The browser binary itself is a separate
+# `playwright install chromium` step; without it those tests record as unverified.
+playwright==1.62.0

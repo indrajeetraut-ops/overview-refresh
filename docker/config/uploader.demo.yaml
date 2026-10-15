@@ -1,0 +1,31 @@
+# Uploader config for the AWS demo stack. Identical to config/uploader.yaml except that the
+# object store is S3 instead of a local directory.
+#
+# Why a separate file rather than an env-var switch in the checked-in config: this loader's
+# env substitution (uploader/config.py's _ENV_REF) has no bash-style ":-default", so an unset
+# variable collapses to an empty string. `backend` is a Literal["s3","local"] and would fail
+# validation with a confusing message on any host that had not exported it. The same reasoning
+# already produced docker/config/collector.yaml.
+#
+# Credentials are never set here. boto3 resolves them from the EC2 instance profile over IMDS
+# (talium-dev-app-instance, scoped to s3://talium-bucket/uploads/*).
+
+object_store:
+  backend: s3
+  s3:
+    bucket: "${TALIUM_UPLOAD_BUCKET}"
+    region: "${AWS_REGION}"
+    endpoint_url: null
+
+limits:
+  max_upload_bytes: 5368709120 # 5 GiB, uncompressed aggregate (doc §12 U1 default)
+  upload_timeout_s: 900.0 # wall clock per upload before a 499
+
+http:
+  host: "0.0.0.0"
+  port: 8080
+
+uploader_version: "0.1.0"
+# Orphan reclamation (doc §7, §11 U2) is the S3 lifecycle rule declared in talium-infra at
+# terraform/live/dev/app/main.tf -- objects under uploads/ expire after 14 days. It is not
+# application code by design.

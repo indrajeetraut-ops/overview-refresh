@@ -1,0 +1,76 @@
+version: "1"
+status: approved
+identity:
+  public_key: session_id
+  master_key: master_session_id
+  context_id: forbidden
+resolver:
+  signature: "resolve_graphs(session_ids: list[str]) -> dict[str, dict]"
+  batching: breadth_first_level
+  missing_key: unresolved
+  returned_key_rule: "Each mapping key equals the returned graph dictionary's session_id."
+  source_ownership: caller
+schema_compatibility:
+  accepted: "The current graph schema version and older versions with the same major number."
+  rejected: "Malformed versions, older major versions, and future versions."
+  preservation: "A loaded Graph retains the source envelope's schema_version."
+operations:
+  - name: load_self
+    signature: "context.load_self(master_graph: dict)"
+    behavior: "Loads only one graph whose parent_session_id is null."
+  - name: load_tree
+    signature: "context.load_tree(resolve_graphs)"
+    behavior: "Eagerly loads the complete reachable descendant tree in breadth-first batches."
+  - name: unload
+    signature: "context.unload(session_id: str)"
+    behavior: "Unloads a non-master session and its complete descendant subtree."
+  - name: unload_tree
+    signature: "context.unload_tree()"
+    behavior: "Unloads the master and every descendant."
+  - name: resolve
+    signature: "context.resolve(session_id: str)"
+    behavior: "Returns a loaded Graph by universal session ID or null."
+  - name: get_graph_context
+    signature: "get_graph_context(session_id: str)"
+    behavior: "Returns the active owning context for a master or descendant session."
+  - name: get_load_report
+    signature: "get_load_report(master_session_id=None)"
+    behavior: "Returns one retained master report, or all retained reports when the argument is omitted."
+  - name: get_metric
+    signature: "get_metric(master_session_id: str)"
+    behavior: "Returns the retained metrics for exactly one master session."
+reports:
+  retained_by: master_session_id
+  retained_until: process_exit
+  survives_unload: true
+  operation_timestamps: [started_at, completed_at, duration_ms]
+  states: [complete, partial, unloaded]
+metrics:
+  retained_by: master_session_id
+  retained_until: process_exit
+  envelope_fields: [version, master_session_id, generated_at, metrics]
+  series_fields: [name, type, labels, value, updated_at]
+  types: [counter, gauge, observation]
+  no_argument_getter: false
+  flush: unsupported
+errors:
+  shape:
+    version: "1"
+    code: string
+    message: string
+    timestamp: RFC3339
+    master_session_id: "string | null"
+    session_id: "string | null"
+    details: object
+  codes:
+    graph_validation_failed: "A graph dictionary does not satisfy the graph contract."
+    invalid_master_graph: "load_self received a descendant graph."
+    context_master_conflict: "A context already belongs to a different master."
+    session_ownership_conflict: "A session is active in another context."
+    resolver_failed: "The caller-supplied resolver raised an exception."
+    resolver_result_invalid: "A resolver result is malformed, unrelated, or keyed incorrectly."
+    session_not_loaded: "The requested session has no active graph."
+    master_unload_forbidden: "unload(session_id) cannot unload a master; use unload_tree."
+    master_session_not_found: "No retained report or metric exists for the master."
+    context_not_ready: "The context has no loaded master Family."
+deferred: [lazy_loading, metric_flush, metric_export, persistence, graph_server]

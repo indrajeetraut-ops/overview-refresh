@@ -1,0 +1,6 @@
+{
+  "version": "1",
+  "scope": {"kind": "tree"},
+  "select": {"type": "Tool", "where": "Tool.outcome == 'failure'"},
+  "return": {"kind": "nodes", "verbosity": "summary"}
+}

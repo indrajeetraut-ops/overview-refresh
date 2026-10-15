@@ -1,0 +1,173 @@
+# The local sync stack: the Go uploader (talium-sync -> talium-uploadd + tusd) in place of the
+# Python uploader, feeding the SAME collector -> ingest -> worker -> api pipeline.
+#
+# An overlay, not a standalone stack: it adds services to docker-compose.stack.yml's project
+# (same postgres, ingest, org token, volumes) and is meaningless without it.
+#
+#   utils/stack_up.sh --sync            # stack + this overlay; prints the talium-sync commands
+#   utils/sync_local.sh                 # build talium-sync from ../upload, enroll, run one pass
+#   utils/sync_e2e_check.sh             # MinIO manifest + byte-identity + Postgres checks
+#   utils/stack_down.sh [--wipe]
+#
+# Topology is the AWS one (../upload/deploy/docker-compose.prod.yml + docker/docker-compose.demo.yml's
+# S3-reading collector), with MinIO standing in for S3. A plain-directory variant is not
+# possible: talium-uploadd's finalize step copies tusd's completed object by the S3 key tusd
+# reports (Storage["Key"]), which tusd's file store never provides.
+#
+# Everything is behind the `sync` profile so listing this file without --profile sync (as
+# utils/stack_down.sh does, to clean up) never starts anything.
+#
+# Required env, all exported by utils/stack_up.sh --sync from var/stack-sync.env (generated
+# once, gitignored, never committed):
+#   TALIUM_SESSION_SIGNING_KEY      HS256 key uploadd signs session tokens with (server only)
+#   TALIUM_SYNC_ENROLLMENT_SECRET   the org's enrollment secret (server AND talium-sync)
+#   TALIUM_S3_PREFIX                bucket base prefix; cc/logs (the AWS demo's) or "" for root
+#   TALIUM_S3_KEY_BASE              the same prefix as a key base: "cc/logs/", or "" for root.
+#                                   Derived, not set by hand: this Compose (v2.13) has no nested
+#                                   ${A:+${A}/} interpolation, so _sync_env.sh computes it.
+#
+# Leaves the jsonl profile's `collector` alone: the two collectors share one checkpoint file,
+# so they must never run together -- stack_up.sh --sync stops the jsonl one.
+
+x-sync-s3-env: &sync-s3-env
+  # MinIO's root credentials. Local-only; AWS uses the instance role and no static keys.
+  AWS_ACCESS_KEY_ID: minioadmin
+  AWS_SECRET_ACCESS_KEY: minioadmin
+  AWS_REGION: us-east-1
+
+services:
+  minio:
+    # quay.io, not Docker Hub: the minio/* Docker Hub repositories no longer exist (so
+    # ../upload/deploy/docker-compose.yml's `minio/minio` no longer pulls either).
+    image: quay.io/minio/minio:RELEASE.2025-09-07T16-13-09Z
+    container_name: talium_stack_minio
+    profiles: ["sync"]
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: minioadmin
+    ports:
+      - "${STACK_MINIO_PORT:-9000}:9000"          # S3 API; utils/sync_e2e_check.sh reads here
+      - "${STACK_MINIO_CONSOLE_PORT:-9001}:9001"  # web console (minioadmin / minioadmin)
+    volumes:
+      - stack_minio:/data
+    healthcheck:
+      test: ["CMD", "mc", "ready", "local"]
+      interval: 3s
+      timeout: 3s
+      retries: 20
+    restart: unless-stopped
+
+  # Creates the staging bucket, then exits. `mb -p` is a no-op on an existing bucket.
+  minio-init:
+    image: quay.io/minio/mc:latest
+    container_name: talium_stack_minio_init
+    profiles: ["sync"]
+    entrypoint: >
+      /bin/sh -c "
+      mc alias set local http://minio:9000 minioadmin minioadmin &&
+      mc mb -p local/talium-staging
+      "
+    restart: "no"
+    depends_on:
+      minio:
+        condition: service_healthy
+
+  # The same image that ships to ECR (../upload/Dockerfile), built from the sibling checkout.
+  # Distroless: no shell, so no healthcheck of its own -- caddy-sync's /healthz check proxies
+  # to it and stands in for one.
+  talium-uploadd:
+    build:
+      context: ${TALIUM_UPLOAD_SRC:-../../upload}
+    image: talium-uploadd:local
+    container_name: talium_stack_uploadd
+    profiles: ["sync"]
+    environment:
+      <<: *sync-s3-env
+      TALIUM_ORG_ID: "${TALIUM_ORG_ID:-local-dev}"
+      TALIUM_S3_PREFIX: "${TALIUM_S3_PREFIX?run utils/stack_up.sh --sync (sets cc/logs by default)}"
+      TALIUM_SESSION_SIGNING_KEY: "${TALIUM_SESSION_SIGNING_KEY:?run utils/stack_up.sh --sync}"
+      TALIUM_SYNC_ENROLLMENT_SECRET: "${TALIUM_SYNC_ENROLLMENT_SECRET:?run utils/stack_up.sh --sync}"
+    volumes:
+      - ./config/uploadd.sync.yaml:/etc/talium/uploadd.yaml:ro
+    restart: unless-stopped
+    depends_on:
+      minio-init:
+        condition: service_completed_successfully
+
+  # Flags are prod's (../upload/deploy/docker-compose.prod.yml) plus -s3-endpoint for MinIO.
+  # -s3-object-prefix MUST share uploadd's base prefix: finalize copies tus-tmp objects into
+  # <base>uploads/..., and both must be in the one namespace.
+  tusd:
+    image: tusproject/tusd:v2.10.0
+    container_name: talium_stack_tusd
+    profiles: ["sync"]
+    command: >
+      -host 0.0.0.0 -port 1080 -base-path /tus/
+      -behind-proxy
+      -s3-bucket talium-staging
+      -s3-endpoint http://minio:9000
+      -s3-object-prefix ${TALIUM_S3_KEY_BASE?run utils/stack_up.sh --sync}tus-tmp/
+      -hooks-http http://talium-uploadd:8080/v1/tus/hook
+      -hooks-enabled-events pre-create,post-finish
+    environment:
+      <<: *sync-s3-env
+    restart: unless-stopped
+    depends_on:
+      minio-init:
+        condition: service_completed_successfully
+      talium-uploadd:
+        condition: service_started
+
+  # What talium-sync's base_url points at: http://localhost:${STACK_SYNC_PORT:-8444}.
+  caddy-sync:
+    image: caddy:2-alpine
+    container_name: talium_stack_caddy_sync
+    profiles: ["sync"]
+    volumes:
+      - ./config/Caddyfile.sync:/etc/caddy/Caddyfile:ro
+    ports:
+      - "${STACK_SYNC_PORT:-8444}:8444"
+    healthcheck:
+      # Proxied through to talium-uploadd, so this goes healthy only when the whole front
+      # door is up -- the `--wait` in stack_up.sh blocks on it.
+      test: ["CMD-SHELL", "wget -qO- http://localhost:8444/healthz >/dev/null"]
+      interval: 3s
+      timeout: 3s
+      retries: 40
+    restart: unless-stopped
+    depends_on:
+      - tusd
+      - talium-uploadd
+
+  # The stack's collector, pointed at MinIO. Same image, same loop, same checkpoint file as
+  # the jsonl profile's `collector`; only the source store and the sweep root differ.
+  collector-sync:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+      args:
+        VITE_VIEWER_ID: "${STACK_VIEWER_ID:-}"
+    container_name: talium_stack_collector_sync
+    profiles: ["sync"]
+    entrypoint: ["bash", "/app/docker/collect-loop.sh"]
+    environment:
+      <<: *sync-s3-env
+      TALIUM_DB_DSN: postgresql+psycopg://postgres@postgres:5432/econ
+      TALIUM_DATA_DIR: /data
+      COLLECTOR_CONFIG: /app/docker-config/collector.sync.yaml
+      COLLECT_SCOPE: "${TALIUM_S3_KEY_BASE?run utils/stack_up.sh --sync}uploads/"
+      COLLECT_INTERVAL_S: "${COLLECT_INTERVAL_S:-30}"
+    volumes:
+      - stack_data:/data
+      - ./collect-loop.sh:/app/docker/collect-loop.sh:ro
+      - ./config/collector.sync.yaml:/app/docker-config/collector.sync.yaml:ro
+    restart: unless-stopped
+    depends_on:
+      ingest:
+        condition: service_healthy
+      minio-init:
+        condition: service_completed_successfully
+
+volumes:
+  stack_minio:

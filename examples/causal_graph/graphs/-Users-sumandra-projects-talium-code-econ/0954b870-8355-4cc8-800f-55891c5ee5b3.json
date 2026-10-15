@@ -1,0 +1,102 @@
+{
+  "schema_version": "4.3.0",
+  "session_id": "0954b870-8355-4cc8-800f-55891c5ee5b3",
+  "parent_session_id": null,
+  "vendor": "claude_code",
+  "source": "jsonl",
+  "built": "complete",
+  "meta": {
+    "title": null,
+    "objective": null,
+    "resources": [
+      "2d831359-ee35-4718-80d4-6a14f4aa828c",
+      "24271293-676a-4f39-ad8c-3f6ee18d3873"
+    ],
+    "query_config_revision": "2026-08-27",
+    "warnings": []
+  },
+  "nodes": [
+    {
+      "id": "msg_011Ccpzii5DRFJgJgFkDky9p",
+      "type": "assistant",
+      "ts": "2026-07-08T17:36:57.907Z",
+      "attrs": {
+        "message_id": "msg_011Ccpzii5DRFJgJgFkDky9p",
+        "model": "claude-fable-5",
+        "has_thinking": true,
+        "input_tokens": 5167,
+        "output_tokens": 4,
+        "cache_read_tokens": 11070,
+        "cache_write_tokens": 4908,
+        "estimated_reasoning_tokens": 0,
+        "reasoning_source": "estimated",
+        "reasoning_ratio": 1.52,
+        "estimated_visible_tokens": 37,
+        "tool_call_count": 0,
+        "attribution_skill": null,
+        "attribution_plugin": null,
+        "attribution_agent": null,
+        "effort": null
+      },
+      "meta": {},
+      "children": [],
+      "parent_id": "turn:1",
+      "refs": {}
+    },
+    {
+      "id": "c87bf96e-23a9-41e9-89e0-47b0a4ae793c",
+      "type": "user_prompt",
+      "ts": "2026-07-08T17:36:51.960Z",
+      "attrs": {
+        "text": "help",
+        "model": null,
+        "is_injected": false,
+        "resources": [
+          "ecca0c8f-14bd-4a3e-b059-f820d31975cb",
+          "aa48a3fd-b85c-4a53-95ca-e6c5e0e8a2dd",
+          "4073d4b3-c1c8-4446-81c4-d549a0deebee"
+        ]
+      },
+      "meta": {},
+      "children": [],
+      "parent_id": "turn:1",
+      "refs": {}
+    },
+    {
+      "id": "turn:1",
+      "type": "turn",
+      "ts": "2026-07-08T17:36:51.960Z",
+      "attrs": {
+        "turn_num": 1,
+        "prompt_id": "7bd75496-b7ae-46af-9971-4b92da11227a",
+        "status": "interrupted",
+        "duration_ms": 7229,
+        "permission_mode": "default",
+        "plan_mode": false,
+        "tokens": {
+          "input_tokens": 5167,
+          "output_tokens": 4,
+          "cache_read_tokens": 11070,
+          "cache_write_tokens": 4908,
+          "estimated_reasoning_tokens": 0
+        },
+        "attribution": {
+          "skill": [],
+          "plugin": [],
+          "agent": [],
+          "effort": []
+        }
+      },
+      "meta": {},
+      "children": [
+        "c87bf96e-23a9-41e9-89e0-47b0a4ae793c",
+        "msg_011Ccpzii5DRFJgJgFkDky9p"
+      ],
+      "parent_id": null,
+      "refs": {}
+    }
+  ],
+  "roots": [
+    "turn:1"
+  ]
+}

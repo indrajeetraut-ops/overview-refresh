@@ -1,0 +1,33 @@
+# Bulk historic issue reader (ISSUE plan H2, git-source.md §8.2): one round trip returns a page
+# of issues WITH their labels, milestone, assignees and comment count -- the whole `issue`
+# artifact (ISSUE §3.1). Uses `search` with `is:issue`, not `repository.issues`, because only
+# search supports server-side date filtering ("updated:>=..."), which is what lets a resumed
+# run skip straight to unseen history instead of paging the whole repo every time (the per-repo
+# cursor `git_repos.backfill_cursor`, shared with the PR pass, is embedded in $query by the
+# caller).
+#
+# `rateLimit { cost remaining nodeCount resetAt }` is mandatory (git-source.md §7.4) -- the
+# client's throttle measures the real cost from this field rather than estimating it.
+#
+# No body text is selected (§5.3, ISSUE §0.4): title, state, labels, milestone, assignees and
+# the comment count only. No `parent` / sub-issue field -- it is a preview-schema addition and
+# a backfilled issue leaves `linked_issue` null the same way a backfilled PR leaves its
+# merge-transition fields null; the webhook fills it when the source carries one.
+query BackfillIssues($query: String!, $cursor: String) {
+  rateLimit { cost remaining nodeCount resetAt }
+  search(query: $query, type: ISSUE, first: 50, after: $cursor) {
+    issueCount
+    pageInfo { hasNextPage endCursor }
+    nodes {
+      ... on Issue {
+        number title state
+        createdAt updatedAt closedAt
+        author { login }
+        labels(first: 50) { nodes { name } }
+        milestone { title }
+        assignees(first: 20) { nodes { login } }
+        comments { totalCount }
+      }
+    }
+  }
+}

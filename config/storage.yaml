@@ -1,0 +1,9 @@
+# Storage config (storage.md §4.1). Hosting lives entirely in the DSN string.
+storage:
+  dsn: ${TALIUM_DB_DSN}          # e.g. postgresql+psycopg://user@host:5432/econ?sslmode=require
+  admin_dsn: ${TALIUM_DB_ADMIN_DSN}
+  pool_size: 5
+  max_overflow: 5
+  pool_recycle_s: 1800
+  pool_pre_ping: true
+  queries_dir: config/queries

@@ -1,0 +1,259 @@
+# Named queries for the OTel true-up worker (otel-intake design §4.4). Compiled by
+# QueryCatalog at load. Every join and fold is scoped (vendor, session_id) or
+# (vendor, request_id) -- ids are vendor namespaces (D-OT6), never global.
+
+# ---------------------------------------------------------------- watermark
+
+# Read with FOR UPDATE: two worker processes ticking the same vendor concurrently must
+# serialize here, or both fold the same window and both advance -- harmless for totals (the
+# fold is idempotent) but it would let one overwrite the other's newer mark.
+get_watermark: |
+  SELECT watermark FROM otel_watermarks WHERE vendor = :vendor FOR UPDATE;
+
+set_watermark: |
+  INSERT INTO otel_watermarks (vendor, watermark, updated_at)
+  VALUES (:vendor, CAST(:watermark AS timestamptz), now())
+  ON CONFLICT (vendor) DO UPDATE
+    SET watermark = EXCLUDED.watermark, updated_at = EXCLUDED.updated_at;
+
+# --------------------------------------------------------------- what moved
+
+# Sessions with OTel rows newer than the watermark, from either table. Points reach their
+# session through otel_series; requests carry it directly.
+touched_sessions: |
+  SELECT DISTINCT touched.session_id FROM (
+    SELECT s.session_id
+    FROM otel_metric_points p
+    JOIN otel_series s ON s.series_id = p.series_id
+    WHERE s.vendor = :vendor
+      AND p.received_at > CAST(:watermark AS timestamptz)
+      AND s.session_id IS NOT NULL
+    UNION ALL
+    SELECT r.session_id
+    FROM otel_api_requests r
+    WHERE r.vendor = :vendor
+      AND r.received_at > CAST(:watermark AS timestamptz)
+      AND r.session_id IS NOT NULL
+    UNION ALL
+    -- Sessions still holding `otel_only` requests.
+    --
+    -- Without this arm the watermark never converges. It moves on OTel `received_at`, and
+    -- JSONL arriving later creates no OTel row -- so a session whose OTel landed first would
+    -- sit at `otel_only` forever, contradicting §4.4's promise that the label is transient
+    -- and rows migrate to `matched` naturally. Self-limiting: a session leaves this arm the
+    -- tick its JSONL is joined, and `otel_only` is a small, shrinking set by construction.
+    SELECT i.session_id
+    FROM session_info i
+    WHERE i.otel ->> 'vendor' = :vendor
+      AND COALESCE((i.otel -> 'sources' ->> 'otel_only')::int, 0) > 0
+    UNION ALL
+    -- Sessions whose JSONL has moved since we last folded them.
+    --
+    -- Without this arm a JSONL-only deployment gets no cost block at all: the other three
+    -- arms are all reachable only through otel_* rows, so a session that never had OTel data
+    -- is never touched. That tier is a deployment choice (an org that runs the collector and
+    -- refuses telemetry), not a degraded mode -- its costs come from the estimator, and this
+    -- is the arm that lets it exist. Bounded the same way the others are: a session leaves it
+    -- as soon as the fold is newer than its last event.
+    SELECT sess.session_id
+    FROM sessions sess
+    LEFT JOIN session_info i ON i.session_id = sess.session_id
+    WHERE sess.agent = :vendor
+      AND (i.otel IS NULL
+           OR i.otel ->> 'computed_at' IS NULL
+           OR sess.last_event_at > (i.otel ->> 'computed_at')::timestamptz)
+    UNION ALL
+    -- Sessions holding a cost block of an older shape.
+    --
+    -- Every other arm reads keys out of the block to decide whether to revisit a session, so
+    -- a block whose shape predates those keys matches none of them and is stranded forever.
+    -- An idle session -- no new OTel, no new JSONL -- would keep the obsolete block
+    -- indefinitely and quietly. Self-clearing: re-folding stamps the current version.
+    SELECT i.session_id
+    FROM session_info i
+    WHERE i.otel IS NOT NULL AND i.otel <> '{}'::jsonb
+      AND COALESCE((i.otel ->> 'block_version')::int, 1) < :block_version
+    UNION ALL
+    -- Sessions folded against a different price table.
+    --
+    -- The prices are an INPUT to the fold, so a new catalog version or history.yaml edit has to invalidate
+    -- what was computed from the old one. Adding a model otherwise changes nothing already
+    -- folded -- its requests keep `cost_basis: unknown` forever, which is precisely the state
+    -- adding it was meant to fix. Self-clearing, like the version arm above.
+    SELECT i.session_id
+    FROM session_info i
+    WHERE i.otel IS NOT NULL AND i.otel <> '{}'::jsonb
+      AND i.otel ->> 'pricing_fingerprint' IS DISTINCT FROM CAST(:pricing_fingerprint AS text)
+  ) touched
+  -- A synthetic session (econ-forecast's org-expand generator, loaded directly by
+  -- synthetic_load.py) never carries a real per-request event stream in signal_blob.events --
+  -- that layer was deliberately never simulated. jsonl_requests_for_session reads exactly
+  -- that stream; finding none, it folds to a $0 estimate, silently overwriting the loader's
+  -- own correct aggregate every tick. `info_blob.synthetic` (set on every synthetic session)
+  -- is this worker's one signal to leave such a session alone rather than re-derive a cost
+  -- from data that was never there by design -- checked once here, not per arm above.
+  --
+  -- LEFT JOIN, not JOIN: an otel_only stub (PM.2) has no `sessions` row yet at all -- it is
+  -- created later, inside the fold this query feeds -- so `sess` is NULL for one here, and
+  -- that must still pass through (a synthetic session always has a `sessions` row from the
+  -- loader, so NULL can only mean "not synthetic, just not created yet").
+  LEFT JOIN sessions sess ON sess.session_id = touched.session_id
+  WHERE COALESCE((sess.info_blob ->> 'synthetic')::boolean, false) = false
+  ORDER BY touched.session_id;
+
+# The high-water mark this tick may advance to: the newest row for this vendor. Read in the
+# same transaction as the fold, and the worker still subtracts a small lag before storing it
+# -- a write that commits after this read would otherwise fall in the gap and never be
+# folded. The overlap that lag creates costs nothing, because the fold is idempotent.
+max_received_at: |
+  SELECT GREATEST(
+    COALESCE((SELECT max(p.received_at)
+              FROM otel_metric_points p
+              JOIN otel_series s ON s.series_id = p.series_id
+              WHERE s.vendor = :vendor), CAST(:watermark AS timestamptz)),
+    COALESCE((SELECT max(received_at) FROM otel_api_requests WHERE vendor = :vendor),
+             CAST(:watermark AS timestamptz))
+  ) AS max_received_at;
+
+# ---------------------------------------------------------------- the fold
+
+# Last value per reset epoch per series, for one session.
+#
+# This is the query the whole design turns on. Cumulative datapoints are running totals, so
+# summing them inflated the reconciliation 150x (§2); the correct read is the last value
+# within each reset epoch, summed across epochs. DISTINCT ON does the per-epoch last-value
+# pick in one indexed pass; the caller sums by canonical measure, because only the mapping
+# config knows which vendor metric is which measure.
+series_last_values: |
+  SELECT DISTINCT ON (p.series_id, p.start_unix_nano)
+         s.series_id, s.metric_name, s.metric_kind, s.temporality, s.attrs,
+         p.start_unix_nano, p.value
+  FROM otel_series s
+  JOIN otel_metric_points p ON p.series_id = s.series_id
+  WHERE s.vendor = :vendor AND s.session_id = :session_id
+  ORDER BY p.series_id, p.start_unix_nano, p.time_unix_nano DESC;
+
+# Every datapoint for one session -- the delta branch sums all points rather than taking the
+# last, so it needs them all. Kept separate from the query above so the cumulative path (the
+# common one by far) never pays for rows it discards.
+series_all_values: |
+  SELECT s.series_id, s.metric_name, s.metric_kind, s.temporality, s.attrs,
+         p.start_unix_nano, p.time_unix_nano, p.value
+  FROM otel_series s
+  JOIN otel_metric_points p ON p.series_id = s.series_id
+  WHERE s.vendor = :vendor AND s.session_id = :session_id
+    AND s.temporality = 'delta'
+  ORDER BY s.series_id, p.time_unix_nano;
+
+# ------------------------------------------------------------- the requests
+
+requests_for_session: |
+  SELECT request_id, model, input_tokens, output_tokens, cache_read_tokens,
+         cache_creation_tokens, cost_usd_micros, duration_ms, query_source, event_ts
+  FROM otel_api_requests
+  WHERE vendor = :vendor AND session_id = :session_id
+  ORDER BY request_id;
+
+# The JSONL side of the three-way join, deduped.
+#
+# There is no per-request table on the JSONL path -- per-request usage lives in the session's
+# normalized event list (sessions.signal_blob), so this walks it. `provider_request_id` is the
+# join key (normalizer.md §6.4); several assistant_message events can share one, because one
+# API request may stream several messages, so DISTINCT ON collapses them to the first. That
+# dedup is not optional: it is what made the 2026-08-02 reconciliation match 36/36 exactly.
+jsonl_requests_for_session: |
+  SELECT DISTINCT ON (e -> 'payload' ->> 'provider_request_id')
+         e -> 'payload' ->> 'provider_request_id'          AS request_id,
+         e -> 'payload' ->> 'model'                        AS model,
+         (e -> 'payload' ->> 'input_tokens')::bigint       AS input_tokens,
+         (e -> 'payload' ->> 'output_tokens')::bigint      AS output_tokens,
+         (e -> 'payload' ->> 'cache_read_tokens')::bigint  AS cache_read_tokens,
+         (e -> 'payload' ->> 'cache_write_tokens')::bigint AS cache_creation_tokens,
+         -- The TTL split, which only this source reports. The vendor charges 5-minute and
+         -- 1-hour cache writes at different rates, and OTel's api_request event carries one
+         -- combined number -- so a JSONL-priced request is the more accurate of the two.
+         e -> 'payload' -> 'cache_write_detail'            AS cache_write_detail,
+         e ->> 'event_ts'                                  AS event_ts
+  FROM sessions sess,
+       LATERAL jsonb_array_elements(COALESCE(sess.signal_blob -> 'events', '[]'::jsonb)) e
+  WHERE sess.session_id = :session_id
+    AND sess.agent = :vendor
+    AND e ->> 'event_type' = 'assistant_message'
+    AND e -> 'payload' ->> 'provider_request_id' IS NOT NULL
+  ORDER BY e -> 'payload' ->> 'provider_request_id', e ->> 'event_ts';
+
+# When OTel first saw anything for this org.
+#
+# A request older than this is one telemetry was not yet switched on for -- structurally
+# different from one OTel *could* have seen and did not (an interrupted request), even though
+# both look identical in the join. Without this the two are indistinguishable, and an operator
+# enabling telemetry mid-history sees hundreds of unexplained gaps.
+otel_coverage_start: |
+  SELECT min(event_ts) AS otel_since
+  FROM otel_api_requests
+  WHERE vendor = :vendor AND org_id = :org_id;
+
+# The org a session's OTel rows are stamped with (from the token, never the payload).
+org_for_session: |
+  SELECT org_id FROM otel_series WHERE vendor = :vendor AND session_id = :session_id
+  UNION
+  SELECT org_id FROM otel_api_requests WHERE vendor = :vendor AND session_id = :session_id
+  LIMIT 1;
+
+# ------------------------------------------------------------ zero-install stub (PM.2)
+
+# Earliest/latest event time and any user identity OTel has for this session, for the stub
+# `sessions` row (dashboard-datasource-modes design §8) and for `jsonl_lag_s` (§7) -- both need
+# the same "how far does OTel's evidence for this session reach" answer, so one query serves
+# both call sites.
+#
+# Prefers `otel_api_requests.event_ts` (the vendor's own clock on a completed request); falls
+# back to `otel_metric_points` via its series when there are no request rows at all -- the
+# metrics-only fleet (`OTEL_LOGS_EXPORTER=none`) case PM.1's datasource derivation also has to
+# handle, where `measures` exist but the request ledger is structurally empty. Metric points
+# carry no `event_ts` column, only the OTLP wire's `time_unix_nano`, converted here.
+otel_session_bounds: |
+  SELECT
+    COALESCE(
+      (SELECT min(event_ts) FROM otel_api_requests
+        WHERE vendor = :vendor AND session_id = :session_id),
+      (SELECT to_timestamp(min(p.time_unix_nano) / 1000000000.0)
+         FROM otel_metric_points p JOIN otel_series s ON s.series_id = p.series_id
+        WHERE s.vendor = :vendor AND s.session_id = :session_id)
+    ) AS earliest_event_ts,
+    COALESCE(
+      (SELECT max(event_ts) FROM otel_api_requests
+        WHERE vendor = :vendor AND session_id = :session_id),
+      (SELECT to_timestamp(max(p.time_unix_nano) / 1000000000.0)
+         FROM otel_metric_points p JOIN otel_series s ON s.series_id = p.series_id
+        WHERE s.vendor = :vendor AND s.session_id = :session_id)
+    ) AS latest_event_ts,
+    COALESCE(
+      (SELECT user_key FROM otel_api_requests
+        WHERE vendor = :vendor AND session_id = :session_id AND user_key IS NOT NULL LIMIT 1),
+      (SELECT user_key FROM otel_series
+        WHERE vendor = :vendor AND session_id = :session_id AND user_key IS NOT NULL LIMIT 1)
+    ) AS user_key;
+
+# `user_key` above is the raw OTel account identity (`user.account_uuid`, a different namespace
+# than the JSONL-side `user_id` -- see ingest.yaml's `upsert_user_account_uuid`). Resolves it to
+# the linked `user_id` when one has been declared at JSONL upload time; `_ensure_session_row`
+# (otel_trueup.py) falls back to the raw `user_key` when nothing matches, which is the honest
+# value for a deployment that has never uploaded JSONL for this developer -- never guessed.
+resolve_user_by_account_uuid: |
+  SELECT user_id FROM users WHERE account_uuid = :account_uuid LIMIT 1;
+
+# ---------------------------------------------------------------- retention
+
+# Prune folded staging points (§4.3: otel_metric_points is a buffer, not a ledger).
+#
+# Bounded by BOTH the retention window and the fold watermark. The watermark bound is the
+# load-bearing one: deleting a point the fold has not consumed would silently lower that
+# session's totals with no way to notice, since the raw trajectory is the only evidence.
+prune_points: |
+  DELETE FROM otel_metric_points p
+  USING otel_series s
+  WHERE s.series_id = p.series_id
+    AND s.vendor = :vendor
+    AND p.received_at < CAST(:cutoff AS timestamptz)
+    AND p.received_at <= CAST(:watermark AS timestamptz);

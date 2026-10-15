@@ -1,0 +1,7 @@
+# Workspace pipeline (src/forecast/pipeline/README.md). Run from econ-forecast/:
+#   ./utils/pipeline.sh --config examples/known-event-spike/pipeline.yaml
+stages: [forecast, plot]  # forecast only; no cost runs in this workspace
+forecast:
+  unit: month
+  offset: 1
+  periods: 1

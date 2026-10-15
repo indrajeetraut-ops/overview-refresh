@@ -1,0 +1,11 @@
+# Synthetic org example -- user pool. See econ-forecast/src/forecast/synthetic/org/README.md
+# (P11) and docs/plan/2026-09-18-synthetic-org-implementation.md §9.
+schema_version: 1
+users:
+  # 35 will be rostered across 3 teams (roster.yaml); the remaining 65 stay unassigned.
+  count: 100
+  org_domain: acme.dev
+  locale: en_US
+  seed: 42
+  # Consistent first/last-name-derived email and github_login (D5/D11 require this).
+  identity_style: consistent

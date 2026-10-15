@@ -1,0 +1,10 @@
+schema_version: 1
+plotly_js: ../assets/plotly.min.js
+defaults:
+  format: both
+  band: {low: 10, high: 90}
+  samples: 8
+forecast:
+  - scope_type: organization
+  - scope_type: team
+  - scope_type: project

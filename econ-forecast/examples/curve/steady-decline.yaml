@@ -1,0 +1,13 @@
+schema_version: 1
+name: steady-decline
+interp: pchip
+axis: {start: 1, end: 10}
+anchors:                            # all deltas after the first: consumption tapering off
+  - [1,  "5.0"]                     # start high (absolute)
+  - [4,  "-1.0"]                    # -> 4.0
+  - [7,  "-1.5"]                    # -> 2.5
+  - [10, "-1.0"]                    # -> 1.5
+preview:
+  days: 60
+  baseline_tokens: 2000000
+description: "consumption tapering off across the window"

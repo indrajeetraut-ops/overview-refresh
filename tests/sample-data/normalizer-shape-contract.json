@@ -1,0 +1,276 @@
+{
+  "outer": {
+    "event_ts": [
+      "null",
+      "str"
+    ],
+    "event_type": [
+      "str"
+    ],
+    "parent_id": [
+      "null",
+      "str"
+    ],
+    "record_id": [
+      "null",
+      "str"
+    ]
+  },
+  "payload_by_type": {
+    "api_error": {
+      "error_class": [
+        "str"
+      ],
+      "http_status": [
+        "int"
+      ],
+      "message": [
+        "str"
+      ],
+      "provider_request_id": [
+        "str"
+      ],
+      "raw": [
+        "dict"
+      ],
+      "retry_after_ms": [
+        "int"
+      ],
+      "retry_count": [
+        "int"
+      ],
+      "retryable": [
+        "bool"
+      ]
+    },
+    "assistant_message": {
+      "block_types": [
+        "list"
+      ],
+      "block_types[]": [
+        "str"
+      ],
+      "cache_miss_tokens": [
+        "null"
+      ],
+      "cache_read_tokens": [
+        "int"
+      ],
+      "cache_write_detail": [
+        "list"
+      ],
+      "cache_write_detail[]": [
+        "dict"
+      ],
+      "cache_write_detail[].tokens": [
+        "int"
+      ],
+      "cache_write_detail[].ttl_s": [
+        "int"
+      ],
+      "cache_write_tokens": [
+        "int"
+      ],
+      "content_kind": [
+        "str"
+      ],
+      "duration_ms": [
+        "null"
+      ],
+      "input_tokens": [
+        "int"
+      ],
+      "model": [
+        "str"
+      ],
+      "output_tokens": [
+        "int"
+      ],
+      "provider_request_id": [
+        "null",
+        "str"
+      ],
+      "raw": [
+        "dict"
+      ],
+      "reasoning_tokens": [
+        "null"
+      ],
+      "stop_reason": [
+        "null",
+        "str"
+      ],
+      "text_char_count": [
+        "int",
+        "null"
+      ],
+      "thinking_char_count": [
+        "int",
+        "null"
+      ]
+    },
+    "compaction": {
+      "duration_ms": [
+        "int"
+      ],
+      "raw": [
+        "dict"
+      ],
+      "tokens_after": [
+        "int"
+      ],
+      "tokens_before": [
+        "int"
+      ],
+      "tokens_reclaimed": [
+        "int"
+      ],
+      "trigger": [
+        "str"
+      ]
+    },
+    "file_change": {
+      "derived_from_event_id": [
+        "str"
+      ],
+      "extension": [
+        "str"
+      ],
+      "hunks": [
+        "list"
+      ],
+      "hunks[]": [
+        "dict"
+      ],
+      "hunks[].len": [
+        "int"
+      ],
+      "hunks[].start": [
+        "int"
+      ],
+      "lines_added": [
+        "int"
+      ],
+      "lines_removed": [
+        "int"
+      ],
+      "operation": [
+        "str"
+      ],
+      "path": [
+        "str"
+      ],
+      "raw": [
+        "dict"
+      ]
+    },
+    "session_start": {
+      "cwd": [
+        "str"
+      ],
+      "git_branch": [
+        "str"
+      ],
+      "parent_session_id": [
+        "null",
+        "str"
+      ],
+      "raw": [
+        "dict"
+      ],
+      "repo_id": [
+        "null"
+      ]
+    },
+    "sub_agent_spawn": {
+      "agent_type": [
+        "str"
+      ],
+      "child_session_id": [
+        "str"
+      ],
+      "raw": [
+        "dict"
+      ]
+    },
+    "tool_call": {
+      "bytes_read": [
+        "int",
+        "null"
+      ],
+      "duration_ms": [
+        "int",
+        "null"
+      ],
+      "exit_status": [
+        "int"
+      ],
+      "files": [
+        "list"
+      ],
+      "files[]": [
+        "dict"
+      ],
+      "files[].hunks": [
+        "list"
+      ],
+      "files[].hunks[]": [
+        "dict"
+      ],
+      "files[].hunks[].len": [
+        "int"
+      ],
+      "files[].hunks[].start": [
+        "int"
+      ],
+      "files[].lines_added": [
+        "int",
+        "null"
+      ],
+      "files[].lines_removed": [
+        "int",
+        "null"
+      ],
+      "files[].operation": [
+        "str"
+      ],
+      "files[].path": [
+        "str"
+      ],
+      "input": [
+        "dict"
+      ],
+      "input_chars": [
+        "int"
+      ],
+      "raw": [
+        "dict"
+      ],
+      "tool_name": [
+        "str"
+      ]
+    },
+    "unknown": {
+      "raw": [
+        "dict"
+      ]
+    },
+    "user_message": {
+      "char_count": [
+        "int"
+      ],
+      "plan_mode": [
+        "null"
+      ],
+      "raw": [
+        "dict"
+      ],
+      "slash_command": [
+        "null"
+      ],
+      "text": [
+        "str"
+      ]
+    }
+  }
+}

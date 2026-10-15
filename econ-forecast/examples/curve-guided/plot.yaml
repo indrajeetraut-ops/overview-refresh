@@ -1,0 +1,16 @@
+# Charts for this workspace: the forecast run (forecast:) and every cost run (cost:).
+schema_version: 1
+plotly_js: ../assets/plotly.min.js   # one shared copy for every chart in examples/
+defaults:
+  format: both                       # html + png
+  band: {low: 10, high: 90}
+  samples: 8
+forecast:                            # one file per scope, every model stacked
+  - scope_type: organization
+  - scope_type: team                 # every team
+  - scope_type: project              # every project
+cost:
+  - scope_type: organization
+    views: [total, breakdown, per-model]
+  - scope_type: team                 # views omitted = [total, breakdown]
+  - scope_type: project

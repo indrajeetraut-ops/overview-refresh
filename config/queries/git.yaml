@@ -1,0 +1,506 @@
+# Named queries for the git-source acquisition module (git-source.md §5, §9). Compiled by
+# QueryCatalog at load. No FKs on these tables (storage.md §3.1) -- every upsert here is
+# self-contained and never blocks on another table's row arriving first.
+
+# ------------------------------------------------------------------ delivery landing (§4.1)
+
+# Insert-if-absent on the delivery id: GitHub's manual redelivery, and a retried webhook POST,
+# both become a no-op here rather than a second row. `RETURNING delivery_id` lets the caller
+# tell "newly landed" from "already had it" without a second round trip -- both still answer
+# `202` (§5.1), but only the first ever reaches the mapper queue.
+land_delivery: |
+  INSERT INTO git_deliveries
+    (delivery_id, event, action, installation_id, repo_num, payload, status, attempts, received_at, mapped_at)
+  VALUES
+    (:delivery_id, :event, :action, :installation_id, :repo_num, CAST(:payload AS jsonb),
+     'pending', 0, now(), NULL)
+  ON CONFLICT (delivery_id) DO NOTHING
+  RETURNING delivery_id;
+
+# Locks one delivery row for the mapper's transaction (§4.1: claim, read, map, upsert, mark --
+# one transaction). Queue-level concurrency is already handled by `queue_jobs` coalescing on
+# `dedup_key = delivery_id` (ingest.yaml's ring pattern); this lock guards the rarer case of a
+# backfill row and a webhook mapping touching the same delivery concurrently.
+claim_delivery: |
+  SELECT delivery_id, event, action, installation_id, repo_num, payload, status, attempts,
+         received_at, mapped_at
+  FROM git_deliveries
+  WHERE delivery_id = :delivery_id
+  FOR UPDATE;
+
+# Rings the `git_map` mapper worker (implementation plan A4), coalesced one-pending-per-delivery
+# the same way `ingest.yaml`'s `ring_rollup` coalesces one-pending-per-session: the webhook
+# route calls this only when `land_delivery` says the delivery is newly landed, so a redelivery
+# never even attempts a second ring, but the partial unique index on `queue_jobs` backs it up.
+ring_git_map: |
+  INSERT INTO queue_jobs (topic, dedup_key, payload, run_after, enqueued_at)
+  VALUES ('git_map', CAST(:delivery_id AS text),
+          jsonb_build_object('delivery_id', CAST(:delivery_id AS text)), now(), now())
+  ON CONFLICT (topic, dedup_key) WHERE status = 'pending' DO NOTHING;
+
+# Rings the pr-work-classification correlator (implementation plan B2) whenever a commit or a
+# merged PR artifact lands -- apply.py's own concern ends at "the artifact exists"; whether a
+# session should be (re-)linked to it is a different module's question, asked via the queue the
+# same way `ring_git_map` asks git_map's. Coalesced one-pending-per-artifact.
+ring_git_correlate: |
+  INSERT INTO queue_jobs (topic, dedup_key, payload, run_after, enqueued_at)
+  VALUES ('git_correlate', CAST(:artifact_id AS text),
+          jsonb_build_object('artifact_id', CAST(:artifact_id AS text)), now(), now())
+  ON CONFLICT (topic, dedup_key) WHERE status = 'pending' DO NOTHING;
+
+# Rings pr-work-classification's classifier whenever a PR artifact reaches a TERMINAL state
+# (merged or closed, design §3) -- broader than `ring_git_correlate`'s "merged only," because a
+# closed-unmerged PR is a recall candidate (§5.6) that still needs classifying even though it
+# never needs correlating (no session cost was ever merged from it).
+ring_pr_classify: |
+  INSERT INTO queue_jobs (topic, dedup_key, payload, run_after, enqueued_at)
+  VALUES ('pr_classify', CAST(:artifact_id AS text),
+          jsonb_build_object('artifact_id', CAST(:artifact_id AS text)), now(), now())
+  ON CONFLICT (topic, dedup_key) WHERE status = 'pending' DO NOTHING;
+
+# Rings the git_commit_stats worker (Track churn/reopen, Landing 2) for a landed push: a `push`
+# webhook's commit artifacts carry empty `stats` (the payload has no line counts), so a
+# follow-up compare-API call fills them. Coalesced one-pending-per-push-range (`before..after`)
+# -- a redelivery of the same push never enqueues a second fetch.
+ring_git_commit_stats: |
+  INSERT INTO queue_jobs (topic, dedup_key, payload, run_after, enqueued_at)
+  VALUES ('git_commit_stats', :dedup_key,
+          jsonb_build_object('repo_id', CAST(:repo_id AS text),
+                             'before', CAST(:before AS text), 'after', CAST(:after AS text)),
+          now(), now())
+  ON CONFLICT (topic, dedup_key) WHERE status = 'pending' DO NOTHING;
+
+# --------------------------------------------------------------------- artifact upsert (§5.3)
+
+# Last-writer-wins on `updated_at` (§5.4): the WHERE clause on the DO UPDATE is the whole
+# mechanism -- an older payload (backfill arriving after a webhook, or an out-of-order
+# `closed` before `opened`) satisfies `ON CONFLICT` but loses the `WHERE`, so the row is
+# touched zero times and stays exactly as the newer write left it. `>=` (not `>`) so replaying
+# the identical delivery twice still writes through and lands byte-identical, rather than
+# silently no-op'ing on an equal timestamp.
+#
+# Two column groups get non-obvious treatment, both because the mapper (map_github.py) is a
+# pure function of ONE event and is not always the authority on a field's current value:
+#
+#   - `stats` MERGES (`||`) rather than replaces: `review_count`/`comment_count` are
+#     accumulators `bump_comment_count`/`recompute_review_count` maintain across separate
+#     review/comment deliveries,
+#     while `additions`/`deletions`/`changed_files`/`commits` are re-supplied fresh by every
+#     `pull_request` event. The mapper omits the accumulator keys entirely when it doesn't
+#     know them, so the merge leaves them untouched instead of a blind overwrite resetting
+#     them to zero on the next `synchronize`.
+#   - `files`, `commit_shas`, `merge_commit_sha`, `before_sha`, `after_sha`,
+#     `integration_method`, `reverts_sha`, `user_id` all COALESCE to the existing value when
+#     the new write is NULL: a webhook `pull_request` payload never carries a file-path list
+#     or a commit-sha list (those come from the backfill reader or push-correlation,
+#     implementation plan A5/§5.7), and `user_id` is never set by this mapper at all (§6.3,
+#     A6). Without the COALESCE, a later plain "edited" webhook would silently erase a
+#     correlated merge-transition or a backfilled file list. `COALESCE(:x, '[]'/'{}')` at
+#     INSERT time keeps the NOT NULL jsonb columns (`files`, `commit_shas`) satisfied on a
+#     brand-new row.
+#
+#     `files`/`commit_shas`' UPDATE-branch COALESCE deliberately reads the RAW `:files`/
+#     `:commit_shas` bind parameters, NOT `EXCLUDED.files`/`EXCLUDED.commit_shas`: EXCLUDED
+#     mirrors exactly what the VALUES clause computed, which is ALREADY the INSERT-time
+#     `COALESCE(..., '[]')` -- so `EXCLUDED.files` is never actually NULL even when the caller
+#     passed `None`, and `COALESCE(EXCLUDED.files, ...)` would then always pick the (wrongly
+#     empty) EXCLUDED value instead of preserving the existing row. Referencing the bind
+#     parameter directly sidesteps that: `:files` still carries the caller's original `None`
+#     in the UPDATE branch, no matter what the INSERT branch derived from it. Found by the A8
+#     end-to-end replay test (a `pull_request` "edited"/re-mapped event re-wiping a
+#     push-correlated `commit_shas` back to `[]`) -- exactly the class of bug a same-event,
+#     full-pipeline, run-twice test exists to catch.
+upsert_artifact: |
+  INSERT INTO git_artifacts
+    (artifact_id, kind, repo_id, org_id, number, sha, author_login, author_email, user_id,
+     is_bot, state, title, branch, base_branch, created_at, updated_at, closed_at, merged_at,
+     stats, files, parent_artifact_id, labels, milestone, linked_issue, merge_commit_sha,
+     before_sha, after_sha, integration_method, reverts_sha, commit_shas, info)
+  VALUES
+    (:artifact_id, :kind, :repo_id, :org_id, :number, :sha, :author_login, :author_email,
+     :user_id, :is_bot, :state, :title, :branch, :base_branch,
+     CAST(:created_at AS timestamptz), CAST(:updated_at AS timestamptz),
+     CAST(:closed_at AS timestamptz), CAST(:merged_at AS timestamptz),
+     CAST(COALESCE(:stats, '{}') AS jsonb), CAST(COALESCE(:files, '[]') AS jsonb),
+     :parent_artifact_id, CAST(:labels AS jsonb), :milestone, :linked_issue, :merge_commit_sha,
+     :before_sha, :after_sha, :integration_method, :reverts_sha,
+     CAST(COALESCE(:commit_shas, '[]') AS jsonb), CAST(:info AS jsonb))
+  ON CONFLICT (artifact_id) DO UPDATE SET
+    kind = EXCLUDED.kind, repo_id = EXCLUDED.repo_id, org_id = EXCLUDED.org_id,
+    number = EXCLUDED.number, sha = EXCLUDED.sha, author_login = EXCLUDED.author_login,
+    author_email = EXCLUDED.author_email,
+    user_id = COALESCE(EXCLUDED.user_id, git_artifacts.user_id), is_bot = EXCLUDED.is_bot,
+    state = EXCLUDED.state, title = EXCLUDED.title, branch = EXCLUDED.branch,
+    base_branch = EXCLUDED.base_branch, created_at = EXCLUDED.created_at,
+    updated_at = EXCLUDED.updated_at, closed_at = EXCLUDED.closed_at,
+    merged_at = EXCLUDED.merged_at,
+    stats = COALESCE(git_artifacts.stats, '{}'::jsonb) || EXCLUDED.stats,
+    files = COALESCE(CAST(:files AS jsonb), git_artifacts.files),
+    parent_artifact_id = EXCLUDED.parent_artifact_id, labels = EXCLUDED.labels,
+    milestone = EXCLUDED.milestone, linked_issue = EXCLUDED.linked_issue,
+    merge_commit_sha = COALESCE(EXCLUDED.merge_commit_sha, git_artifacts.merge_commit_sha),
+    before_sha = COALESCE(EXCLUDED.before_sha, git_artifacts.before_sha),
+    after_sha = COALESCE(EXCLUDED.after_sha, git_artifacts.after_sha),
+    integration_method = COALESCE(EXCLUDED.integration_method, git_artifacts.integration_method),
+    reverts_sha = COALESCE(EXCLUDED.reverts_sha, git_artifacts.reverts_sha),
+    commit_shas = COALESCE(CAST(:commit_shas AS jsonb), git_artifacts.commit_shas), info = EXCLUDED.info
+  WHERE EXCLUDED.updated_at >= git_artifacts.updated_at;
+
+# Atomic counter bump for `stats.review_count`/`stats.comment_count` (§5.4): a review/comment
+# webhook carries no own artifact and no full stats snapshot, only "one more" or "one fewer"
+# (a deleted comment) -- this is the one place the mapper's output is a delta, not a value,
+# because computing the delta needs the live row, which a pure function cannot see.
+# `GREATEST(0, ...)` floors at zero so a delete racing ahead of its create cannot go negative.
+# `review_count` is NOT a delta counter (see `recompute_review_count` below) -- only
+# `comment_count` still needs one, because a comment (unlike a review) never gets its own
+# artifact row (§5.4: "no own artifact"), so there is nothing to COUNT(*) over.
+#
+# Made idempotent under replay by a dedup set, `info.github.counted_comments`: without it, the
+# documented mapper-defect recovery path (§10: "re-run over git_deliveries for the affected
+# window") would double-count every comment it replays, silently breaking "re-running a
+# delivery changes nothing." `:dedup_key` is `"<comment_id>:<action>"` (map_github.py) so a
+# `created` and a later `deleted` for the SAME comment are two distinct, each-once events, not
+# one that cancels the other out.
+bump_comment_count: |
+  UPDATE git_artifacts
+  SET
+    stats = CASE WHEN COALESCE(info -> 'github.counted_comments', '[]'::jsonb) @> to_jsonb(CAST(:dedup_key AS text))
+      THEN stats
+      ELSE jsonb_set(COALESCE(stats, '{}'::jsonb), '{comment_count}',
+             to_jsonb(GREATEST(0, COALESCE((stats ->> 'comment_count')::int, 0) + :delta)))
+    END,
+    info = CASE WHEN COALESCE(info -> 'github.counted_comments', '[]'::jsonb) @> to_jsonb(CAST(:dedup_key AS text))
+      THEN info
+      ELSE jsonb_set(COALESCE(info, '{}'::jsonb), '{github.counted_comments}',
+             COALESCE(info -> 'github.counted_comments', '[]'::jsonb) || to_jsonb(CAST(:dedup_key AS text)))
+    END
+  WHERE artifact_id = :artifact_id;
+
+# `review_count` recomputed from the actual review rows, not accumulated: every review IS its
+# own idempotently-upserted `git_artifacts` row (§5.3), so COUNT(*) over them is correct no
+# matter how many times a `pull_request_review` delivery is replayed -- unlike a delta bump,
+# which the same replay would double. Called only for a webhook-mapped review (one review, no
+# accompanying PR in the same `MapResult`, `apply.py`); a backfilled PR already sets
+# `review_count` authoritatively from the API's own `totalCount` and must not have this
+# recompute silently undercount it against a possibly-paginated review list.
+recompute_review_count: |
+  UPDATE git_artifacts
+  SET stats = jsonb_set(COALESCE(stats, '{}'::jsonb), '{review_count}',
+    to_jsonb((SELECT count(*) FROM git_artifacts r WHERE r.kind = 'review' AND r.parent_artifact_id = :pr_artifact_id))
+  )
+  WHERE artifact_id = :pr_artifact_id;
+
+# ---------------------------------------------------------- merge-transition correlation (§5.7)
+
+# Push arrives after (or is being mapped after) the merged PR: finds the PR by the merge
+# commit sha the `pull_request` payload already gave us, and fills the fields only a
+# base-branch push can supply. `before_sha IS NULL` makes this idempotent -- a re-mapped push
+# (replay) never re-triggers a second, possibly-different-looking, correlation.
+correlate_push_into_pr: |
+  UPDATE git_artifacts
+  SET before_sha = :before_sha, after_sha = :after_sha,
+      integration_method = COALESCE(:integration_method, integration_method),
+      commit_shas = CAST(:commit_shas AS jsonb)
+  WHERE kind = 'pr' AND merge_commit_sha = :merge_commit_sha AND before_sha IS NULL
+  RETURNING artifact_id;
+
+# The mirror image: the PR arrives after the correlating push already landed as a `commit`
+# artifact (§5.7 stashes that push's before/after/method/shas in the head commit's `info`,
+# `github.push_meta`, at mapping time). Keyed by `artifact_id` since the worker just upserted
+# this exact PR and already knows it.
+apply_push_meta_to_pr: |
+  UPDATE git_artifacts
+  SET before_sha = :before_sha, after_sha = :after_sha,
+      integration_method = COALESCE(:integration_method, integration_method),
+      commit_shas = CAST(:commit_shas AS jsonb)
+  WHERE artifact_id = :artifact_id AND before_sha IS NULL
+  RETURNING artifact_id;
+
+# Has the correlating push already landed? Looked up by sha because a `commit` artifact's
+# primary key is `artifact_id` (github:<repo>:commit:<sha>), not the sha alone, and the worker
+# only has the sha (`pull_request.merge_commit_sha`) at this point.
+get_commit_info_by_sha: |
+  SELECT info FROM git_artifacts WHERE kind = 'commit' AND sha = :sha LIMIT 1;
+
+# ------------------------------------------------------------------- PR state transitions (churn/reopen)
+
+# Append a PR lifecycle transition (`apply.py`, from a `pull_request` webhook's `pr_state_event`).
+# `ON CONFLICT (source_key) DO NOTHING` makes delivery replay a no-op: two deliveries carrying the
+# same (artifact_id, action, updated_at) are the same transition, so this is idempotent without
+# threading a `delivery_id` down to dedup on. `git_artifacts.state` is current-state-only; this
+# table is the only place a reopen COUNT can come from.
+insert_artifact_event: |
+  INSERT INTO git_artifact_events (artifact_id, action, to_state, occurred_at, source_key, recorded_at)
+  VALUES (:artifact_id, :action, :to_state, CAST(:occurred_at AS timestamptz), :source_key, now())
+  ON CONFLICT (source_key) DO NOTHING
+  RETURNING event_id;
+
+# --------------------------------------------------------------- commit stats enrichment (churn, Landing 2)
+
+# The git_commit_stats worker's repo lookup: owner/name (from full_name) + the installation to
+# authenticate the compare call as. `installation_id IS NOT NULL` so a repo we know only by
+# name (never installed) is skipped rather than called with no token.
+get_repo_for_commit_stats: |
+  SELECT full_name, installation_id FROM git_repos
+  WHERE repo_id = :repo_id AND installation_id IS NOT NULL;
+
+# Merge compare-API line stats onto the push's head-commit artifact (the one whose sha = the
+# push `after`). Additive jsonb merge (`|| `), same shape as `upsert_artifact`'s own stats
+# merge, so it composes with anything already there and is safe to re-run (a backfill, Landing
+# 4b, calls this identical primitive). `updated_at` is left untouched on purpose -- this fills a
+# derived stat, it must not walk the backfill cursor. Scoped by repo_id as well as sha so a sha
+# that (astronomically) collides across repos can't cross-write.
+merge_commit_stats: |
+  UPDATE git_artifacts
+  SET stats = COALESCE(stats, '{}'::jsonb) || CAST(:stats AS jsonb)
+  WHERE kind = 'commit' AND repo_id = :repo_id AND sha = :sha
+  RETURNING artifact_id;
+
+# ------------------------------------------------------------------------ backfills (Landing 4)
+
+# 4a: resolve a repo by its owner/name label to the row the reopen backfill needs -- its
+# canonical repo_id and the installation to authenticate the timeline reads as. `full_name` is
+# a case-insensitive label over `repo_id` (§6.2), matched the same way `resolve_repo_id_by_full_name`
+# does; `installation_id IS NOT NULL` so an un-installed repo we only know by name is skipped.
+get_repo_by_full_name: |
+  SELECT repo_id, repo_num, installation_id FROM git_repos
+  WHERE lower(full_name) = lower(:full_name) AND installation_id IS NOT NULL
+  LIMIT 1;
+
+# 4a: every PR number in a repo, for the reopen-history backfill to walk (cli_backfill_reopens).
+# Ordered so a resumed/logged run is deterministic.
+list_repo_pr_numbers: |
+  SELECT artifact_id, number FROM git_artifacts
+  WHERE kind = 'pr' AND repo_id = :repo_id AND number IS NOT NULL
+  ORDER BY number;
+
+# 4b: commit artifacts still missing line stats that carry enough to compute them
+# (cli_backfill_commit_stats). A normal push stashes the range on its HEAD commit's
+# `info.github.push_meta`; a truncated push sets the `before_sha`/`after_sha` columns on its
+# range artifact -- COALESCE reads whichever this row has. `after` falls back to `sha` (the
+# commit's own id == the push `after`). Skips rows already filled (`stats ? 'additions'`).
+commits_needing_stats: |
+  SELECT artifact_id, repo_id, sha,
+         COALESCE(info -> 'github.push_meta' ->> 'before_sha', before_sha) AS before,
+         COALESCE(info -> 'github.push_meta' ->> 'after_sha', after_sha, sha) AS after
+  FROM git_artifacts
+  WHERE kind = 'commit'
+    AND NOT (COALESCE(stats, '{}'::jsonb) ? 'additions')
+    AND (info ? 'github.push_meta' OR before_sha IS NOT NULL)
+    AND (CAST(:repo_id AS text) IS NULL OR repo_id = CAST(:repo_id AS text))
+  ORDER BY created_at;
+
+# --------------------------------------------------------------------- backfill cursor (§8.2, §8.3)
+
+# The per-repo checkpoint a backfill/gap-fill run resumes from. `FOR UPDATE` so two runs over
+# the same repo (a manual `cli_backfill` alongside the gap-fill timer) serialize rather than
+# both starting from the same stale point and double-processing history.
+get_repo_cursor: |
+  SELECT backfill_cursor, backfill_state FROM git_repos WHERE repo_id = :repo_id FOR UPDATE;
+
+# Advances only forward (`GREATEST`): a page that (by paging order, or a concurrent webhook
+# racing ahead of backfill) reports an older "newest seen" than the stored cursor must never
+# walk the checkpoint backwards -- that would replay history a webhook already covered.
+advance_repo_cursor: |
+  UPDATE git_repos
+  SET backfill_cursor = GREATEST(COALESCE(backfill_cursor, CAST(:cursor AS timestamptz)), CAST(:cursor AS timestamptz)),
+      backfill_state = :state, updated_at = now()
+  WHERE repo_id = :repo_id;
+
+# ------------------------------------------------------------------------- identity (§6.2, §6.3)
+
+# The collector/`repositories` table's identity scheme (`github:<owner>/<name>`, git_ident.py)
+# resolved to this module's numeric-id scheme (`github:<repo_num>`) via the label column, for
+# whatever later joins a session's repo to this module's artifacts (git-source.md §6.2). Case
+# handled by git_ident.normalize_remote already lower-casing both sides before this ever runs.
+resolve_repo_id_by_full_name: |
+  SELECT repo_id FROM git_repos WHERE lower(full_name) = lower(:full_name) LIMIT 1;
+
+# author_login -> users.github_user -> user_id (§6.3). Declared mappings (a collector-supplied
+# login at registration, or an operator import -- neither built by this module) are found here
+# FIRST, so this module never overwrites or duplicates an identity another path already
+# established; only when nothing exists does the mapper create one.
+get_user_by_github_login: |
+  SELECT user_id FROM users WHERE github_user = :github_login LIMIT 1;
+
+# Auto-create on first sighting (§6.3) -- NOT a guess: inventing a fresh identity record for a
+# GitHub login nobody has declared yet is different from guessing *which* existing developer it
+# belongs to, which this module never does. `user_id = "github:<login>"` is deterministic and
+# collision-free by construction (no other producer mints ids in this namespace), so a
+# concurrent double-creation from two artifacts of the same author lands on ON CONFLICT DO
+# NOTHING rather than a duplicate.
+create_user_for_github_login: |
+  INSERT INTO users (user_id, github_user, info, created_at)
+  VALUES (:user_id, :github_login, '{}'::jsonb, now())
+  ON CONFLICT (user_id) DO NOTHING;
+
+# --------------------------------------------------------------------------- tenant binding (§6.1)
+
+# The setup-callback route's write (mechanism 1): binds a not-yet-confirmed installation_id to
+# the org whose signed `state` token named it. `ON CONFLICT DO UPDATE` because a customer can
+# retry the "Connect GitHub" click (a closed tab, a browser back-button) before ever installing.
+bind_pending_install: |
+  INSERT INTO git_pending_installs (installation_id, org_id, created_at)
+  VALUES (:installation_id, :org_id, now())
+  ON CONFLICT (installation_id) DO UPDATE SET org_id = EXCLUDED.org_id, created_at = now();
+
+# Consumed exactly once, by whichever of the reconcile pass or the `installation.created`
+# mapper gets there first (§6.1): `DELETE ... RETURNING` makes the read and the consumption one
+# atomic step, so the other path finds nothing left to (re)apply.
+pop_pending_install: |
+  DELETE FROM git_pending_installs WHERE installation_id = :installation_id
+  RETURNING org_id;
+
+# --------------------------------------------------------------------------- org resolution (§6.1)
+
+# The installation is the unit of `org_id` resolution; a delivery names its installation, never
+# its org directly. Absent a reconciled installation (implementation plan A7), the worker falls
+# back to a default -- "no data is lost," the same posture §6.1 states for an unmapped install.
+get_installation_org: |
+  SELECT org_id FROM git_installations WHERE installation_id = :installation_id LIMIT 1;
+
+# ------------------------------------------------------------- repo / installation upsert
+
+# Identity + metadata only. Deliberately does not touch `backfill_cursor`/`backfill_state` on
+# conflict -- those are the backfill reader's own progress bookkeeping (§8.2, implementation
+# plan A5), and a webhook-driven metadata refresh must never clobber an in-flight cursor.
+upsert_repo: |
+  INSERT INTO git_repos
+    (repo_id, repo_num, full_name, owner, default_branch, private, installation_id, org_id,
+     backfill_cursor, backfill_state, first_seen_at, updated_at, info)
+  VALUES
+    (:repo_id, :repo_num, :full_name, :owner, :default_branch, :private, :installation_id,
+     :org_id, NULL, 'pending', now(), now(), CAST(:info AS jsonb))
+  ON CONFLICT (repo_id) DO UPDATE SET
+    repo_num = EXCLUDED.repo_num, full_name = EXCLUDED.full_name, owner = EXCLUDED.owner,
+    default_branch = EXCLUDED.default_branch, private = EXCLUDED.private,
+    installation_id = EXCLUDED.installation_id, org_id = EXCLUDED.org_id,
+    updated_at = now(), info = EXCLUDED.info;
+
+# installation/installation_repositories lifecycle (§5.4, §6.1): a deleted or suspended
+# installation is marked via `state`, never row-deleted, so the artifacts it produced are
+# never orphaned by an uninstall.
+upsert_installation: |
+  INSERT INTO git_installations
+    (installation_id, org_id, account_login, account_type, repo_selection, state,
+     installed_at, updated_at, info)
+  VALUES
+    (:installation_id, :org_id, :account_login, :account_type, :repo_selection, :state,
+     now(), now(), CAST(:info AS jsonb))
+  ON CONFLICT (installation_id) DO UPDATE SET
+    account_login = EXCLUDED.account_login, account_type = EXCLUDED.account_type,
+    repo_selection = EXCLUDED.repo_selection, state = EXCLUDED.state,
+    org_id = EXCLUDED.org_id, updated_at = now(), info = EXCLUDED.info;
+
+# ------------------------------------------------------------------------ mapping outcome (§5.2)
+
+# `unmapped` is a first-class outcome, not an error (§5.2): v1 subscribes to more events than
+# it maps. Both share one shape -- only the target status differs -- so the worker picks the
+# query by outcome rather than passing status as a parameter, keeping "what counts as mapped"
+# a decision the query names visibly rather than a string the caller could typo.
+mark_delivery_done: |
+  UPDATE git_deliveries SET status = 'done', mapped_at = now(), attempts = attempts + 1
+  WHERE delivery_id = :delivery_id;
+
+mark_delivery_unmapped: |
+  UPDATE git_deliveries SET status = 'unmapped', mapped_at = now(), attempts = attempts + 1
+  WHERE delivery_id = :delivery_id;
+
+# ------------------------------------------------------------------------- retention (§10.3)
+
+# Only `done`/`unmapped` rows are prunable -- `pending`/`failed` stay so a mapper fix-and-replay
+# always has the raw payload to re-run against (§10).
+prune_deliveries: |
+  DELETE FROM git_deliveries
+  WHERE status IN ('done', 'unmapped')
+    AND received_at < CAST(:cutoff AS timestamptz);
+
+# ---------------------------------------------------- PR <-> issue linkage (ISSUE §3.2, H3)
+
+# The repo's human-readable "owner/name", used as a GitHub link's `project_key` (the design's
+# `"acme/api"` form). Falls back to `repo_num` as a string in the caller when a repo row has
+# not landed yet -- no FK, the linkage must not block on it.
+get_repo_full_name: |
+  SELECT full_name FROM git_repos WHERE repo_id = :repo_id LIMIT 1;
+
+# Linkage is re-derived in full from a PR's own fields every time that PR is (re-)mapped, so a
+# write is: clear this PR's links AT OR BELOW the confidence of the rung that just won, then
+# insert the winning rung's links. Scoping the delete by confidence is what stops a webhook
+# `synchronize` -- which cannot see `closingIssuesReferences` or commit messages, so only ever
+# reaches the branch/title/body rungs -- from wiping a stronger `graphql`(1.0) link a backfill
+# established. `:confidence` is the winning rung's value; a run that finds NO links passes
+# nothing and calls neither query, leaving any existing (stronger-sourced) links intact.
+delete_pr_issue_links_up_to: |
+  DELETE FROM pr_issue_links
+  WHERE pr_artifact_id = :pr_artifact_id AND confidence <= :confidence;
+
+# Namespaced by `tracker` in the PK, so a Jira id can never collide with a GitHub one.
+# `issue_artifact_id` is the resolved entity when known (a GitHub ref for a repo we ingest),
+# NULL for a referenced-but-not-pulled issue (a Jira ref, or an issue whose backfill has not
+# reached it). The `WHERE` guard keeps a concurrent stronger write from being downgraded.
+upsert_pr_issue_link: |
+  INSERT INTO pr_issue_links
+    (pr_artifact_id, tracker, project_key, number, issue_artifact_id, method, confidence, created_at)
+  VALUES
+    (:pr_artifact_id, :tracker, :project_key, :number, :issue_artifact_id, :method,
+     CAST(:confidence AS numeric), now())
+  ON CONFLICT (pr_artifact_id, tracker, project_key, number) DO UPDATE SET
+    issue_artifact_id = EXCLUDED.issue_artifact_id, method = EXCLUDED.method,
+    confidence = EXCLUDED.confidence
+  WHERE EXCLUDED.confidence >= pr_issue_links.confidence;
+
+# Reverse walk for F4 feature grouping (plan H5): every PR linked to one issue ref. Keyed on
+# the tracker-agnostic triple, not a bare string, via `ix_pr_issue_links_issue`.
+prs_for_issue_ref: |
+  SELECT pr_artifact_id, issue_artifact_id, method, confidence
+  FROM pr_issue_links
+  WHERE tracker = :tracker AND project_key = :project_key AND number = :number;
+
+# Late-binding an issue entity onto links recorded before its backfill arrived: when an
+# `issue` artifact lands, stamp its id onto any link that named it but had NULL.
+attach_issue_artifact_to_links: |
+  UPDATE pr_issue_links
+  SET issue_artifact_id = :issue_artifact_id
+  WHERE tracker = :tracker AND project_key = :project_key AND number = :number
+    AND issue_artifact_id IS NULL;
+
+# ----------------------------------------------------- feature grouping helper (ISSUE H5, F4)
+
+# The issue entity for a resolved ref -- title/state/labels/milestone only, never body.
+issue_artifact_by_id: |
+  SELECT artifact_id, number, title, state, labels, milestone
+  FROM git_artifacts WHERE artifact_id = :artifact_id AND kind = 'issue';
+
+# PR terminal state for the member PRs of a feature (drives shipped/in-progress status).
+artifact_states_for_ids: |
+  SELECT artifact_id, state, merged_at FROM git_artifacts
+  WHERE artifact_id = ANY(:artifact_ids);
+
+# feature composition: sessions that fed a feature's member PRs (`session -> PR` via
+# `session_git_links`, the pr-work-classification correlator's output), de-duplicated so a
+# session that touched two member PRs is one member of the feature, not two.
+sessions_for_artifacts: |
+  SELECT DISTINCT session_id FROM session_git_links
+  WHERE artifact_id = ANY(:artifact_ids);
+
+# feature cost: Σ effective spend over the feature's member sessions (already de-duplicated by
+# `sessions_for_artifacts`). `cost_effective_usd_micros` is otel_trueup's ledger, populated for
+# every session regardless of datasource (pr_class.yaml's rollup comment) -- the same source
+# the change-type/module rollups sum, so a feature's cost reconciles against them.
+cost_micros_for_sessions: |
+  SELECT COALESCE(SUM(cost_effective_usd_micros), 0) AS cost_micros
+  FROM session_info WHERE session_id = ANY(:session_ids);
+
+# --------------------------------------------------------------------- coverage (§6.3, §11)
+
+# The product-visible honesty metric: what fraction of PRs per repo resolved to a `user_id`,
+# reported rather than hidden (§6.3). Bots are broken out separately since they are excluded
+# from ROI denominators, not counted as "unattributed."
+coverage_counts: |
+  SELECT repo_id,
+         count(*) FILTER (WHERE kind = 'pr')                          AS pr_count,
+         count(*) FILTER (WHERE kind = 'pr' AND user_id IS NOT NULL)  AS pr_attributed,
+         count(*) FILTER (WHERE kind = 'pr' AND is_bot)               AS pr_bot
+  FROM git_artifacts
+  GROUP BY repo_id
+  ORDER BY repo_id;

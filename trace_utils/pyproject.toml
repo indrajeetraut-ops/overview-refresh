@@ -1,0 +1,30 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "trace_utils"
+version = "0.1.0"
+description = "Agent trace viewer for Hugging Face trace datasets"
+requires-python = ">=3.11"
+dependencies = [
+    "duckdb>=1.1",
+    "pyyaml>=6.0",
+    "huggingface_hub>=0.20",
+    "structlog>=24.1",
+    "typer>=0.12",
+    "rich>=13.0",
+    "pyarrow>=15.0",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=8.0"]
+
+[project.scripts]
+trace_utils = "trace_utils.cli_trace:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

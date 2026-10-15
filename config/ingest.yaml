@@ -1,0 +1,23 @@
+# Ingest service config (ingest.md §9). storage + msging configs live in their own
+# module YAML (config/storage.yaml, config/msging.yaml); ingest references them below,
+# never re-declares a DSN.
+ingest:
+  max_body_bytes: 4194304          # reject oversized bodies (a segment is <=1 MiB compressed)
+  producer_auth: true              # false only inside a fully trusted zone (RFC §5.3)
+  storage_config: config/storage.yaml
+  msging_config: config/msging.yaml
+  http:
+    host: "0.0.0.0"
+    port: 8443
+
+  # OTLP receiver (docs/design/2026-08-04-otel-intake-design.md §4.1). Mounted beside the
+  # msging srv router in the same process, so these limits are what keep the OTel signal
+  # from starving the JSONL one.
+  otlp:
+    enabled: true
+    configs_dir: config/otel        # per-vendor mapping files (§4.6)
+    max_body_bytes: 8388608         # 8 MiB; payloads are 2-50 KB in practice (§6.2)
+    max_inflight: 16                # shed 429 beyond this, before decoding
+    org_rate_per_s: 200.0           # per-org token bucket, keyed on the org token
+    org_burst: 400.0                # absorbs a fleet's synchronized export tick
+    retry_after_s: 5                # honored by the OTel SDK's retry

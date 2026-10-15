@@ -1,0 +1,19 @@
+version: "1"
+status: approved
+family_rule: "Query execution receives the existing in-memory Family; GraphContext is lifecycle-only."
+operations:
+  - name: select
+    signature: "select(family, node_type, *, where=None, scope='tree', fields=None, order_by=None, limit=None, verbosity='summary')"
+    description: "Readable node selection for handwritten Python. It creates and validates a QuerySpec internally."
+    supports: [node_type, where, scope, fields, order_by, limit, verbosity]
+    excludes: [walk, group_by, aggregates, having]
+    result: ../schemas/query_result.schema.json
+  - name: query
+    signature: "query(family, spec)"
+    description: "Complete machine-oriented QuerySpec execution."
+    request: ../schemas/query_spec.schema.json
+    result: ../schemas/query_result.schema.json
+filter:
+  grammar: ../query_language/filter.lark
+  semantics: ../query_language/semantics.yaml
+  fields: ../query_language/fields.yaml

@@ -1,0 +1,59 @@
+schema_version: 3
+# Curve-spiked: a deterministic spike carried by the org curve (growth-with-launch-spike:
+# gentle ramp -> sharp mid-window launch bump -> settle). The spike is a feature of the
+# expected level, so it shows CLEANLY in the observed data and cannot average away.
+# Weekend is off (no weekly pattern). Note: a one-off historical spike like this is NOT
+# reproduced in a forecast horizon (see forecasting design §7/§14) — for a planned spike
+# that appears IN the forecast, use a known_events block (see examples/known-event-spike).
+series:
+  users_file: ../../artifacts/users/users.jsonl
+  roster_file: ../../artifacts/roster/teams.jsonl
+  start_date: '2026-07-01'
+  days: 60
+  timezone: Asia/Kolkata
+  profile_seed: 100
+  usage_seed: 123
+defaults:
+  daily_variation_pct: 20
+  output_ratio: 0.03
+  cache_hit_ratio: 0.95
+  cache_hit_variation_pp: 5
+  cache_write_ratio: 0.997       # share of non-cache-read input that is a cache write
+  cache_write_1h_share: 0.97     # share of cache writes at the 1-hour lifetime
+  mix_variation_pct: 10
+  daily_zero_probability: 0.05
+profiles:
+  light_profile: {daily_input_tokens: 250000}
+  mid_profile: {daily_input_tokens: 1000000}
+  heavy_profile: {daily_input_tokens: 5000000}
+team_profiles:
+  team1:
+    profile_mix: {light_profile: 0.8, heavy_profile: 0.2}
+    project_mix: {payment_service_improvement: 0.7, auth_service_rewrite: 0.3}
+  team2:
+    profile_mix: {light_profile: 0.4, mid_profile: 0.4, heavy_profile: 0.2}
+    project_mix: {data_pipeline_upgrade: 0.6, search_service_improvement: 0.4}
+  team3:
+    profile_mix: {light_profile: 0.2, mid_profile: 0.4, heavy_profile: 0.4}
+    project_mix: {developer_tooling: 1.0}
+projects:
+  - {name: payment_service_improvement}
+  - {name: auth_service_rewrite}
+  - {name: data_pipeline_upgrade}
+  - {name: search_service_improvement}
+  - {name: developer_tooling}
+agents:
+  claude:
+    billing_mode: api
+    usage_share: 0.6
+    models: {claude-sonnet-5: 0.75, claude-opus-5: 0.25}
+  codex:
+    billing_mode: api
+    usage_share: 0.4
+    models: {gpt-5.6-terra: 0.75, gpt-5.6-sol: 0.25}
+events:
+  spike_rules: []
+  zero_periods: []
+curve:
+  artifacts: ../curve/artifacts
+  org: growth-with-launch-spike:26fd0714baf6c037

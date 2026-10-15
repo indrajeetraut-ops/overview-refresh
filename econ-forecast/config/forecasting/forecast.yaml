@@ -1,0 +1,136 @@
+# Forecasting configuration template (data-driven ETS + dated known-event overlay).
+# Design (single source of truth): ../../docs/design/forecasting-model-design.md
+# These are reusable settings. The calendar horizon is a CLI input; omitted
+# --origin uses the dataset's declared end date:
+#   forecast.sh --config forecast.yaml \
+#     --unit month --offset 1 --periods 1 --output artifacts/september
+# --offset 3 --periods 1 means only the third future calendar period.
+# Weeks are Monday–Sunday; months use actual calendar boundaries.
+schema_version: 1
+
+input:
+  # Folder containing daily usage.jsonl, coverage.jsonl, and dataset metadata.
+  # Synthetic and prepared real data use the same daily contract.
+  # Relative paths resolve against THIS file, not the shell working directory.
+  # This path matches the synthetic generator's example 60-day output.
+  dataset_dir: ../../artifacts/series-60d
+
+# Default Organization for every scope that does not override org_id.
+# Must match an Organization in the dataset; never silently assume ID 1.
+# The synthetic example uses its domain. Real data may instead use "1".
+# This key is required. Use null when every scope explicitly provides org_id.
+default_org_id: talium.ai
+
+# Select from ONE shared dataset; the module aggregates records automatically.
+# Team/Project names identify scopes within the resolved Organization.
+# Organization, Team, and Project are overlapping views; do not add them together.
+scopes:
+  # All Organization usage, including rows without Team/Project attribution.
+  - type: organization
+
+  # Uses the Team name in the synthetic example roster.
+  - type: team
+    name: team1
+
+  # Project usage can come from multiple Teams.
+  # - type: project
+  #   name: payment_service_improvement
+
+  # Override the default for a different Organization present in the dataset:
+  # - type: team
+  #   org_id: "2"
+  #   name: another-team
+
+history:
+  # Maximum calendar days considered, ending on --origin inclusive.
+  # Having fewer than 90 days is allowed when the minimum is satisfied.
+  # Future observations after --origin must never enter the forecast.
+  lookback_days: 90
+
+  # Minimum consecutive covered days ending on --origin, per scope/model,
+  # bounded by the established start (first day of the qualifying streak below).
+  # Within declared coverage, absent usage counts as zero.
+  # A declared outage breaks the history: use only the complete days after it.
+  # Never bridge a gap or silently change the origin to an earlier date.
+  # Template value and v1 floor: 14. Raise for a stricter deployment; cannot exceed lookback.
+  # The model is fit on this covered usable window (joint residual bootstrap sampling
+  # additionally requires >= 14 shared error dates across a scope's active models).
+  # Qualifying streak days count toward this minimum; they are not extra days.
+  # Valid all-zero histories have a separate continued-inactivity outcome.
+  minimum_days: 14
+
+  # STARTUP gate: X CONSECUTIVE calendar days with total tokens > 0.
+  # Start is the FIRST day of the first qualifying streak, not its completion day.
+  # Leading zeros and isolated positives before that streak are outside usable history.
+  # Check separately for Organization/model, Team/model, and Project/model.
+  # Agents are allocation dimensions, not separate sampled series.
+  # Template value: 4; configurable from 1 through lookback_days.
+  # A zero/outage breaks a candidate streak. Once qualified, later zero/low usage
+  # does not restart the gate: established models can taper, retire, and restart.
+  # X=7 requires weekend usage too; do not confuse this with 7 scattered positives.
+  # This is an engineering floor, not a guarantee of calibrated probabilities.
+  # All-zero history has a separate inactivity outcome.
+  minimum_active_days: 4
+
+model:
+  # Data-driven exponential smoothing (statsmodels ETSModel, additive error), fit per
+  # scope/model on its covered usable history. Forecasts total tokens = input +
+  # cache_write_5m + cache_write_1h + cache_read + output per scope/model. Stored input is
+  # uncached input only; cache writes are separate token types.
+  method: ets
+
+  # auto = learn this component from the data via the tiered fallback (design §3):
+  #   14-27 usable days -> level-only.
+  #   28+ days -> weekly-seasonal + damped trend; on numerical failure, fall back to
+  #   weekly-seasonal without trend, then to level-only.
+  # none = force this component off regardless of history length (e.g. level-only).
+  # Seasonality/trend are never imposed by config beyond this on/off switch; the
+  # synthetic generator is where seasonality is controlled, the forecaster is where
+  # it is estimated.
+  seasonal: auto
+  trend: auto
+
+allocation:
+  # Paths contain ONE total-token quantity per scope/model. Budget pricing needs
+  # input, cache_read, and output separately because their rates can differ.
+  # Estimate joint agent/category shares from summed recent token quantities,
+  # then multiply every daily total-token path by those fixed shares.
+  # Do NOT average daily percentages: a tiny day must not weigh like a large day.
+  # Use the last 28 calendar days intersected with usable history.
+  # With only 14 eligible days, use those 14; never reach across an outage.
+  # Positive integer; a larger window is still bounded by usable history.
+  # Shares stay fixed throughout the horizon. This does NOT predict changes in
+  # cache efficiency, input/output ratios, or agent mix; scenarios can alter them.
+  # Model mix comes from separate model forecasts, not this allocation setting.
+  # If the recent window is entirely zero for an established covered series,
+  # report currently inactive / zero expected usage. Do not recover older shares.
+  # Low but positive recent usage stays positive and supplies its own shares.
+  lookback_days: 28
+
+uncertainty:
+  # Number of plausible daily futures used by later budget/scenario calculations.
+  # These are uncertainty samples, not different planner-selected model mixes.
+  # Each future date/sample draws one historical error date's entire aligned residual
+  # vector (with replacement), shared across a scope's active models, preserving
+  # same-day relationships. Errors are sampled independently across future days
+  # (multi-day bursts are underrepresented). Requires >= 14 shared error dates across
+  # a scope's active models, else the scope is unsuitable for joint risk.
+  # Fixed allocation shares and rare unseen events remain limitations.
+  # More paths reduce sampling noise; they do not fix limited or poor data.
+  # Template value: 1000. Larger values increase compute, memory, and output storage.
+  paths: 1000
+
+  # Nonnegative seed for reproducibility with fixed data and software versions.
+  seed: 42
+
+  # Simulated daily paths are corrected to nonnegative via max(0, ·) without feeding
+  # back into the model state. Fraction of a series' requested-horizon tokens removed
+  # by this correction; exceeding it is reported (the series still qualifies and keeps
+  # its corrected paths) but flagged unsuitable for budget risk. Template value: 0.05.
+  max_negative_correction_ratio: 0.05
+
+runtime:
+  # Positive application worker count; the template sets 1 for Mac and Linux/AWS.
+  # CPU execution; no GPU is required. Increase only after measuring resources.
+  # Numerical-library threading and batching are defined in detailed design.
+  workers: 1

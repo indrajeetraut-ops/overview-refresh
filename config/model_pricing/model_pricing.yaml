@@ -1,0 +1,66 @@
+# config/model_pricing/model_pricing.yaml
+#
+# Build config for `update` (design docs/modules/model-pricing.md §4.2): which cloud
+# channels to price, the region -> LiteLLM-geo map used for the LiteLLM fallback, and
+# per-source enable toggles.
+#
+# This file is OPTIONAL -- if absent, `update` prices only the three vendor channels
+# (anthropic, openai, gemini), the built-in geo map applies, and every source is
+# enabled (gcp_billing only when GCP_BILLING_API_KEY is set). The copy checked in here
+# prices a starter set of cloud channels; trim or extend `channels` for your org.
+#
+# Loaded by `common.model_pricing.config.load_model_pricing_config`
+# (`ModelPricingConfig`, pydantic-validated, unknown keys rejected).
+
+schema_version: 1
+
+# Cloud channels to price, in addition to the three vendor channels (anthropic,
+# openai, gemini), which are always priced and must NOT be listed here (§4.1).
+#
+# Channel id shapes (§4.1):
+#   aws_bedrock:<region>:<regional|global>
+#   azure:<region>:<global|data_zone>
+#   gcp_vertex:<region>:<regional|global>   (priced from LiteLLM only until the GCP
+#                                             Billing adapter ships mapping, §12)
+#
+# Each cloud channel needs network access to its own source at `update` time (AWS
+# Price List / Azure Retail Prices); a failed source fails the whole update (§6.1) --
+# there is no silent fallback to LiteLLM for a source that *errors*, only for a source
+# that has no row for a given model (§6.4, merge precedence).
+channels:
+  - aws_bedrock:us-east-1:regional   # Bedrock, in-Region or geo cross-Region profile
+  - aws_bedrock:us-east-1:global     # Bedrock, global cross-Region profile
+  - azure:eastus2:data_zone          # Azure Foundry Models, data-zone deployment
+  - azure:eastus2:global             # Azure Foundry Models, global deployment
+
+# region -> LiteLLM geo prefix (us/eu/jp/au), used only for the LiteLLM fallback when
+# a cloud channel's own source has no row for a model (§6.4). The entries below
+# duplicate the module's built-in defaults (`config.DEFAULT_GEO`) for the two regions
+# `channels` above use -- spelled out here so a future region is easy to remember to
+# add. You can delete this whole block to just use the built-in defaults; a region
+# missing from both the built-in map and this override means that region's
+# LiteLLM-fallback rows go unmapped (visible in the refresh report's `unmapped` list).
+geo:
+  us-east-1: us
+  eastus2: us
+
+# Per-source enable toggles (§4.2). Values shown are the defaults -- uncomment only to
+# change one. `gcp_billing: auto` (the default) enables GCP Billing Catalog only when
+# GCP_BILLING_API_KEY is set in the environment (loaded from `.env` by the shell,
+# never committed); the GCP adapter itself is skip-only until §12 ships (SKU mapping
+# is [open] in the design), so `gcp_vertex` channels price from LiteLLM regardless.
+# sources:
+#   aws_price_list: {enabled: true}
+#   azure_retail: {enabled: true}
+#   gcp_billing: {enabled: auto}
+
+# model_string prefix -> vendor, for official-source models (§5.2): an AWS/Azure
+# record whose reduced model string starts with one of these prefixes, but does not
+# normalize to any LiteLLM model, is still added to the registry (e.g. AWS publishing
+# an older Claude model LiteLLM's vendor list has since dropped). Values shown are the
+# defaults -- uncomment only to add another vendor's cloud naming. OpenAI's `o<digit>`
+# family (`o1`, `o3`, ...) is recognized automatically and is not listed here.
+# vendor_prefixes:
+#   claude: anthropic
+#   gpt: openai
+#   gemini: gemini

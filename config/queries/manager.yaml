@@ -1,0 +1,453 @@
+# Named queries for the manager/aggregation API (MVP plan 2026-09-09). Compiled by
+# QueryCatalog at load, same pattern as dashboard.yaml/directory.yaml. dashboard.yaml stays
+# the single-user surface's file; every cross-user (team/org/repo) query goes here.
+
+# ------------------------------------------------------------------------- F1: budgets
+
+# `period` is the org's budget-cycle label ("monthly" with no saved cycle), resolved once per
+# request at the API layer; these queries take it as a param.
+get_budget: |
+  SELECT amount_usd, updated_at FROM budgets
+  WHERE scope_type = :scope_type AND scope_id = :scope_id AND period = :period;
+
+upsert_budget: |
+  INSERT INTO budgets (scope_type, scope_id, period, amount_usd, updated_at)
+  VALUES (:scope_type, :scope_id, :period, :amount_usd, now())
+  ON CONFLICT (scope_type, scope_id, period)
+  DO UPDATE SET amount_usd = EXCLUDED.amount_usd, updated_at = EXCLUDED.updated_at;
+
+# Budgets for every scope_id in a set, one round-trip (A3's teams/projects tables, A1's
+# teams[] budget marks) -- avoids N+1 across a whole roster.
+budgets_for_scopes: |
+  SELECT scope_id, amount_usd FROM budgets
+  WHERE scope_type = :scope_type AND scope_id = ANY(:scope_ids) AND period = :period;
+
+# ------------------------------------------------------------- budget cycle (Overview refresh A1)
+
+# The org's budget cadence: one row, or none (= the default recurring calendar month).
+get_budget_cycle: |
+  SELECT kind, recurrence, sprint_weeks, anchor_date, anchor_number, custom_end, updated_at
+  FROM budget_cycle WHERE org_id = :org_id;
+
+upsert_budget_cycle: |
+  INSERT INTO budget_cycle (org_id, kind, recurrence, sprint_weeks, anchor_date, anchor_number,
+                            custom_end, updated_at)
+  VALUES (:org_id, :kind, :recurrence, :sprint_weeks, :anchor_date, :anchor_number,
+          :custom_end, now())
+  ON CONFLICT (org_id)
+  DO UPDATE SET kind = EXCLUDED.kind, recurrence = EXCLUDED.recurrence,
+                sprint_weeks = EXCLUDED.sprint_weeks, anchor_date = EXCLUDED.anchor_date,
+                anchor_number = EXCLUDED.anchor_number, custom_end = EXCLUDED.custom_end,
+                updated_at = EXCLUDED.updated_at;
+
+# Seat start per user (cost-based seats plan §2): the earliest the system knew the person, for
+# proration and the new-seat grace period. LEAST ignores NULLs, so a never-active member falls
+# back to users.created_at, and a synthetic user (created_at = load time) to their first session.
+# team_members carries no join date; if one is added it replaces users.created_at here.
+seat_start_for_users: |
+  SELECT u.user_id, LEAST(u.created_at, min(s.started_at)) AS seat_start
+  FROM users u
+  LEFT JOIN sessions s ON s.user_id = u.user_id AND s.parent_session_id IS NULL
+  WHERE u.user_id = ANY(:user_ids)
+  GROUP BY u.user_id, u.created_at;
+
+# F1 "a budget on an unknown scope is rejected" -- team/repo existence, off the tables that
+# actually assert it (teams for team scope; session_info/git_artifacts for repo scope, the
+# same evidence directory.py's own repo_ids_for_users reads. No check for org -- org scope is
+# global in single-tenant MVP, same posture as directory.active_user_ids).
+team_scope_exists: |
+  SELECT 1 FROM teams WHERE team_id = :scope_id;
+
+repo_scope_exists: |
+  SELECT 1 FROM (
+    SELECT repo_id FROM session_info WHERE repo_id = :scope_id
+    UNION ALL
+    SELECT repo_id FROM git_artifacts WHERE repo_id = :scope_id
+  ) q LIMIT 1;
+
+# Bulk form of git.yaml's resolve_repo_id_by_full_name -- resolves many session-side repo_ids
+# (git_ident's `github:owner/name` scheme) to their git-source repo_id (`github:<repo_num>`,
+# map_github.py) in one round trip. See aggregate.resolve_git_repo_ids's own docstring for why
+# this bridge exists at all.
+git_repo_ids_for_full_names: |
+  SELECT lower(full_name) AS full_name, repo_id FROM git_repos
+  WHERE lower(full_name) = ANY(:full_names);
+
+# D2: the reverse of the above -- a PR's own `git_artifacts.repo_id` (git-source scheme) back
+# to `full_name`, so a route can re-derive the session-side `github:owner/name` id
+# `Viewer.visible_repos` is populated in (`aggregate.resolve_session_repo_id`).
+full_name_for_git_repo_id: |
+  SELECT full_name FROM git_repos WHERE repo_id = :repo_id;
+
+# D3/X5: one query for the whole "trailing PR cost distribution" a feature's cost-to-finish
+# envelope needs -- per-PR cost summed over each PR's own linked sessions, in one round trip
+# rather than `git.sessions_for_artifacts` + `git.cost_micros_for_sessions` once per PR.
+# A5-peer-task-mix: every session linked to a set of PRs, with that session's own cost -- the
+# linked-work $/KLOC inputs (aggregate.linked_work_volume). Same cost column pr_costs_for_ids sums.
+session_links_for_prs: |
+  SELECT l.artifact_id, l.session_id, i.cost_effective_usd_micros
+  FROM session_git_links l
+  JOIN session_info i ON i.session_id = l.session_id
+  WHERE l.artifact_id = ANY(:pr_ids);
+
+pr_costs_for_ids: |
+  SELECT l.artifact_id AS pr_artifact_id, COALESCE(SUM(i.cost_effective_usd_micros), 0) AS cost_micros
+  FROM session_git_links l
+  JOIN session_info i ON i.session_id = l.session_id
+  WHERE l.artifact_id = ANY(:pr_ids)
+  GROUP BY l.artifact_id;
+
+# ------------------------------------------------------------------- F4/X1/X2 (Phase 2)
+
+# F4: every feature-shaped issue number for a repo -- both issues actually pulled
+# (git_artifacts kind='issue') and ones only referenced by a PR link so far (a Jira ref, or a
+# GitHub issue backfill hasn't reached yet). One number per feature; `github_ref()` (Python)
+# turns each into a full IssueRef with a deterministic artifact_id, so `ingest.git.features.
+# feature_of` resolves the issue entity itself when it exists.
+repo_feature_numbers: |
+  SELECT number FROM pr_issue_links WHERE tracker = 'github' AND project_key = :project_key
+  UNION
+  SELECT number FROM git_artifacts WHERE kind = 'issue' AND repo_id = :repo_id;
+
+# The fallback side of F4: PRs in this repo with no issue link at all. H5 widens this beyond
+# the bare id to `branch`/`labels` so `features.branch_label_features` can cluster them by
+# branch, then label, before falling back to `single_pr_feature` per PR (`ingest.git.features`'s
+# own rule for the un-clusterable remainder).
+repo_prs_without_issue_link: |
+  SELECT a.artifact_id, a.branch, a.labels FROM git_artifacts a
+  WHERE a.kind = 'pr' AND a.repo_id = :repo_id
+    AND NOT EXISTS (SELECT 1 FROM pr_issue_links l WHERE l.pr_artifact_id = a.artifact_id);
+
+# H5: the repo's own default branch, so an orphan-PR cluster never groups on it (every
+# direct-to-main PR would otherwise share it and collapse into one bogus feature). `None`
+# (query returns no row) when the repo has no GitHub App installation on record.
+git_repo_default_branch: |
+  SELECT default_branch FROM git_repos WHERE repo_id = :repo_id;
+
+# X1/D2: review children of a set of PRs -- review_rounds (count of 'changes_requested') and
+# time-to-first-review both walk this. `state` is the review's own GitHub state; `created_at`
+# is submitted_at (map_github.py's own mapping). `user_id`/`author_login` (D2) identify the
+# reviewer -- `author_login` is the GitHub-side name used until `user_id` resolves.
+pr_review_children: |
+  SELECT parent_artifact_id AS pr_artifact_id, state, created_at, user_id, author_login
+  FROM git_artifacts WHERE kind = 'review' AND parent_artifact_id = ANY(:pr_ids)
+  ORDER BY created_at;
+
+# X1-reopen / A6-reopens: how many times each PR was reopened, from the append-only transition
+# log (`git_artifacts.state` is current-state-only). `event_prs` is the set of PRs that have ANY
+# transition row at all -- the caller uses it to tell "0 reopens, captured" (a PR seen since the
+# events table existed) from "unknown, never captured" (ingested before it), keeping the reopen
+# count None rather than a guessed 0 for the latter (backfill 4a closes that gap).
+pr_reopen_counts: |
+  SELECT artifact_id,
+         COUNT(*) FILTER (WHERE action = 'reopened') AS reopens
+  FROM git_artifact_events
+  WHERE artifact_id = ANY(:pr_ids)
+  GROUP BY artifact_id;
+
+# D1-lifecycle-rework: the reopen transitions for a set of PRs, in time order -- each `reopened`
+# event is when a merged/closed PR came back for rework, so its `occurred_at` anchors a rework
+# span on the session lifecycle timeline. Reads the same append-only `git_artifact_events` log as
+# `pr_reopen_counts`; a PR ingested before the log existed simply returns no rows (honestly no
+# rework timeline, not a guessed zero).
+pr_reopen_events: |
+  SELECT artifact_id, occurred_at
+  FROM git_artifact_events
+  WHERE action = 'reopened' AND artifact_id = ANY(:pr_ids)
+  ORDER BY occurred_at;
+
+# X1-churn: post-open push churn for one PR (Track churn/reopen, Landing 2). Links commits by
+# HEAD BRANCH within the PR's open window, NOT by `commit_shas`: a squash/rebase merge rewrites
+# commit_shas to the single base-branch merge commit (created post-open), which would wrongly
+# read as ~100% churn -- whereas the real revision pushes stay on the PR's own head branch. Only
+# a push's head-commit carries the compare-API aggregate (git_commit_stats worker), so summing
+# post-open head-branch commit stats reads as the lines the PR churned after it opened.
+# The three counts let the caller tell three cases apart, honestly, without guessing:
+#   branch_commit_count = 0             -> no commit history captured for this PR -> None
+#   post_commit_count>0, with_stats=0   -> post-open pushes captured but not their stats -> None
+#   otherwise                           -> churn (0 = a clean PR, no post-open pushes observed)
+post_open_commit_churn: |
+  WITH pr AS (
+    SELECT artifact_id, created_at, COALESCE(merged_at, closed_at, now()) AS ended_at,
+           branch, repo_id,
+           COALESCE((stats->>'additions')::int, 0) + COALESCE((stats->>'deletions')::int, 0) AS final_lines
+    FROM git_artifacts WHERE artifact_id = ANY(:pr_ids)
+  )
+  SELECT
+    pr.artifact_id,
+    pr.final_lines,
+    COALESCE(SUM((COALESCE((c.stats->>'additions')::int, 0)
+                  + COALESCE((c.stats->>'deletions')::int, 0)))
+             FILTER (WHERE c.created_at > pr.created_at), 0) AS churn_post_lines,
+    COUNT(c.artifact_id) FILTER (WHERE c.created_at > pr.created_at) AS post_commit_count,
+    COUNT(c.artifact_id) FILTER (WHERE c.created_at > pr.created_at AND c.stats ? 'additions')
+        AS post_commits_with_stats,
+    COUNT(c.artifact_id) AS branch_commit_count
+  FROM pr
+  LEFT JOIN git_artifacts c
+    ON c.kind = 'commit' AND c.repo_id = pr.repo_id AND c.branch = pr.branch
+   AND c.created_at <= pr.ended_at
+  GROUP BY pr.artifact_id, pr.final_lines;
+
+# X1: created_at/merged_at/comment_count for a set of PRs -- time-to-merge and the
+# already-captured comment_count (stats.comment_count), no re-derivation needed. D2 (PR
+# detail) widens this to every other `git_artifacts` column its own facts need -- same
+# query, no second round trip for one more PR's worth of columns.
+pr_basic_facts: |
+  SELECT artifact_id, number, repo_id, user_id, author_login, state, title, branch,
+         base_branch, created_at, merged_at, closed_at, stats, labels, linked_issue
+  FROM git_artifacts WHERE kind = 'pr' AND artifact_id = ANY(:pr_ids);
+
+# X2: session_info rows for an explicit id list -- the per-PR making-cost decomposition
+# (X3's aggregate.recoverable, scoped to one PR's linked sessions rather than a user/team).
+# Bounded N (a PR/feature's own linked sessions), so it keeps i.models/i.otel for model_split/
+# model_fit -- but carries the D3 row-contract scalars too (api-latency plan §4.3), so
+# aggregate.recoverable/channel_totals work over these rows exactly as they do over an
+# org-wide fetch's.
+sessions_by_ids: |
+  SELECT s.session_id, s.user_id, s.agent, s.status, s.started_at, s.last_event_at, s.ended_at,
+         s.parent_session_id,
+         i.models, i.tools, i.files, i.tokens_total, i.turn_count, i.long_turn_count,
+         i.compaction_count, i.subagent_count, i.error_count, i.info, i.otel,
+         i.cost_effective_usd_micros, i.datasource, i.repo_id, i.repo_id_provenance,
+         i.otel_vendor_cost_usd_micros, i.recoverable_resume_usd_micros,
+         i.recoverable_cache_bust_usd_micros, i.recoverable_interrupted_usd_micros,
+         i.info->>'title' AS title,
+         COALESCE(jsonb_typeof(i.info->'channel_cost') = 'object' AND jsonb_typeof(i.info->'carry') = 'object', false)
+              AS channel_priced,
+         CASE WHEN jsonb_typeof(i.info->'channel_cost'->'recache'->'usd_micros') = 'number'
+              THEN (i.info->'channel_cost'->'recache'->>'usd_micros')::bigint ELSE 0 END
+              AS channel_recache_usd_micros,
+         CASE WHEN jsonb_typeof(i.info->'channel_cost'->'output'->'usd_micros') = 'number'
+              THEN (i.info->'channel_cost'->'output'->>'usd_micros')::bigint ELSE 0 END
+              AS channel_output_usd_micros,
+         CASE WHEN jsonb_typeof(i.info->'channel_cost'->'input'->'usd_micros') = 'number'
+              THEN (i.info->'channel_cost'->'input'->>'usd_micros')::bigint ELSE 0 END
+              AS channel_input_usd_micros,
+         CASE WHEN jsonb_typeof(i.info->'carry'->'carry_usd_micros') = 'number'
+              THEN (i.info->'carry'->>'carry_usd_micros')::bigint ELSE 0 END
+              AS channel_carry_usd_micros
+  FROM sessions s
+  JOIN session_info i ON i.session_id = s.session_id
+  WHERE s.session_id = ANY(:session_ids);
+
+# ---------------------------------------------------------------- Track A: scoped fetch
+#
+# api-latency plan Phase C/D/E: three row shapes replace the old scope_sessions_in_range, which
+# fetched every session's whole info/models/tools/files/otel JSONB and let Python decode all of
+# it even though each endpoint reads only a handful of numbers out of each document (measured:
+# 60-75% of wall time was JSON decoding, not the query itself). Every shape below reads the
+# promoted session_info columns instead (D3's row contract, named exactly as
+# session_scalars.py's Python definitions, which the backfill migration mirrors), so Postgres
+# never detoasts or ships the JSON text at all. Shapes stack:
+#   scope_cost_facts     -- the cost chain only (precedence's otel_vendor rung + estimated
+#                            fallback). teams_table, projects_table, economics, project_detail.
+#   scope_session_facts  -- cost facts + recoverable/reasoning/output/session-type scalars.
+#                            org_overview, team_detail, org_usage, my_tips.
+#   person_session_facts -- session facts + title/channel scalars (D7: person/PR scopes only,
+#                            never promoted -- bounded row counts). person_detail.
+# aggregate.fetch_scope_sessions(shape=...) picks the right one; sessions_by_ids (bounded N,
+# PR/feature detail) carries the same scalars alongside the JSON it still needs for
+# model_split/model_fit.
+scope_cost_facts: |
+  SELECT s.session_id, s.user_id, s.started_at, s.last_event_at, s.ended_at, s.parent_session_id,
+         i.tokens_total, i.cost_effective_usd_micros, i.datasource, i.repo_id, i.repo_id_provenance,
+         i.otel_vendor_cost_usd_micros
+  FROM sessions s
+  JOIN session_info i ON i.session_id = s.session_id
+  WHERE s.user_id = ANY(:user_ids)
+    AND s.started_at < :to
+    AND COALESCE(s.ended_at, s.last_event_at) >= :from
+  ORDER BY s.started_at;
+
+scope_session_facts: |
+  SELECT s.session_id, s.user_id, s.agent, s.started_at, s.last_event_at, s.ended_at, s.parent_session_id,
+         i.tokens_total, i.cost_effective_usd_micros, i.datasource, i.repo_id, i.repo_id_provenance,
+         i.otel_vendor_cost_usd_micros, i.recoverable_resume_usd_micros,
+         i.recoverable_cache_bust_usd_micros, i.recoverable_interrupted_usd_micros,
+         i.reasoning_tokens, i.has_files, i.session_type
+  FROM sessions s
+  JOIN session_info i ON i.session_id = s.session_id
+  WHERE s.user_id = ANY(:user_ids)
+    AND s.started_at < :to
+    AND COALESCE(s.ended_at, s.last_event_at) >= :from
+  ORDER BY s.started_at;
+
+person_session_facts: |
+  SELECT s.session_id, s.user_id, s.agent, s.started_at, s.last_event_at, s.ended_at, s.parent_session_id,
+         i.tokens_total, i.cost_effective_usd_micros, i.datasource, i.repo_id, i.repo_id_provenance,
+         i.otel_vendor_cost_usd_micros, i.recoverable_resume_usd_micros,
+         i.recoverable_cache_bust_usd_micros, i.recoverable_interrupted_usd_micros,
+         i.reasoning_tokens, i.has_files, i.session_type,
+         i.info->>'title' AS title,
+         COALESCE(jsonb_typeof(i.info->'channel_cost') = 'object' AND jsonb_typeof(i.info->'carry') = 'object', false)
+              AS channel_priced,
+         CASE WHEN jsonb_typeof(i.info->'channel_cost'->'recache'->'usd_micros') = 'number'
+              THEN (i.info->'channel_cost'->'recache'->>'usd_micros')::bigint ELSE 0 END
+              AS channel_recache_usd_micros,
+         CASE WHEN jsonb_typeof(i.info->'channel_cost'->'output'->'usd_micros') = 'number'
+              THEN (i.info->'channel_cost'->'output'->>'usd_micros')::bigint ELSE 0 END
+              AS channel_output_usd_micros,
+         CASE WHEN jsonb_typeof(i.info->'channel_cost'->'input'->'usd_micros') = 'number'
+              THEN (i.info->'channel_cost'->'input'->>'usd_micros')::bigint ELSE 0 END
+              AS channel_input_usd_micros,
+         CASE WHEN jsonb_typeof(i.info->'carry'->'carry_usd_micros') = 'number'
+              THEN (i.info->'carry'->>'carry_usd_micros')::bigint ELSE 0 END
+              AS channel_carry_usd_micros
+  FROM sessions s
+  JOIN session_info i ON i.session_id = s.session_id
+  WHERE s.user_id = ANY(:user_ids)
+    AND s.started_at < :to
+    AND COALESCE(s.ended_at, s.last_event_at) >= :from
+  ORDER BY s.started_at;
+
+# api-latency plan §4.4: model mix as one SQL aggregate instead of a Python walk over every
+# session's otel/models JSON -- mirrors aggregate.model_split exactly (ledger per request when
+# otel.requests is a non-empty array, else the JSONL models rollup, never both for one
+# session). This is the one query in this file that still detoasts otel (it computes the split
+# in Postgres and returns ~8 rows instead of the whole ledger, rather than avoiding the read
+# altogether -- promoting a per-session-per-model table is option 4 territory, see the plan's
+# "not in scope" section).
+scope_model_split: |
+  WITH scope AS (
+    SELECT i.otel, i.models
+    FROM sessions s
+    JOIN session_info i ON i.session_id = s.session_id
+    WHERE s.user_id = ANY(:user_ids) AND s.started_at < :to
+      AND COALESCE(s.ended_at, s.last_event_at) >= :from
+  )
+  SELECT model, sum(tokens)::bigint AS tokens, sum(cost)::bigint AS cost_usd_micros
+  FROM (
+    SELECT COALESCE(r->>'model', 'unknown') AS model,
+           COALESCE(CASE WHEN jsonb_typeof(r->'input_tokens') = 'number' THEN (r->>'input_tokens')::bigint END, 0)
+           + COALESCE(CASE WHEN jsonb_typeof(r->'output_tokens') = 'number' THEN (r->>'output_tokens')::bigint END, 0)
+           + COALESCE(CASE WHEN jsonb_typeof(r->'cache_read_tokens') = 'number' THEN (r->>'cache_read_tokens')::bigint END, 0)
+           + COALESCE(CASE WHEN jsonb_typeof(r->'cache_creation_tokens') = 'number' THEN (r->>'cache_creation_tokens')::bigint END, 0)
+             AS tokens,
+           COALESCE(
+             CASE WHEN jsonb_typeof(r->'cost_usd_micros') = 'number' THEN (r->>'cost_usd_micros')::bigint END,
+             CASE WHEN jsonb_typeof(r->'cost_est_usd_micros') = 'number' THEN (r->>'cost_est_usd_micros')::bigint END,
+             0) AS cost
+    FROM scope, jsonb_array_elements(scope.otel->'requests') r
+    WHERE jsonb_typeof(scope.otel->'requests') = 'array'
+    UNION ALL
+    SELECT m.key AS model,
+           COALESCE(CASE WHEN jsonb_typeof(m.value->'input') = 'number' THEN (m.value->>'input')::bigint END, 0)
+           + COALESCE(CASE WHEN jsonb_typeof(m.value->'output') = 'number' THEN (m.value->>'output')::bigint END, 0)
+           + COALESCE(CASE WHEN jsonb_typeof(m.value->'cache_read') = 'number' THEN (m.value->>'cache_read')::bigint END, 0)
+           + COALESCE(CASE WHEN jsonb_typeof(m.value->'cache_write') = 'number' THEN (m.value->>'cache_write')::bigint END, 0)
+             AS tokens,
+           0 AS cost
+    FROM scope, jsonb_each(CASE WHEN jsonb_typeof(scope.models) = 'object'
+                                THEN scope.models ELSE '{}'::jsonb END) AS m(key, value)
+    -- NOT (otel.requests is a non-empty array) -- NULL-safe via COALESCE(..., true), since
+    -- scope.otel can be NULL for a jsonl_only session. Dropping those was the probe's first
+    -- bug (§0.3): unguarded NULL handling silently excluded every JSONL-only session.
+    WHERE COALESCE(jsonb_typeof(scope.otel->'requests') <> 'array'
+                   OR scope.otel->'requests' = '[]'::jsonb, true)
+  ) x
+  GROUP BY model;
+
+# Merged PRs authored by a set of users, merged within [from, to) -- git_artifacts.user_id is
+# already resolved (users.github_user, git.py's own comment), so this needs no session join.
+scope_merged_prs_in_range: |
+  SELECT a.artifact_id, a.repo_id, a.user_id, a.merged_at, a.created_at,
+         a.stats, c.rework_ratio, c.is_revert, c.change_type
+  FROM git_artifacts a
+  LEFT JOIN pr_classification c ON c.artifact_id = a.artifact_id
+  WHERE a.kind = 'pr' AND a.user_id = ANY(:user_ids)
+    AND a.merged_at IS NOT NULL AND a.merged_at >= :from AND a.merged_at < :to;
+
+# Same window, reverted PRs (structural revert flag, §5.6) -- for the merged/reverted split
+# E1/A1 want.
+scope_reverted_prs_in_range: |
+  SELECT count(*) AS reverted_count
+  FROM git_artifacts a
+  JOIN pr_classification c ON c.artifact_id = a.artifact_id
+  WHERE a.kind = 'pr' AND a.user_id = ANY(:user_ids)
+    AND a.merged_at IS NOT NULL AND a.merged_at >= :from AND a.merged_at < :to
+    AND c.is_revert;
+
+# Spend by agent (A1's agentSpend donut) -- sessions.agent is already the vendor/CLI
+# dimension (claude_code | codex | cursor | ...), no join needed.
+scope_spend_by_agent: |
+  SELECT s.agent,
+         COALESCE(sum(i.cost_effective_usd_micros), 0)::numeric / 1000000 AS spend_usd
+  FROM sessions s
+  JOIN session_info i ON i.session_id = s.session_id
+  WHERE s.user_id = ANY(:user_ids) AND s.started_at < :to
+    AND COALESCE(s.ended_at, s.last_event_at) >= :from
+  GROUP BY s.agent
+  ORDER BY spend_usd DESC;
+
+# Team display names + roster size, for A1/A3's teams[] rows -- team_ids_for_org (directory.yaml)
+# gives ids only.
+teams_by_id: |
+  SELECT team_id, name, org_id FROM teams WHERE team_id = ANY(:team_ids);
+
+team_member_counts: |
+  SELECT team_id, count(*) AS member_count FROM team_members
+  WHERE team_id = ANY(:team_ids) GROUP BY team_id;
+
+# Each user's best-guess team for a per-team breakdown of an org-wide fetch (A1/A3):
+# `primary_team_id` (IDENT section 7 default attribution) when set, else any one
+# team_members row. NULL when the user is on no team at all -- aggregate.group_rows_by_team
+# drops those rows rather than guessing.
+# A6: one repo's own sessions/PRs (not user-scoped) -- Project detail, economics repo scope.
+# Cost-facts shape (api-latency plan Phase D): project_detail/economics only ever read the cost
+# chain and grouping keys over a repo's sessions, never the JSON documents.
+repo_cost_facts: |
+  SELECT s.session_id, s.user_id, s.started_at, s.last_event_at, s.ended_at, s.parent_session_id,
+         i.tokens_total, i.cost_effective_usd_micros, i.datasource, i.repo_id, i.repo_id_provenance,
+         i.otel_vendor_cost_usd_micros
+  FROM sessions s
+  JOIN session_info i ON i.session_id = s.session_id
+  WHERE i.repo_id = :repo_id
+    AND s.started_at < :to
+    AND COALESCE(s.ended_at, s.last_event_at) >= :from
+  ORDER BY s.started_at;
+
+repo_merged_prs_in_range: |
+  SELECT a.artifact_id, a.repo_id, a.user_id, a.merged_at, a.created_at,
+         a.stats, c.rework_ratio, c.is_revert, c.change_type
+  FROM git_artifacts a
+  LEFT JOIN pr_classification c ON c.artifact_id = a.artifact_id
+  WHERE a.kind = 'pr' AND a.repo_id = :repo_id
+    AND a.merged_at IS NOT NULL AND a.merged_at >= :from AND a.merged_at < :to;
+
+# G4 (mvp-gap-closure-plan): every PR touching this repo in range, any state -- the flat list
+# ProjectScreen's mockup showed, independent of F4's feature-boundary grouping (`user_prs_recent`'s
+# own "any state" shape, scoped by repo instead of user).
+repo_prs_in_range: |
+  SELECT artifact_id, number, title, state, user_id, author_login, created_at, merged_at, closed_at
+  FROM git_artifacts
+  WHERE kind = 'pr' AND repo_id = :repo_id
+    AND created_at >= :from AND created_at < :to
+  ORDER BY COALESCE(merged_at, closed_at, created_at) DESC;
+
+# A5's recentPRs -- any state (merged/open/reopened), most-recently-active first.
+user_prs_recent: |
+  SELECT artifact_id, repo_id, state, title, created_at, merged_at, closed_at, stats
+  FROM git_artifacts
+  WHERE kind = 'pr' AND user_id = :user_id
+  ORDER BY COALESCE(merged_at, closed_at, created_at) DESC
+  LIMIT :limit;
+
+# A5's velocity series -- merged PRs per ISO week, one person, trailing `since`.
+user_merged_prs_weekly: |
+  SELECT date_trunc('week', merged_at) AS week, count(*) AS n
+  FROM git_artifacts
+  WHERE kind = 'pr' AND user_id = :user_id AND merged_at IS NOT NULL AND merged_at >= :since
+  GROUP BY week ORDER BY week;
+
+users_by_id: |
+  SELECT user_id, COALESCE(display_name, name) AS display_name, email
+  FROM users WHERE user_id = ANY(:user_ids);
+
+user_primary_teams: |
+  SELECT u.user_id, COALESCE(u.primary_team_id, tm.team_id) AS team_id
+  FROM users u
+  LEFT JOIN LATERAL (
+    SELECT team_id FROM team_members WHERE user_id = u.user_id LIMIT 1
+  ) tm ON u.primary_team_id IS NULL
+  WHERE u.user_id = ANY(:user_ids);

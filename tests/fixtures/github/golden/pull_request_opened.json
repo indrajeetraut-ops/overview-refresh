@@ -1,0 +1,74 @@
+{
+  "artifacts": [
+    {
+      "after_sha": null,
+      "artifact_id": "github:41213765:pr:1184",
+      "author_email": null,
+      "author_login": "akhuteta",
+      "base_branch": "main",
+      "before_sha": null,
+      "branch": "adapter-normaliser-impl",
+      "closed_at": null,
+      "commit_shas": null,
+      "created_at": "2026-07-24T09:12:04Z",
+      "files": null,
+      "info": {
+        "github.draft": false
+      },
+      "integration_method": null,
+      "is_bot": false,
+      "kind": "pr",
+      "labels": [
+        "backend",
+        "needs-review"
+      ],
+      "linked_issue": "github:41213765:issue:42",
+      "merge_commit_sha": null,
+      "merged_at": null,
+      "milestone": "Sprint 14",
+      "number": 1184,
+      "org_id": "org_test",
+      "parent_artifact_id": null,
+      "repo_id": "github:41213765",
+      "reverts_sha": null,
+      "sha": "9f3c1ab7d2000000000000000000000000000000",
+      "state": "open",
+      "stats": {
+        "additions": 412,
+        "changed_files": 7,
+        "commits": 4,
+        "deletions": 96
+      },
+      "title": "Adapter/normalizer: pair tool calls by record id",
+      "updated_at": "2026-07-24T09:12:04Z",
+      "user_id": null
+    }
+  ],
+  "bump_counters": [],
+  "installation": null,
+  "issue_links": [
+    {
+      "confidence": 0.5,
+      "issue_artifact_id": "github:41213765:issue:42",
+      "method": "body",
+      "number": 42,
+      "pr_artifact_id": "github:41213765:pr:1184",
+      "project_key": "41213765",
+      "tracker": "github"
+    }
+  ],
+  "mapped": true,
+  "merge_commit_sha": null,
+  "pr_state_event": {
+    "action": "opened",
+    "artifact_id": "github:41213765:pr:1184",
+    "occurred_at": "2026-07-24T09:12:04Z",
+    "source_key": "github:41213765:pr:1184:opened:2026-07-24T09:12:04Z",
+    "to_state": "open"
+  },
+  "push_after": null,
+  "push_before": null,
+  "push_commit_shas": null,
+  "push_integration_method": null,
+  "repos": []
+}

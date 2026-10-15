@@ -1,0 +1,24 @@
+# Named queries for causal-graph persistence (combined sub-plan §2b). Upserts are done via the ORM
+# in worker/graph_build.py (same discipline as persist_session_info); these are the multi-row reads.
+
+# The resolver: GraphContext.load_tree calls this once per BFS depth with a batch of session ids.
+session_graphs_by_id: |
+  SELECT session_id, parent_session_id, graph_json
+  FROM session_graph
+  WHERE session_id = ANY(:session_ids);
+
+# One-fetch read of a materialized family tree.
+session_tree_by_master: |
+  SELECT tree_json, member_count, built_at
+  FROM session_tree
+  WHERE master_session_id = :master_session_id;
+
+# Walk parent links up to the root master for any session id (a subagent may be passed in).
+root_master_of: |
+  WITH RECURSIVE up AS (
+    SELECT session_id, parent_session_id FROM session_graph WHERE session_id = :session_id
+    UNION ALL
+    SELECT g.session_id, g.parent_session_id
+    FROM session_graph g JOIN up ON g.session_id = up.parent_session_id
+  )
+  SELECT session_id FROM up WHERE parent_session_id IS NULL;

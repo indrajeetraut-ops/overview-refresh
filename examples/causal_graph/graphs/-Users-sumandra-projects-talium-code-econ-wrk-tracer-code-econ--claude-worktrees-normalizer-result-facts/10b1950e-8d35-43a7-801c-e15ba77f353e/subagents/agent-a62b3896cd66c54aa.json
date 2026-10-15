@@ -1,0 +1,530 @@
+{
+  "schema_version": "4.3.0",
+  "session_id": "agent-a62b3896cd66c54aa",
+  "parent_session_id": "10b1950e-8d35-43a7-801c-e15ba77f353e",
+  "vendor": "claude_code",
+  "source": "jsonl",
+  "built": "complete",
+  "meta": {
+    "title": null,
+    "objective": null,
+    "resources": [],
+    "query_config_revision": "2026-08-27",
+    "warnings": []
+  },
+  "nodes": [
+    {
+      "id": "msg_011CdtkNUtkxFUPT9GtC6L14",
+      "type": "assistant",
+      "ts": "2026-08-10T08:25:33.828Z",
+      "attrs": {
+        "message_id": "msg_011CdtkNUtkxFUPT9GtC6L14",
+        "model": "claude-sonnet-5",
+        "has_thinking": true,
+        "input_tokens": 2,
+        "output_tokens": 5,
+        "cache_read_tokens": 0,
+        "cache_write_tokens": 7021,
+        "estimated_reasoning_tokens": 0,
+        "reasoning_source": "estimated",
+        "reasoning_ratio": 1.52,
+        "estimated_visible_tokens": 15,
+        "tool_call_count": 1,
+        "attribution_skill": "statusline",
+        "attribution_plugin": null,
+        "attribution_agent": "statusline-setup",
+        "effort": "high"
+      },
+      "meta": {},
+      "children": [
+        "toolu_01CS4BtwTGZE4MtUnPG1tvB8"
+      ],
+      "parent_id": "turn:1",
+      "refs": {}
+    },
+    {
+      "id": "msg_011CdtkNenpYDURijop1vCFA",
+      "type": "assistant",
+      "ts": "2026-08-10T08:25:36.853Z",
+      "attrs": {
+        "message_id": "msg_011CdtkNenpYDURijop1vCFA",
+        "model": "claude-sonnet-5",
+        "has_thinking": true,
+        "input_tokens": 2,
+        "output_tokens": 4,
+        "cache_read_tokens": 7021,
+        "cache_write_tokens": 515,
+        "estimated_reasoning_tokens": 0,
+        "reasoning_source": "estimated",
+        "reasoning_ratio": 1.52,
+        "estimated_visible_tokens": 60,
+        "tool_call_count": 3,
+        "attribution_skill": "statusline",
+        "attribution_plugin": null,
+        "attribution_agent": "statusline-setup",
+        "effort": "high"
+      },
+      "meta": {},
+      "children": [
+        "toolu_01MAFep4qyZso3UHfUggadeP",
+        "toolu_0131w1AAurHzog19G3M3Lxo2",
+        "toolu_012X2uuiUkspnD1Xev8SUnLo"
+      ],
+      "parent_id": "turn:1",
+      "refs": {}
+    },
+    {
+      "id": "msg_011CdtkNuhW6Q1ri4z2uXpUK",
+      "type": "assistant",
+      "ts": "2026-08-10T08:25:43.956Z",
+      "attrs": {
+        "message_id": "msg_011CdtkNuhW6Q1ri4z2uXpUK",
+        "model": "claude-sonnet-5",
+        "has_thinking": true,
+        "input_tokens": 87,
+        "output_tokens": 3,
+        "cache_read_tokens": 7536,
+        "cache_write_tokens": 1934,
+        "estimated_reasoning_tokens": 0,
+        "reasoning_source": "estimated",
+        "reasoning_ratio": 1.52,
+        "estimated_visible_tokens": 321,
+        "tool_call_count": 0,
+        "attribution_skill": "statusline",
+        "attribution_plugin": null,
+        "attribution_agent": "statusline-setup",
+        "effort": "high"
+      },
+      "meta": {},
+      "children": [],
+      "parent_id": "turn:1",
+      "refs": {}
+    },
+    {
+      "id": "msg_011CdtkT3ipT6HNCCWy1VFfv",
+      "type": "assistant",
+      "ts": "2026-08-10T08:26:54.681Z",
+      "attrs": {
+        "message_id": "msg_011CdtkT3ipT6HNCCWy1VFfv",
+        "model": "claude-sonnet-5",
+        "has_thinking": true,
+        "input_tokens": 2,
+        "output_tokens": 2,
+        "cache_read_tokens": 0,
+        "cache_write_tokens": 10536,
+        "estimated_reasoning_tokens": 0,
+        "reasoning_source": "estimated",
+        "reasoning_ratio": 1.52,
+        "estimated_visible_tokens": 16,
+        "tool_call_count": 1,
+        "attribution_skill": null,
+        "attribution_plugin": null,
+        "attribution_agent": "statusline-setup",
+        "effort": "high"
+      },
+      "meta": {},
+      "children": [
+        "toolu_01CzDGwPeZpwSkVH1vA8REj1"
+      ],
+      "parent_id": "turn:1",
+      "refs": {}
+    },
+    {
+      "id": "toolu_01CS4BtwTGZE4MtUnPG1tvB8",
+      "type": "tool",
+      "ts": "2026-08-10T08:25:34.487Z",
+      "attrs": {
+        "tool_name": "Read",
+        "input": {
+          "file_path": "/Users/sumandra/.zshrc"
+        },
+        "exit_status": 0,
+        "is_error": false,
+        "duration_ms": null,
+        "blocked_on_user_ms": null,
+        "tool_denial_kind": null,
+        "cmd": [],
+        "result": {
+          "outcome": "ok",
+          "error_text": null,
+          "file": {
+            "kind": "text",
+            "num_lines": 13,
+            "start_line": 1,
+            "total_lines": 13
+          }
+        },
+        "files": [
+          {
+            "path": "/Users/sumandra/.zshrc",
+            "extension": "",
+            "artifact_class": "unknown",
+            "operation": "read",
+            "hunks": null,
+            "mime_type": null,
+            "remote_id": null
+          }
+        ],
+        "file_change": true
+      },
+      "meta": {},
+      "children": [],
+      "parent_id": "msg_011CdtkNUtkxFUPT9GtC6L14",
+      "refs": {}
+    },
+    {
+      "id": "toolu_01MAFep4qyZso3UHfUggadeP",
+      "type": "tool",
+      "ts": "2026-08-10T08:25:37.414Z",
+      "attrs": {
+        "tool_name": "Read",
+        "input": {
+          "file_path": "/Users/sumandra/.bashrc"
+        },
+        "exit_status": 0,
+        "is_error": false,
+        "duration_ms": null,
+        "blocked_on_user_ms": null,
+        "tool_denial_kind": null,
+        "cmd": [],
+        "result": {
+          "outcome": "ok",
+          "error_text": null,
+          "file": {
+            "kind": "text",
+            "num_lines": 13,
+            "start_line": 1,
+            "total_lines": 13
+          }
+        },
+        "files": [
+          {
+            "path": "/Users/sumandra/.bashrc",
+            "extension": "",
+            "artifact_class": "unknown",
+            "operation": "read",
+            "hunks": null,
+            "mime_type": null,
+            "remote_id": null
+          }
+        ],
+        "file_change": true
+      },
+      "meta": {},
+      "children": [],
+      "parent_id": "msg_011CdtkNenpYDURijop1vCFA",
+      "refs": {}
+    },
+    {
+      "id": "toolu_0131w1AAurHzog19G3M3Lxo2",
+      "type": "tool",
+      "ts": "2026-08-10T08:25:37.814Z",
+      "attrs": {
+        "tool_name": "Read",
+        "input": {
+          "file_path": "/Users/sumandra/.bash_profile"
+        },
+        "exit_status": 0,
+        "is_error": false,
+        "duration_ms": null,
+        "blocked_on_user_ms": null,
+        "tool_denial_kind": null,
+        "cmd": [],
+        "result": {
+          "outcome": "ok",
+          "error_text": null,
+          "file": {
+            "kind": "text",
+            "num_lines": 62,
+            "start_line": 1,
+            "total_lines": 62
+          }
+        },
+        "files": [
+          {
+            "path": "/Users/sumandra/.bash_profile",
+            "extension": "",
+            "artifact_class": "unknown",
+            "operation": "read",
+            "hunks": null,
+            "mime_type": null,
+            "remote_id": null
+          }
+        ],
+        "file_change": true
+      },
+      "meta": {},
+      "children": [],
+      "parent_id": "msg_011CdtkNenpYDURijop1vCFA",
+      "refs": {}
+    },
+    {
+      "id": "toolu_012X2uuiUkspnD1Xev8SUnLo",
+      "type": "tool",
+      "ts": "2026-08-10T08:25:37.818Z",
+      "attrs": {
+        "tool_name": "Read",
+        "input": {
+          "file_path": "/Users/sumandra/.profile"
+        },
+        "exit_status": 1,
+        "is_error": true,
+        "duration_ms": null,
+        "blocked_on_user_ms": null,
+        "tool_denial_kind": null,
+        "cmd": [],
+        "result": {
+          "outcome": "error",
+          "error_text": "Error: File does not exist. Note: your current working directory is /Users/sumandra/projects/talium/code-econ-wrk/tracer/code-econ. Did you mean .profile.old?"
+        },
+        "files": [
+          {
+            "path": "/Users/sumandra/.profile",
+            "extension": "",
+            "artifact_class": "unknown",
+            "operation": "read",
+            "hunks": null,
+            "mime_type": null,
+            "remote_id": null
+          }
+        ],
+        "file_change": true
+      },
+      "meta": {},
+      "children": [],
+      "parent_id": "msg_011CdtkNenpYDURijop1vCFA",
+      "refs": {}
+    },
+    {
+      "id": "toolu_01CzDGwPeZpwSkVH1vA8REj1",
+      "type": "tool",
+      "ts": "2026-08-10T08:26:55.033Z",
+      "attrs": {
+        "tool_name": "Read",
+        "input": {
+          "file_path": "/Users/sumandra/.claude/settings.json"
+        },
+        "exit_status": 0,
+        "is_error": false,
+        "duration_ms": null,
+        "blocked_on_user_ms": null,
+        "tool_denial_kind": null,
+        "cmd": [],
+        "result": {
+          "outcome": "ok",
+          "error_text": null
+        },
+        "files": [
+          {
+            "path": "/Users/sumandra/.claude/settings.json",
+            "extension": ".json",
+            "artifact_class": "config",
+            "operation": "read",
+            "hunks": null,
+            "mime_type": null,
+            "remote_id": null
+          }
+        ],
+        "file_change": true
+      },
+      "meta": {},
+      "children": [],
+      "parent_id": "msg_011CdtkT3ipT6HNCCWy1VFfv",
+      "refs": {}
+    },
+    {
+      "id": "97eda409-bc65-4608-a520-4e918bccabb4",
+      "type": "user_prompt",
+      "ts": "2026-08-10T08:25:32.119Z",
+      "attrs": {
+        "text": "Configure my statusLine from my shell PS1 configuration",
+        "model": null,
+        "is_injected": false,
+        "resources": []
+      },
+      "meta": {},
+      "children": [],
+      "parent_id": "turn:1",
+      "refs": {}
+    },
+    {
+      "id": "turn:1",
+      "type": "turn",
+      "ts": "2026-08-10T08:25:32.119Z",
+      "attrs": {
+        "turn_num": 1,
+        "prompt_id": "d92717d5-b5d9-493e-a004-da5e00e95bc2",
+        "status": "interrupted",
+        "duration_ms": 82914,
+        "permission_mode": null,
+        "plan_mode": null,
+        "tokens": {
+          "input_tokens": 93,
+          "output_tokens": 14,
+          "cache_read_tokens": 14557,
+          "cache_write_tokens": 20006,
+          "estimated_reasoning_tokens": 0
+        },
+        "attribution": {
+          "skill": [
+            "statusline"
+          ],
+          "plugin": [],
+          "agent": [
+            "statusline-setup"
+          ],
+          "effort": [
+            "high"
+          ]
+        }
+      },
+      "meta": {},
+      "children": [
+        "97eda409-bc65-4608-a520-4e918bccabb4",
+        "msg_011CdtkNUtkxFUPT9GtC6L14",
+        "msg_011CdtkNenpYDURijop1vCFA",
+        "msg_011CdtkNuhW6Q1ri4z2uXpUK",
+        "msg_011CdtkT3ipT6HNCCWy1VFfv"
+      ],
+      "parent_id": null,
+      "refs": {}
+    },
+    {
+      "id": "msg_011CdtkUbou3d34tKZD7McbU",
+      "type": "assistant",
+      "ts": "2026-08-10T08:27:20.123Z",
+      "attrs": {
+        "message_id": "msg_011CdtkUbou3d34tKZD7McbU",
+        "model": "claude-sonnet-5",
+        "has_thinking": true,
+        "input_tokens": 2,
+        "output_tokens": 3,
+        "cache_read_tokens": 10536,
+        "cache_write_tokens": 3710,
+        "estimated_reasoning_tokens": 0,
+        "reasoning_source": "estimated",
+        "reasoning_ratio": 1.52,
+        "estimated_visible_tokens": 247,
+        "tool_call_count": 1,
+        "attribution_skill": null,
+        "attribution_plugin": null,
+        "attribution_agent": "statusline-setup",
+        "effort": "high"
+      },
+      "meta": {},
+      "children": [
+        "toolu_01C8vn3SJkrUSGsp1bNZ8YCM"
+      ],
+      "parent_id": "turn:2",
+      "refs": {}
+    },
+    {
+      "id": "msg_011CdtkWkt9zABp5EocMuNdr",
+      "type": "assistant",
+      "ts": "2026-08-10T08:27:28.331Z",
+      "attrs": {
+        "message_id": "msg_011CdtkWkt9zABp5EocMuNdr",
+        "model": "claude-sonnet-5",
+        "has_thinking": true,
+        "input_tokens": 2,
+        "output_tokens": 4,
+        "cache_read_tokens": 14246,
+        "cache_write_tokens": 2642,
+        "estimated_reasoning_tokens": 0,
+        "reasoning_source": "estimated",
+        "reasoning_ratio": 1.52,
+        "estimated_visible_tokens": 668,
+        "tool_call_count": 0,
+        "attribution_skill": null,
+        "attribution_plugin": null,
+        "attribution_agent": "statusline-setup",
+        "effort": "high"
+      },
+      "meta": {},
+      "children": [],
+      "parent_id": "turn:2",
+      "refs": {}
+    },
+    {
+      "id": "toolu_01C8vn3SJkrUSGsp1bNZ8YCM",
+      "type": "tool",
+      "ts": "2026-08-10T08:27:21.964Z",
+      "attrs": {
+        "tool_name": "Edit",
+        "input": {
+          "replace_all": false,
+          "file_path": "/Users/sumandra/.claude/settings.json",
+          "old_string": "[CONTENT OMITTED]",
+          "new_string": "[CONTENT OMITTED]"
+        },
+        "exit_status": 0,
+        "is_error": false,
+        "duration_ms": null,
+        "blocked_on_user_ms": null,
+        "tool_denial_kind": null,
+        "cmd": [],
+        "result": {
+          "outcome": "ok",
+          "error_text": null
+        },
+        "files": [
+          {
+            "path": "/Users/sumandra/.claude/settings.json",
+            "extension": ".json",
+            "artifact_class": "config",
+            "operation": "edit",
+            "hunks": null,
+            "mime_type": null,
+            "remote_id": null
+          }
+        ],
+        "file_change": true
+      },
+      "meta": {},
+      "children": [],
+      "parent_id": "msg_011CdtkUbou3d34tKZD7McbU",
+      "refs": {}
+    },
+    {
+      "id": "turn:2",
+      "type": "turn",
+      "ts": "2026-08-10T08:26:55.055Z",
+      "attrs": {
+        "turn_num": 2,
+        "prompt_id": "588d76a7-5e29-4ea0-8461-562bebdaf538",
+        "status": "interrupted",
+        "duration_ms": 41315,
+        "permission_mode": null,
+        "plan_mode": null,
+        "tokens": {
+          "input_tokens": 4,
+          "output_tokens": 7,
+          "cache_read_tokens": 24782,
+          "cache_write_tokens": 6352,
+          "estimated_reasoning_tokens": 0
+        },
+        "attribution": {
+          "skill": [],
+          "plugin": [],
+          "agent": [
+            "statusline-setup"
+          ],
+          "effort": [
+            "high"
+          ]
+        }
+      },
+      "meta": {},
+      "children": [
+        "msg_011CdtkUbou3d34tKZD7McbU",
+        "msg_011CdtkWkt9zABp5EocMuNdr"
+      ],
+      "parent_id": null,
+      "refs": {}
+    }
+  ],
+  "roots": [
+    "turn:1",
+    "turn:2"
+  ]
+}

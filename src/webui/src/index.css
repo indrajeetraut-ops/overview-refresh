@@ -1,0 +1,225 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
+@import 'tailwindcss';
+
+html, body, #root {
+  height: 100%;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-border: var(--border);
+  --color-ring: var(--ring);
+  --radius-sm: calc(var(--radius) - 2px);
+  --radius-md: var(--radius);
+  --radius-lg: calc(var(--radius) + 2px);
+}
+
+:root {
+  --background: #F7F6F2;
+  --foreground: #1C1B18;
+  --card: #FFFFFF;
+  --card-foreground: #1C1B18;
+  --primary: #2B4FD8;
+  --primary-foreground: #FFFFFF;
+  --secondary: #F0EFF0;
+  --secondary-foreground: #1C1B18;
+  --muted: #EEECEA;
+  --muted-foreground: #78766E;
+  --accent: #2B4FD8;
+  --accent-foreground: #FFFFFF;
+  --border: #E2E0D8;
+  --ring: #2B4FD8;
+  --radius: 6px;
+
+  --green: #1A7A4A;
+  --green-bg: #EDFAF3;
+  --amber: #A05C00;
+  --amber-bg: #FFF7EC;
+  --red: #C5333A;
+  --red-bg: #FFF1F2;
+  --blue: #2B4FD8;
+  --blue-bg: #EEF1FD;
+  /* extra categorical hues (session types, unknown agents) -- not status colours */
+  --teal: #0F7C86;
+  --violet: #7A3FC0;
+  --rose: #B8487A;
+  --slate: #4F5B6B;
+  --olive: #6F7F0E;
+  --brown: #8A5A3C;
+}
+
+.dark {
+  --background: #13120F;
+  --foreground: #F0EFE9;
+  --card: #1E1D1A;
+  --card-foreground: #F0EFE9;
+  --primary: #5B7EF0;
+  --primary-foreground: #FFFFFF;
+  --secondary: #28271F;
+  --secondary-foreground: #F0EFE9;
+  --muted: #242320;
+  --muted-foreground: #8C8A82;
+  --accent: #5B7EF0;
+  --accent-foreground: #FFFFFF;
+  --border: #2E2C26;
+  --ring: #5B7EF0;
+
+  --green: #3DC478;
+  --green-bg: #0E2D1C;
+  --amber: #E09040;
+  --amber-bg: #271D0A;
+  --red: #F06068;
+  --red-bg: #2A1012;
+  --blue: #5B7EF0;
+  --blue-bg: #0E1A40;
+  --teal: #3CC2CC;
+  --violet: #A98AF0;
+  --rose: #E27BA8;
+  --slate: #93A1B3;
+  --olive: #BCCB45;
+  --brown: #B08568;
+}
+
+/* 13px base. Inter's digits are proportional by default; tabular figures keep every column of
+   numbers (tables, tiles, tooltips) aligned without touching each call site. */
+body {
+  font-family: 'Inter', system-ui, sans-serif;
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+}
+/* Form controls do not inherit the page font by default. */
+button, input, select, textarea {
+  font-family: inherit;
+}
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: transparent transparent;
+}
+*:hover {
+  scrollbar-color: var(--border) transparent;
+}
+
+.font-serif { font-family: 'DM Serif Display', serif; }
+.font-mono { font-family: 'JetBrains Mono', ui-monospace, Menlo, monospace; }
+
+/* Money / token / percent figures — U2: align digits so columns of numbers scan. */
+.num { font-variant-numeric: tabular-nums; font-feature-settings: "tnum"; }
+
+.sidebar-link {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 10px;
+  border-radius: 5px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--muted-foreground);
+  cursor: pointer;
+  transition: all 0.12s;
+  white-space: nowrap;
+}
+.sidebar-link:hover {
+  background: var(--muted);
+  color: var(--foreground);
+}
+.sidebar-link.active {
+  background: var(--muted);
+  color: var(--foreground);
+}
+
+.hero-tile {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 16px;
+  /* the value scales with the tile's own width (cqi), so a figure is never cut off */
+  container-type: inline-size;
+}
+@media (min-width: 1024px) {
+  .hero-tile { padding: 20px 24px; }
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 9px;
+  border-radius: 100px;
+  font-size: 11.5px;
+  font-weight: 500;
+  font-family: 'JetBrains Mono', ui-monospace, Menlo, monospace;
+  max-width: 100%;
+  white-space: nowrap;
+}
+.chip-green { background: var(--green-bg); color: var(--green); }
+.chip-amber { background: var(--amber-bg); color: var(--amber); }
+.chip-red { background: var(--red-bg); color: var(--red); }
+.chip-blue { background: var(--blue-bg); color: var(--blue); }
+.chip-muted { background: var(--muted); color: var(--muted-foreground); }
+
+.divider { border-top: 1px solid var(--border); }
+
+.ask-box {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+
+.ask-input {
+  background: transparent;
+  border: none;
+  outline: none;
+  width: 100%;
+  font-size: 13.5px;
+  color: var(--foreground);
+  padding: 12px 14px;
+}
+.ask-input::placeholder {
+  color: var(--muted-foreground);
+}
+
+.answer-card {
+  background: var(--muted);
+  border-radius: 6px;
+  padding: 14px 16px;
+  margin: 0 12px 12px;
+}
+
+.pinned-answer {
+  background: var(--blue-bg);
+  border: 1px solid color-mix(in srgb, var(--primary) 30%, transparent);
+  border-radius: 8px;
+  padding: 16px 20px;
+}
+
+.row-hover {
+  transition: background 0.1s;
+  cursor: pointer;
+}
+.row-hover:hover {
+  background: var(--muted);
+}
+
+.progress-bar {
+  height: 5px;
+  border-radius: 3px;
+  background: var(--muted);
+  overflow: hidden;
+}
+.progress-fill {
+  height: 100%;
+  border-radius: 3px;
+  transition: width 0.4s;
+}

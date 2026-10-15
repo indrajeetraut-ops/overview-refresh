@@ -1,0 +1,7 @@
+{
+  "agentType": "general-purpose",
+  "description": "Implement Task 4: durable spool",
+  "toolUseId": "toolu_01YV5E5fVHNFX6BjYuwvYvk6",
+  "spawnDepth": 1,
+  "model": "haiku"
+}

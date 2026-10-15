@@ -1,0 +1,60 @@
+# The AWS team stack's front door (docker/docker-compose.aws.yml). Two sites on one host:
+#
+#   {$ECON_SITE}    real data   (econ)        e.g. econ.talium.ai          -> :443
+#   {$SYNTH_SITE}   synthetic   (econ_synth)  e.g. econ.talium.ai:9443     -> :9443
+#
+# utils/aws_up.sh derives both from ECON_HOST + SYNTH_PORT. The two must be different ORIGINS,
+# not two paths: the SPA calls /v1 against location.origin, so a path split would send the
+# synthetic UI's API calls to the real API. A different port is a different origin.
+#
+# One certificate covers both sites -- a cert is per hostname, not per port -- and the ACME
+# http-01 challenge still runs on :80. A site address beginning with http:// serves plain HTTP
+# with no certificate (the laptop rehearsal).
+#
+# Routes, and what is absent on purpose:
+#   /otlp/*  -> ingest   real site only, NO basic auth: Claude Code's exporter already sends
+#                        `Authorization: Bearer tk_org_...` and the org token check is real
+#                        (see deploy/caddy/Caddyfile for the long version).
+#   /*       -> api / api_synth, behind basic auth.
+#   No /upload/*: uploads go to talium-uploadd on upload.talium.ai, not here.
+#   No /talium/ingest/v1/*: msging registration is `mode: open`; the collector reaches ingest
+#   over the compose network. Do not add a route for it.
+#   Responses are compressed at origin; Cloudflare re-encodes as needed (api-latency plan
+#   Phase B) -- the Oregon origin's uncompressed JS took 12-24 s to reach Cloudflare's Mumbai
+#   edge, which never caches it (basic auth).
+
+(team_auth) {
+	basic_auth {
+		{$DEMO_USER} {$DEMO_PASS_HASH}
+	}
+}
+
+{$ECON_SITE} {
+	encode zstd gzip
+	log {
+		output stdout
+		format console
+	}
+
+	handle /otlp/* {
+		reverse_proxy ingest:8443
+	}
+
+	handle {
+		import team_auth
+		reverse_proxy api:8090
+	}
+}
+
+{$SYNTH_SITE} {
+	encode zstd gzip
+	log {
+		output stdout
+		format console
+	}
+
+	handle {
+		import team_auth
+		reverse_proxy api_synth:8090
+	}
+}

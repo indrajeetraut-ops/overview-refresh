@@ -1,0 +1,24 @@
+# Reasoning-token estimate config for the causal graph (spec: docs/design/causal-graph-design.md
+# §4.1, docs/design/notes/claude_token_usage.md §7, §8, §10). Not auto-loaded by build_graph --
+# these values are the module's built-in default (src/analysis/causal_graph/config.py); this
+# file documents them and is available to pass explicitly via load_config().
+vendors:
+  claude_code:
+    ratio_by_model:            # longest-prefix match on the model name
+      claude-opus-5: 1.52      # measured, corpus, prose, +/- 6%
+      claude-sonnet-5: 1.52
+      claude-opus-4-8: 1.52
+      claude-fable-5: 1.52
+      claude-sonnet-4-6: 1.13  # measured directly against Anthropic's own tokenizer
+    ratio_default: 1.0         # unmeasured model: tiktoken raw, unconverted
+    tool_call_tokens: 27       # fixed block per call (flat across args 12 -> 847 tokens)
+    tool_call_offset: -1       # the constant in 27n - 1 (exact on n = 1..5)
+    text_with_tools_tokens: 13 # text block sitting beside tool calls
+
+  codex:
+    # Codex publishes a reasoning count, so estimation never runs. Present so the vendor is
+    # declared rather than silently defaulted, and so the numbers are here if it ever does.
+    ratio_default: 1.0         # o200k_base IS the native tokenizer -- exact, not approximate
+    tool_call_tokens: 0        # unmeasured on this vendor
+    tool_call_offset: 0
+    text_with_tools_tokens: 0

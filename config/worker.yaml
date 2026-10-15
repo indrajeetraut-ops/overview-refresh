@@ -1,0 +1,80 @@
+# Worker config (ingest.md §9).
+worker:
+  topics: ["rollup", "git_map", "git_correlate", "pr_classify", "git_commit_stats"]   # git_map: A4; git_correlate/pr_classify: pr-work-classification B2-B5; git_commit_stats: churn (Landing 2)
+  poll_interval_s: 1.0             # bounds rollup latency between triggers (§5)
+  claim_batch: 1                   # jobs claimed per poll per process
+  max_attempts: 5                  # then status='failed' + alarm
+  retry_backoff_s: 5.0
+  storage_config: config/storage.yaml
+
+  # git-source delivery retention (git-source.md §10.3).
+  git_deliveries_retention_days: 14
+  git_prune_interval_s: 3600.0
+
+  # git-source gap-fill (git-source.md §8.2, §10 -- the primary delivery-loss recovery path).
+  git_gapfill_enabled: true
+  git_gapfill_interval_s: 900.0
+  github_config: config/github.yaml
+
+  # pr-work-classification (implementation plan B).
+  pr_class_config: config/pr_class.yaml
+
+  # OTel true-up + prune (docs/design/2026-08-04-otel-intake-design.md §4.4).
+  otel_trueup_enabled: true
+  otel_trueup_interval_s: 60.0     # 60 s client export + <=60 s tick => spend truth ~1-2 min behind
+  otel_configs_dir: config/otel
+  otel_points_retention_days: 30   # otel_metric_points is prunable staging (~45 GB steady)
+  otel_prune_interval_s: 3600.0
+
+  # Idle close-out (docs/design/system-architecture.md §8.5).
+  idle_close_enabled: true
+  idle_close_after_s: 3600.0       # 1h with no event -> live becomes idle_closed
+  idle_close_interval_s: 300.0     # check every 5 min
+
+# Graph-fold heuristic thresholds (worker plan §6; dashboard-fold-implementation plan F1-F4).
+# Consumed by the §4.B heuristic port (docs/plan/2026-08-31-step4-heuristic-port.md) -- the
+# graph fold reuses these verbatim so the practices/story/segments ports stay behavior-preserving.
+fold:
+  long_turn_threshold_s: 1800      # plan §1 decision 2
+  vendors: ["claude_code"]
+
+  # PRACT §2 -- Bash `input.command` regexes matched at fold time; only booleans/counts
+  # persist to session_info, never the command text (PLAN §0.2).
+  verifiers:
+    - '\bpytest\b'
+    - '\bnpm\s+(run\s+)?test\b'
+    - '\byarn\s+test\b'
+    - '\bpnpm\s+test\b'
+    - '\bgo\s+test\b'
+    - '\bcargo\s+test\b'
+    - '\btsc\b'
+    - '\beslint\b'
+    - '\bruff\b'
+    - '\bmypy\b'
+    - '\bnpm\s+run\s+build\b'
+    - '\bmake\s+test\b'
+
+  # PRACT §2 P8 -- spawn agent_type values that mark a subagent as review-shaped.
+  review_agent_types: ["review", "code-review", "code-reviewer", "reviewer"]
+
+  # Dashboard plan §4a -- git subcommands counted from Bash `input.command` at fold time
+  # (metrics.git_command_counts, info.git_commands). `checkout`/`switch` collapse into one
+  # `checkout` bucket -- same operation, two names.
+  git_commands: ["commit", "checkout", "switch", "branch", "merge", "push", "pull", "fetch"]
+
+  # PRACT P10 "fresh sessions" -- mega-session proxy from this session's own span/compactions.
+  mega_session_span_h: 4.0
+  mega_session_min_compactions: 2
+
+  # STORY §5 shape-archetype thresholds (geometry, never quality).
+  story:
+    max_curve_points: 64
+    short_spark_max_duration_s: 300
+    short_spark_max_tokens: 20000
+    sawtooth_min_drops: 2
+    cliff_slope_multiplier: 4.0
+    cliff_min_points: 4
+    long_tail_min_fraction: 0.4
+    long_tail_max_growth_fraction: 0.1
+    staircase_min_flats: 2
+    staircase_gap_s: 300

@@ -1,0 +1,8 @@
+{
+  "version": "1",
+  "scope": {"kind": "tree"},
+  "select": {"type": "Tool"},
+  "group_by": ["Tool.name"],
+  "aggregates": [{"name": "invocation_count", "function": "COUNT"}],
+  "return": {"kind": "groups", "verbosity": "summary"}
+}

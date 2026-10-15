@@ -1,0 +1,157 @@
+# The local stack: the whole pipeline in containers, driven by a real Claude Code on the host.
+#
+# Deliberately separate from docker-compose.yml (the test Postgres). Its own project name, its
+# own database, its own published port -- so `pytest` doing `init --force` against the test DB
+# can never drop the data you are looking at here, and the two can run at once.
+#
+#   utils/stack_up.sh              # postgres + ingest + worker  (the zero-install OTel tier)
+#   utils/stack_up.sh --jsonl      # ... plus uploader + collector (the hybrid, with the join)
+#   utils/stack_up.sh --sync       # ... plus the Go uploader instead (docker-compose.sync.yml)
+#   utils/stack_down.sh [--wipe]
+#
+# STACK_VIEWER_ID (optional, before `up`): bakes the F2 trusted-header viewer id into the
+# dashboard's own build (docker/Dockerfile's webui stage) so the served UI is already
+# authorized as that directory identity -- a single-operator local-stack convenience, not a
+# real auth story (see the Dockerfile's own comment). Empty by default: every manager screen
+# 401s until either this is set and the stack rebuilt, or you run the webui yourself in `api`
+# data-source mode with `VITE_VIEWER_ID` set (see AGENTS.md).
+name: talium-stack
+
+x-app: &app
+  build:
+    context: ..
+    dockerfile: docker/Dockerfile
+    args:
+      VITE_VIEWER_ID: "${STACK_VIEWER_ID:-}"
+  environment: &app-env
+    TALIUM_DB_DSN: postgresql+psycopg://postgres@postgres:5432/econ
+    TALIUM_DATA_DIR: /data
+  volumes:
+    - stack_data:/data
+  restart: unless-stopped
+
+services:
+  postgres:
+    image: postgres:16
+    container_name: talium_stack_pg
+    environment:
+      POSTGRES_HOST_AUTH_METHOD: trust     # local convenience only; never a deployment
+      POSTGRES_DB: econ
+    ports:
+      # 5433, not 5432: the test Postgres owns that one. `psql -h localhost -p 5433 econ`
+      - "${STACK_PG_PORT:-5433}:5432"
+    volumes:
+      - stack_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d econ"]
+      interval: 3s
+      timeout: 3s
+      retries: 20
+
+  # Schema + org token. Runs to completion; everything else waits for it.
+  init:
+    <<: *app
+    container_name: talium_stack_init
+    environment:
+      <<: *app-env
+      TALIUM_ORG_ID: "${TALIUM_ORG_ID:-local-dev}"
+      TALIUM_INGEST_PORT: "${STACK_INGEST_PORT:-8443}"
+    entrypoint: ["bash", "/app/docker/init-stack.sh"]
+    volumes:
+      - stack_data:/data
+      - ./init-stack.sh:/app/docker/init-stack.sh:ro
+    restart: "no"
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  # The one front door (§6.4): msging srv for the JSONL path and /otlp/v1/* for the OTel one,
+  # in a single process behind the isolation guards of config/ingest.yaml's `otlp` stanza.
+  ingest:
+    <<: *app
+    container_name: talium_stack_ingest
+    command: ["python", "-m", "server.ingest.cli_serve", "--config", "config/ingest.yaml"]
+    ports:
+      # What Claude Code on the host points OTEL_EXPORTER_OTLP_ENDPOINT at.
+      - "${STACK_INGEST_PORT:-8443}:8443"
+    healthcheck:
+      test: ["CMD-SHELL", "python -c \"import urllib.request as u; u.urlopen('http://localhost:8443/healthz')\""]
+      interval: 5s
+      timeout: 3s
+      retries: 12
+    depends_on:
+      postgres:
+        condition: service_healthy
+      init:
+        condition: service_completed_successfully
+
+  # Queue-driven rollup + the timer-driven OTel true-up and prune. Nothing reaches
+  # session_info.otel without this running.
+  worker:
+    <<: *app
+    container_name: talium_stack_worker
+    command: ["python", "-m", "server.worker.cli_work", "--config", "config/worker.yaml"]
+    depends_on:
+      postgres:
+        condition: service_healthy
+      init:
+        condition: service_completed_successfully
+
+  # The dashboard: the read-only API plus the React front-end (src/webui) it serves from the
+  # same process, built into the image by docker/Dockerfile's webui stage and mounted after
+  # /v1/* so it can't shadow it (server/api/app.py, config.webui_dist). Unconditional, not
+  # gated behind `--jsonl` -- otel_only is a real tier with a real dashboard (org/team spend
+  # at least), not a degraded one waiting on the JSONL half to be worth looking at.
+  api:
+    <<: *app
+    container_name: talium_stack_api
+    command: ["python", "-m", "server.api.cli_serve_api", "--config", "config/api.yaml"]
+    ports:
+      - "${STACK_API_PORT:-8090}:8090"
+    healthcheck:
+      test: ["CMD-SHELL", "python -c \"import urllib.request as u; u.urlopen('http://localhost:8090/healthz')\""]
+      interval: 5s
+      timeout: 3s
+      retries: 12
+    depends_on:
+      postgres:
+        condition: service_healthy
+      init:
+        condition: service_completed_successfully
+
+  # ---- the JSONL half of the hybrid: `--profile jsonl` ------------------------------------
+  # Only needed to see the request_id join close. Without these two you still get spend truth
+  # from OTel alone -- that is the zero-install tier, and it is a real tier, not a degraded one.
+
+  uploader:
+    <<: *app
+    container_name: talium_stack_uploader
+    profiles: ["jsonl"]
+    command: ["python", "-m", "server.uploader.cli_serve", "--config", "config/uploader.yaml"]
+    ports:
+      - "${STACK_UPLOADER_PORT:-8080}:8080"
+    healthcheck:
+      test: ["CMD-SHELL", "python -c \"import urllib.request as u; u.urlopen('http://localhost:8080/healthz')\""]
+      interval: 5s
+      timeout: 3s
+      retries: 12
+
+  collector:
+    <<: *app
+    container_name: talium_stack_collector
+    profiles: ["jsonl"]
+    entrypoint: ["bash", "/app/docker/collect-loop.sh"]
+    environment:
+      <<: *app-env
+      COLLECT_INTERVAL_S: "${COLLECT_INTERVAL_S:-30}"
+    volumes:
+      - stack_data:/data
+      - ./collect-loop.sh:/app/docker/collect-loop.sh:ro
+      - ./config/collector.yaml:/app/docker-config/collector.yaml:ro
+    depends_on:
+      ingest:
+        condition: service_healthy
+
+volumes:
+  stack_pgdata:
+  stack_data:

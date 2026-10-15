@@ -1,0 +1,44 @@
+# Forecast config for the "curve-guided" plotting example — a COMPLETE example that
+# forecasts every scope (organization, all teams, all projects). Each series is per
+# scope x model, so every plot shows all models (both agents: claude + codex).
+# Reads the synthetic dataset from examples/synthetic/curve-guided.yaml (org
+# ramp-and-plateau, team2 steady-decline, claude s-curve). Data-driven ETS learns each
+# trend and projects it. Relative paths resolve against THIS file.
+schema_version: 1
+
+input:
+  dataset_dir: ../../dataset/synth-curve-guided   # regenerate with the README steps (not committed)
+
+default_org_id: talium.ai
+
+scopes:
+  - {type: organization}
+  - {type: team, name: team1}
+  - {type: team, name: team2}
+  - {type: team, name: team3}
+  - {type: project, name: payment_service_improvement}
+  - {type: project, name: auth_service_rewrite}
+  - {type: project, name: data_pipeline_upgrade}
+  - {type: project, name: search_service_improvement}
+  - {type: project, name: developer_tooling}
+
+history:
+  lookback_days: 90
+  minimum_days: 14
+  minimum_active_days: 4
+
+model:
+  method: ets
+  seasonal: auto
+  trend: auto
+
+allocation:
+  lookback_days: 28
+
+uncertainty:
+  paths: 1000
+  seed: 42
+  max_negative_correction_ratio: 0.05
+
+runtime:
+  workers: 1
